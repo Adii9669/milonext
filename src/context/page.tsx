@@ -8,7 +8,10 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import Cookies from "js-cookie"; // Library to handle browser cookies
+// import Cookies from "js-cookie"; // Library to handle browser cookies
+import Cookies from "universal-cookie";
+const cookies = new Cookies();
+
 import { Crew } from "../types";
 import {
   getMe,
@@ -113,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     apiLogout();
     setUser(null);
-    Cookies.remove("token");
+    cookies.remove("token");
 
     // For a clean logout, redirect the user to the login page
     window.location.href = "/auth/login";
@@ -135,7 +138,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user);
 
     // 2. Store the new token in the browser's cookies
-    Cookies.set("token", token, { expires: 7, secure: true });
+    cookies.set("token", token, { path: "/", expires: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), secure: true, sameSite: "none" });
+
+    // cookies.set("token", token, { expires:  , secure: true });
 
     // 3. Redirect to the dashboard
     router.push("/connect");

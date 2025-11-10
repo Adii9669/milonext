@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { Suspense } from "react";
 import { AuthProvider } from "./page"; // adjust the path if needed

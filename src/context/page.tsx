@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import React, {
   createContext,
   useContext,
@@ -186,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     crews,
     fetchCrews,
     deleteCrew,
+    getCrews,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

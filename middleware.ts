@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
 
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/auth/signIn', req.nextUrl));
+    return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
   }
   if (publicRoutes.includes(path) && token) {
     return NextResponse.redirect(new URL('/main/dashboard', req.nextUrl));

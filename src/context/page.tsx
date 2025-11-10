@@ -8,7 +8,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-// import Cookies from "js-cookie"; // Library to handle browser cookies
+
 import Cookies from "universal-cookie";
 const cookies = new Cookies();
 

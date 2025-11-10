@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense } from "react";
-import React, {
+
+import {
   createContext,
   useContext,
   useState,
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
 
       await getMe();
-      
+
       // Fetch crews after setting the user state
       await fetchCrews();
       router.push(callbackUrl);

@@ -20,7 +20,7 @@ import {
   deleteCrew as apiDeleteCrew,
 } from "../lib/api"; // Import your API functions
 import { useRouter, useSearchParams } from "next/navigation";
-import { de } from "zod/v4/locales";
+
 
 // Define the shape of your user object, as returned by your Go backend
 interface User {

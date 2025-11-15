@@ -12,7 +12,7 @@ import loginBg from "@/src/assets/login-bg.jpg";
 import { useAuth } from "@/src/context/page";
 import { EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
+import { size, z } from "zod";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GuestRouter from "@/src/components/GuestRouter/page";
@@ -68,7 +68,7 @@ export default function SignInPage() {
             backgroundImage: `url(${loginBg.src})`, // .src is required for imported images
             backgroundSize: "cover", // cover the whole area
             backgroundPosition: "center",
-            minHeight: "100vh", // full screen height
+            minBlockSize: "100vh", // full screen height
           }}
           className="bg-beige flex min-h-screen flex-col items-center justify-center px-4 pt-23"
         >
@@ -178,7 +178,7 @@ export default function SignInPage() {
             <p className=" pl-1 text-sm text-gray-600">
               Not a member?{" "}
               <Link
-                href="/auth/signUp"
+                href="/auth/register"
                 className="text-indigo-600 hover:underline"
               >
                 {" "}

@@ -2,11 +2,11 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 bg-blue md:grid-cols-4 gap-8">
         {/* Logo and Description */}
         <div>
-          <h2 className="text-2xl font-bold text-orange-500 mb-3">UIUX Design Labs</h2>
+          <h2 className="text-2xl font-bold text-orange-500 mb-3">CONNECT TO WORLD</h2>
           <p className="text-gray-600 text-sm">
             Building seamless digital experiences through design and technology.
           </p>
@@ -54,19 +54,6 @@ export default function Footer() {
           <p className="text-gray-600 text-sm mb-4">
             Get the latest design insights and updates delivered straight to your inbox.
           </p>
-          <form className="flex flex-col sm:flex-row gap-2">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white px-5 py-2 rounded-md font-semibold hover:opacity-90 transition"
-            >
-              Subscribe
-            </button>
-          </form>
         </div>
       </div>
 

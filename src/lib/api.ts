@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 //hepler function for fetch error and throw them
 async function handleResponse(res: Response) {
-  
+
   const contentType = res.headers.get("content-type");
 
   // Safely parse JSON only when available
@@ -19,7 +19,7 @@ async function handleResponse(res: Response) {
   if (!res.ok) {
     console.log(data?.message || data || "Request failed");
   }
-  
+
   return data;
 
 }
@@ -28,7 +28,7 @@ async function handleResponse(res: Response) {
  * Calls the login endpoint.
  */
 export async function login(username: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -41,7 +41,7 @@ export async function login(username: string, password: string) {
  * singup
  */
 export async function signup(username: string, email: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/register`, {
+  const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -54,7 +54,7 @@ export async function signup(username: string, email: string, password: string) 
  * Calls the logout endpoint.
  */
 export async function logout() {
-  await fetch(`${API_URL}/logout`, {
+  await fetch(`${API_URL}/api/logout`, {
     method: "POST",
     credentials: "include",
   });
@@ -64,7 +64,7 @@ export async function logout() {
  * Fetches the current user's data if they are logged in.
  */
 export async function getMe() {
-  const res = await fetch(`${API_URL}/me`, {
+  const res = await fetch(`${API_URL}/api/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export async function getMe() {
  * Request OTP
  */
 export async function verifyOTP(email: string, otp: number) {
-  const res = await fetch(`${API_URL}/api/auth/verify-otp`, {
+  const res = await fetch(`${API_URL}/auth/verify-otp`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -94,7 +94,7 @@ export async function verifyOTP(email: string, otp: number) {
  * Create Crew
  */
 export async function createCrew(name: string) {
-  const res = await fetch(`${API_URL}/crews`, {
+  const res = await fetch(`${API_URL}/api/crews`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -105,8 +105,12 @@ export async function createCrew(name: string) {
   return handleResponse(res);
 }
 
+/**
+ * Get Crews
+ */
+
 export async function getCrews() {
-  const res = await fetch(`${API_URL}/crews`, {
+  const res = await fetch(`${API_URL}/api/crews`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -116,12 +120,28 @@ export async function getCrews() {
   return handleResponse(res);
 }
 
+/**
+ * Get Friends
+ */
+export async function getFriends() {
+  const res = await fetch(`${API_URL}/api/friends`, {
+    headers: {
+      "Content-Type": "application/json",
+
+    },
+    method: "GET",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
+
 
 /** 
  * Delet Crews
  */
 export async function deleteCrew(crewId: string) {
-  const res = await fetch(`${API_URL}/crews/${crewId}`, {
+  const res = await fetch(`${API_URL}/api/crews/${crewId}`, {
     headers: {
       "Content-Type": "application/json"
     },

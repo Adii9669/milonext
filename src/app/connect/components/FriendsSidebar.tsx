@@ -1,0 +1,42 @@
+"use client";
+
+import { useFriendStore } from "@/src/app/stores/friendStore";
+
+export default function FriendsSidebar() {
+  const { friends, loading } = useFriendStore();
+
+  return (
+    <div className="w-64 border-l border-gray-800 bg-gray-900 p-3 text-white">
+      <h2 className="mb-3 text-sm font-semibold text-gray-400">Friends</h2>
+
+      {loading && (
+        <div className="text-sm text-gray-500">Loading friends...</div>
+      )}
+
+      {!loading && friends.length === 0 && (
+        <div className="text-sm text-gray-500">No friends yet</div>
+      )}
+
+      <div className="space-y-2">
+        {friends.map((friend) => (
+          <div
+            key={friend.id}
+            className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 hover:bg-gray-800"
+          >
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{friend.name}</span>
+              <span className="text-xs text-gray-400">{friend.status}</span>
+            </div>
+
+            {/* status dot */}
+            <span
+              className={`h-2 w-2 rounded-full ${
+                friend.status === "accepted" ? "bg-green-500" : "bg-yellow-500"
+              }`}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

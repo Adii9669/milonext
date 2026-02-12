@@ -66,7 +66,6 @@ export default function CrewSidebar({
           title={crew.name}
         >
           {crew.name.charAt(0).toUpperCase()}
-          
 
           {/* Dropdown */}
           <div className="absolute top-1 right-1">
@@ -113,7 +112,9 @@ export default function CrewSidebar({
         description="Enter a name for your new crew"
         placeholder="Crew name"
         confirmText="Create"
-        onConfirm={createCrew}
+        onConfirm={async (name: string) => {
+          await createCrew(name);
+        }}
       >
         <div className="mt-4 flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl bg-gray-700 transition-all duration-200 hover:rounded-2xl hover:bg-green-600">
           <span className="text-3xl font-light">+</span>

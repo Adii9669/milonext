@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Friends } from "@/src/types/friend";
+import { Friends } from "@/src/types/friends";
 
 
 

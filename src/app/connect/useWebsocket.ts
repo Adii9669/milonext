@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Message } from "@/src/types/messages";
 
 export type WSMessage = {
-    type: "dm" | "crew" | "system";
+    type: "dm" | "crew" ;
     sender_id?: string;
     receiver_id?: string;
     content: string;
@@ -13,7 +14,7 @@ export type WSMessage = {
 export function useWebsocket() {
     const wsRef = useRef<WebSocket | null>(null);
     const [connected, setConnected] = useState(false);
-    const [messages, setMessages] = useState<WSMessage[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
 
     useEffect(() => {
@@ -29,7 +30,16 @@ export function useWebsocket() {
         ws.onmessage = (e: MessageEvent<string>) => {
             try {
                 const msg: WSMessage = JSON.parse(e.data);
-                setMessages((prev) => [...prev, msg]);
+                // Convert WSMessage to Message before adding to state
+                const message: Message = {
+                    id: crypto.randomUUID(),
+                    type: msg.type,
+                    content: msg.content,
+                    createdAt: new Date().toISOString(),
+                    isMine: false,
+                    // Optionally, add sender_id/receiver_id if Message type supports them
+                };
+                setMessages((prev) => [...prev, message]);
             } catch {
                 console.warn("[WS] invalid JSON:", e.data);
             }
@@ -45,6 +55,17 @@ export function useWebsocket() {
 
     function sendMessage(msg: Omit<WSMessage, "sender_id">) {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
+
+            const optimistic: Message = {
+                id: crypto.randomUUID(),
+                type: msg.type,
+                content: msg.content,
+                createdAt: new Date().toISOString(),
+                isMine: true,
+            };
+
+            setMessages((prev) => [...prev, optimistic]);
+
             wsRef.current.send(JSON.stringify(msg));
         }
     }

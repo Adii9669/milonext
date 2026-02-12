@@ -5,6 +5,8 @@ import { Crew } from "@/src/types/crew";
 import { Friends } from "@/src/types/friends";
 import { Message } from "@/src/types/messages";
 import { getCrewHistory, getDmHistory } from "@/src/lib/api";
+import { User } from "@/src/types/user";
+
 
 export default function ChatComponent({
   crew,
@@ -12,12 +14,15 @@ export default function ChatComponent({
   messages,
   sendMessage,
   connected,
+  currentUser,
 }: {
   crew: Crew | null;
   friend: Friends | null;
   messages: Message[];
   connected: boolean;
   sendMessage: (msg: any) => void;
+  currentUser: User | null;
+
 }) {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
@@ -122,7 +127,9 @@ export default function ChatComponent({
           <div key={m.id} className="mb-2">
             <span className="font-semibold">
               {/* {m.isMine ? "You" : m.sender?.name}: */}
-              {m.isMine ? "You" : m.sender?.name || "Other"}:
+              {m.isMine ? "You" : m.sender?.name}
+
+              {/* {(m.isMine || m.sender?.id === currentUser?.id) ? "You:" : m.sender?.name || "Other"} */}
             </span>{" "}
             {m.content}
             <span className="ml-2 text-xs text-gray-400">

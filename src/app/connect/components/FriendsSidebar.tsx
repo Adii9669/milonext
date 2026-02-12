@@ -1,8 +1,17 @@
 "use client";
 
+import { Friends } from "@/src/types/friends";
 import { useFriendStore } from "@/src/app/stores/friendStore";
 
-export default function FriendsSidebar() {
+interface FriendsSidebarProps {
+  selectedFriend: Friends | null;
+  onSelectFriend: (friend: Friends) => void;
+}
+
+export default function FriendsSidebar({
+  selectedFriend,
+  onSelectFriend,
+}: FriendsSidebarProps) {
   const { friends, loading } = useFriendStore();
 
   return (
@@ -18,24 +27,33 @@ export default function FriendsSidebar() {
       )}
 
       <div className="space-y-2">
-        {friends.map((friend) => (
-          <div
-            key={friend.id}
-            className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 hover:bg-gray-800"
-          >
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{friend.name}</span>
-              <span className="text-xs text-gray-400">{friend.status}</span>
-            </div>
+        {friends.map((friend) => {
+          const isSelected = selectedFriend?.id === friend.id;
 
-            {/* status dot */}
-            <span
-              className={`h-2 w-2 rounded-full ${
-                friend.status === "accepted" ? "bg-green-500" : "bg-yellow-500"
+          return (
+            <div
+              key={friend.id}
+              onClick={() => onSelectFriend(friend)}
+              className={`flex cursor-pointer items-center justify-between rounded-md px-3 py-2 transition-colors ${
+                isSelected ? "bg-blue-600" : "hover:bg-blue-800"
               }`}
-            />
-          </div>
-        ))}
+            >
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{friend.name}</span>
+                <span className="text-xs text-gray-400">{friend.status}</span>
+              </div>
+
+              {/* status dot */}
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  friend.status === "accepted"
+                    ? "bg-green-500"
+                    : "bg-yellow-500"
+                }`}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -8,53 +8,63 @@ import { useCrewStore } from "@/src/app/stores/crewStores";
 import { Crew } from "@/src/types/crew";
 
 import ChatComponent from "./components/ChatComponent";
-import SideBar from "./components/CrewSidebar";
 import { useWebsocket } from "./useWebsocket";
 import FriendsSidebar from "./components/FriendsSidebar";
+import { Friends } from "@/src/types";
+import CrewSidebar from "./components/CrewSidebar";
 
 export default function ChatPage() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const { crews } = useCrewStore();
   const { connected, messages, sendMessage } = useWebsocket();
 
   const [selectedCrew, setSelectedCrew] = useState<Crew | null>(null);
-  const[selectedFriend, setSelectedFriend] = useState<Crew | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<Friends | null>(null);
 
   /* --------------------
      Auto-select first crew
   -------------------- */
+  /* Auto-select first crew */
   useEffect(() => {
-    if (!selectedCrew && crews.length > 0) {
+    console.log("Selected friend:", selectedFriend);
+    console.log("Selected crew:", selectedCrew);
+    if (!selectedCrew && !selectedFriend && crews.length > 0) {
       setSelectedCrew(crews[0]);
     }
-  }, [crews, selectedCrew]);
+  }, [crews]);
 
-  /* --------------------
-     Filter messages
-  -------------------- */
-  const crewMessages = selectedCrew
-    ? messages.filter(
-        (m) =>
-          m.type === "crew" &&
-          m.receiver_id === selectedCrew.id
-      )
-    : [];
+  const handleSelectCrew = (crew: Crew) => {
+    setSelectedCrew(crew);
+    setSelectedFriend(null);
+  };
+
+  const handleSelectFriend = (friend: Friends) => {
+    setSelectedFriend(friend);
+    setSelectedCrew(null);
+  };
 
   return (
     <div className="flex h-screen">
-      <SideBar
+      <CrewSidebar
         selectedCrew={selectedCrew}
-        onSelectCrew={setSelectedCrew}
+        onSelectCrew={(crew) => {
+          setSelectedCrew(crew);
+          setSelectedFriend(null);
+        }}
       />
-       <FriendsSidebar />
+      <FriendsSidebar
+        selectedFriend={selectedFriend}
+        onSelectFriend={handleSelectFriend}
+      />
       <ChatComponent
         // key={selectedCrew?.id}
         crew={selectedCrew}
-        // friend={selectedFriend}
-        messages={crewMessages}
+        friend={selectedFriend}
+        messages={messages}
         sendMessage={sendMessage}
         connected={connected}
+        currentUser={user}
       />
 
       <Button onClick={logout}>Out</Button>

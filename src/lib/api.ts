@@ -1,5 +1,3 @@
-// lib/api.js
-
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -146,6 +144,33 @@ export async function deleteCrew(crewId: string) {
       "Content-Type": "application/json"
     },
     method: "DELETE",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
+
+/**
+ * Get Crews
+ */
+
+export async function getCrewHistory(crewId: string) {
+  const res = await fetch(`${API_URL}/api/chats/crew/${crewId}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "GET",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
+export async function getDmHistory(id: string) {
+  const res = await fetch(`${API_URL}/api/chats/dm/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "GET",
     credentials: "include",
   });
   return handleResponse(res);

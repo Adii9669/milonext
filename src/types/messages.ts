@@ -1,12 +1,14 @@
-export interface WSMessage {
-    type: "crew" | "dm" | "system";
-    receiver_id: string;
-    content: string;
-    timestamp?: string;
-}
 
-export interface Message{
+
+export interface Message {
+    id: string;
+    type: "crew" | "dm";
     content: string;
-    userID: string;
-    username: string;
+    createdAt: string;
+    isMine?: boolean;
+    sender?: {
+        id: string;
+        name: string;
+    };
+    crewId?: string;
 }

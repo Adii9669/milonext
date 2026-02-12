@@ -19,6 +19,7 @@ export default function ChatPage() {
   const { connected, messages, sendMessage } = useWebsocket();
 
   const [selectedCrew, setSelectedCrew] = useState<Crew | null>(null);
+  const[selectedFriend, setSelectedFriend] = useState<Crew | null>(null);
 
   /* --------------------
      Auto-select first crew
@@ -48,8 +49,9 @@ export default function ChatPage() {
       />
        <FriendsSidebar />
       <ChatComponent
-        key={selectedCrew?.id}
+        // key={selectedCrew?.id}
         crew={selectedCrew}
+        // friend={selectedFriend}
         messages={crewMessages}
         sendMessage={sendMessage}
         connected={connected}

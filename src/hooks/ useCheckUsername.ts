@@ -24,7 +24,7 @@ export default function useCheckUsername(username: string) {
 
 
         // The fetching beings here 
-        fetch(`${API_URL}/api/auth/check-availability`, {
+        fetch(`${API_URL}/auth/check-availability`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

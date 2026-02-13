@@ -24,7 +24,14 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
         try {
             set({ loading: true });
             const friends = await getFriends();
-            set({ friends });
+            if(Array.isArray(friends)) {
+                set({ friends });
+            }else {
+                // console.error("Unexpected response for friends:", friends);
+                set({ friends: [] });
+            }
+            // set({ friends }); --- IGNORE ---
+            // set({ friends });
         } catch (error) {
             console.error("Failed to fetch friends:", error);
         } finally {

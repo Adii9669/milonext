@@ -37,7 +37,16 @@ export const useCrewStore = create<CrewStore>((set, get) => ({
         set({ loading: true });
         try {
             const crews = await getCrews();
-            set({ crews });
+            if(Array.isArray(crews)){
+                set({ crews });
+            }else {
+                // console.error("Unexpected response for crews:", crews)
+                set({ crews: [] });
+            }
+            // this is where the crews are set in the state, but it is currently commented out. 
+            // if we do like this the crew crash at empty state, but if we do like the code below, the crew will not crash at empty state, 
+            // but it will not update when we create a new crew.
+            // set({ crews });
         } catch (error) {
             console.error("Failed to fetch crews:", error);
         } finally {

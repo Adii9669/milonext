@@ -16,7 +16,7 @@ export default function Navbar() {
       {/* Right Buttons */}
       <div className="flex  items-center gap-3">
         <Link
-          target="_blank"
+          // target="_blank"
           rel="noopener noreferrer"
           href="/auth/login"
           className="text-2xl font-bold inline-block 
@@ -29,7 +29,7 @@ export default function Navbar() {
         <div className="flex gap-3 items-center">
           <button className="border-2 upercase font-bold border-[#1a1a40] px-6 py-1 rounded-full bg-[#f6f5f0] shadow-[4px_4px_0px_0px_#1a1a40] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1a1a40] transition-all">
             <Link
-              target="_blank"
+              // target="_blank"
               rel="noopener noreferrer"
               href="/auth/register"
             >

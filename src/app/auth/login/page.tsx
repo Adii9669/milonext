@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 // import PixelButton from "@/components/PixelButton/page";
 import loginBg from "@/src/assets/login-bg.jpg";
-import { useAuth } from "@/src/context/page";
+import { useAuth } from "@/src/context/AuthContext";
 import { EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { size, z } from "zod";
@@ -49,14 +49,9 @@ export default function SignInPage() {
     setApiError(null);
     try {
       await login(data.username, data.password);
-
       router.push(callbackUrl);
     } catch (err) {
-      if (err instanceof Error) {
-        setApiError(err.message);
-      } else {
-        setApiError("An unexpected error occurred during login.");
-      }
+      setApiError(err instanceof Error ? err.message : "Login failed");
     }
   };
 
@@ -157,24 +152,7 @@ export default function SignInPage() {
               >
                 {isSubmitting ? "Logging..." : "Login"}
               </Button>
-              {/*<PixelButton
-            //   type="submit"
-            //   className="hover:pointer w-full"
-            //   disabled={isSubmitting}
-            // >
-                // 
-              {isSubmitting ? "Signing In..." : "Sign in"}
-            </PixelButton>
-              */}
             </form>
-            {/* Divider 
-            <div className="my-6 flex items-center">
-             <div className="flex-grow border-t border-gray-300" />
-             <span className="mx-4 text-sm text-gray-500">Or continue with</span>
-             <div className="flex-grow border-t border-gray-300" />
-
-          </div>
-           */}
             <p className=" pl-1 text-sm text-gray-600">
               Not a member?{" "}
               <Link
@@ -191,3 +169,4 @@ export default function SignInPage() {
     </Suspense>
   );
 }
+

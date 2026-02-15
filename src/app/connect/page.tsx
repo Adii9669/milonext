@@ -1,5 +1,5 @@
-import ChatPage from "./ChatPage";
+import ConnectPage from "./ConnectPage";
 
 export default function Page() {
-  return <ChatPage />;
+  return <ConnectPage />;
 }

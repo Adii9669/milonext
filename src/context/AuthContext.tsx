@@ -17,8 +17,6 @@ import {
   logout as apiLogout,
   signup as apiSignup,
 } from "../lib/api";
-import { useCrewStore } from "../app/stores/crewStores";
-import { useFriendStore } from "../app/stores/friendStore";
 
 const cookies = new Cookies();
 
@@ -47,7 +45,7 @@ interface AuthContextType {
   signup: (
     username: string,
     email: string,
-    password: string
+    password: string,
   ) => Promise<SignupResponse>;
 
   loginWithToken: (user: User, token: string) => void;
@@ -66,27 +64,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/connect";
 
   /**
    * Restore session on page refresh
    */
+
   useEffect(() => {
     async function bootstrapSession() {
       try {
         const res = await getMe();
-        if (res?.user) {
-          setUser(res.user);
-          useCrewStore.getState().fetchCrews();
-          useFriendStore.getState().fetchFriends();
-        } else {
+        console.log("Bootstrap session response:", res);
+        setUser(res.user ?? null);
+      } catch (err) {
+        if (!user) {
           setUser(null);
         }
-      } catch {
-        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -99,12 +93,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Login
    */
   const login = async (username: string, password: string) => {
-    const data = await apiLogin(username, password);
-    setUser(data.user);
-
-    useCrewStore.getState().fetchCrews();
-    useFriendStore.getState().fetchFriends();
-    router.push(callbackUrl);
+    // setLoading (true);
+    try {
+      await apiLogin(username, password);
+      const res = await getMe();
+      setUser(res.user);
+      return res;
+    } catch (err) {
+      console.error("Login failed:", err);
+      throw err;
+    }
+    //  finally {
+    //   setLoading(false);
+    // }
   };
 
   /**
@@ -114,8 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     apiLogout();
     cookies.remove("token", { path: "/" });
     setUser(null);
-    useCrewStore.getState().clearCrews();
-    useFriendStore.getState().clearFriends();
     window.location.href = "/auth/login";
   };
 

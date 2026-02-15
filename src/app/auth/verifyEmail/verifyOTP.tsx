@@ -3,8 +3,7 @@
 import React, { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyOTP } from "@/src/lib/api";
-import { useAuth } from "@/src/context/page";
-import { number, string } from "zod";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
@@ -29,7 +28,7 @@ export default function VerifyOtpPage() {
   // Handle changes and auto-focus to the next input
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     const { value } = e.target;
     // Only allow numbers
@@ -51,7 +50,7 @@ export default function VerifyOtpPage() {
   // Handle backspace to move to the previous input
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && index > 0) {
       if (!otp[index]) {
@@ -89,20 +88,12 @@ export default function VerifyOtpPage() {
 
     try {
       // --- Replace with your actual API call ---
-      const response = await verifyOTP(email, Number(otpCode));
-      loginWithToken(response.user, response.token);
+      await verifyOTP(email, otpCode);
 
-      if (response.user && response.token) {
-        login(response.user, response.token);
-      }
       console.log("Verifying code:", otpCode);
-      // ---
-
       router.push("/auth/login");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
       setIsLoading(false);
     }

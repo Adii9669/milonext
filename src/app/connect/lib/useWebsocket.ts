@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Message } from "@/src/types/messages";
+import { User } from "@/src/types/user";
 
 export type WSMessage = {
     type: "dm" | "crew" ;
@@ -11,13 +12,15 @@ export type WSMessage = {
 };
 
 
-export function useWebsocket() {
+export function useWebsocket(user: User | null ) {
     const wsRef = useRef<WebSocket | null>(null);
     const [connected, setConnected] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
+    // const {user} = useAuth();
 
 
     useEffect(() => {
+        if (!user) return; // Don't connect if not authenticated
         const ws = new WebSocket("ws://localhost:8000/api/ws");
         wsRef.current = ws;
 

@@ -15,7 +15,12 @@ async function handleResponse(res: Response) {
   }
 
   if (!res.ok) {
-    console.log(data?.message || data || "Request failed");
+    const message =
+      typeof data === "string"
+        ? data
+        : data?.message || "Request failed";
+
+    throw new Error(message);
   }
 
   return data;
@@ -69,14 +74,16 @@ export async function getMe() {
     },
     credentials: "include",
   });
-  return handleResponse(res);
+
+  const data = await handleResponse(res);
+  return data;
 }
 
 
 /**
  * Request OTP
  */
-export async function verifyOTP(email: string, otp: number) {
+export async function verifyOTP(email: string, otp: string) {
   const res = await fetch(`${API_URL}/auth/verify-otp`, {
     headers: {
       "Content-Type": "application/json",
@@ -115,8 +122,11 @@ export async function getCrews() {
     method: "GET",
     credentials: "include",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  return data.crews ?? [];
+
 }
+
 
 /**
  * Get Friends

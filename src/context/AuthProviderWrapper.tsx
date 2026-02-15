@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { AuthProvider } from "./page"; // adjust the path if needed
+import { AuthProvider } from "@/src/context/AuthContext"; // adjust the path if needed
 
 export default function AuthProviderWrapper({
   children,

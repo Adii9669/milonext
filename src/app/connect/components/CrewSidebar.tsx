@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/src/context/page";
+import { useAuth } from "@/src/context/AuthContext";
 import { Crew } from "@/src/types/crew";
 import { useCrewStore } from "@/src/app/stores/crewStores";
 
@@ -18,16 +18,21 @@ import { Button } from "@/components/ui/button";
 
 import ConfirmModal from "@/src/components/Modals/Confirmation";
 import CreateModal from "@/src/components/Modals/CreateModal";
-import { Friends } from "../../../types/friends";
+// import { Friends } from "../../../types/friends";
 import { useFriendStore } from "../../stores/friendStore";
+import { useQuery } from "@tanstack/react-query";
 
 /* =======================
    Props (LEAN)
 ======================= */
 
 interface CrewSidebarProps {
+  crews: Crew[];
+  loading: boolean;
   selectedCrew: Crew | null;
   onSelectCrew: (crew: Crew) => void;
+  onCreateCrew: (name: string) => void;
+  onDeleteCrew: (crewId: string) => void;
 }
 
 /* =======================
@@ -35,13 +40,14 @@ interface CrewSidebarProps {
 ======================= */
 
 export default function CrewSidebar({
+  crews,
+  loading,
   selectedCrew,
   onSelectCrew,
+  onCreateCrew,
+  onDeleteCrew,
 }: CrewSidebarProps) {
-  const { user } = useAuth();
-
-  const { crews, loading, createCrew, deleteCrew } = useCrewStore();
-  const { friends } = useFriendStore();
+  const { user, logout } = useAuth();
 
   if (loading) {
     return (
@@ -91,7 +97,8 @@ export default function CrewSidebar({
                     title="Delete Crew"
                     description={`Are you sure you want to delete "${crew.name}"? This cannot be undone.`}
                     confirmText="Delete"
-                    onConfirm={() => deleteCrew(crew.id)}
+                    // onConfirm={() => deleteCrew(crew.id)}
+                    onConfirm={() => onDeleteCrew(crew.id)}
                   >
                     <DropdownMenuItem className="text-red-600 focus:text-red-600">
                       Delete Crew
@@ -113,13 +120,15 @@ export default function CrewSidebar({
         placeholder="Crew name"
         confirmText="Create"
         onConfirm={async (name: string) => {
-          await createCrew(name);
+          // await createCrew(name);
+          onCreateCrew(name);
         }}
       >
         <div className="mt-4 flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl bg-gray-700 transition-all duration-200 hover:rounded-2xl hover:bg-green-600">
           <span className="text-3xl font-light">+</span>
         </div>
       </CreateModal>
+      
     </div>
   );
 }

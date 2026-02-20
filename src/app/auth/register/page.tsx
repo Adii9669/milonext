@@ -9,13 +9,13 @@ import Link from "next/link";
 import { EyeClosed } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-
 import { useAuth } from "@/src/context/AuthContext";
-
+import loginBg from "@/src/assets/space.png";
 import useCheckUsername from "@/src/hooks/ useCheckUsername";
-// import PixelButton from "@/components/PixelButton/page";
 import { useRedirectValidator } from "@/src/hooks/redirectValidator";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
+import AuthModal from "@/src/components/Modals/AuthModal";
+import { Input } from "@/src/components/ui/input";
 
 // 1. We define the validation schema
 const signupSchema = z
@@ -72,11 +72,10 @@ export default function SignupPage() {
         <p className="mt-1 text-sm text-red-500">Could not check username.</p>
       );
     if (isValid && isAvailable) {
-      console.log("Username available");
+      // console.log("Username available");
       return <div>hello</div>;
     }
     if (isAvailable === true && usernameValue && usernameValue.length >= 3) {
-      console.log("Username available");
       console.log("Username available");
       console.log("isAvailable:", isAvailable);
       console.log("usernameValue:", usernameValue);
@@ -128,189 +127,46 @@ export default function SignupPage() {
   const isButtonDisabled =
     isSubmitting || checkingUsername || !isAvailable || !isValid;
 
-  // return (
-  //   <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-[rgb(200,176,255)]">
-  //     <div
-  //       className="
-  //       w-full
-  //       max-w-md space-y-4
-  //       rounded-lg bg-white p-6  border-2 upercase
-  //       font-bold border-[#1a1a40] px-6 py-1
-  //       rounded-full bg-[#f6f5f0]
-  //       hover:translate-y-[2px]
-  //       hover:shadow-[2px_2px_0px_0px_#1a1a40]
-  //       shadow-[4px_4px_0px_0px_#1a1a40]
-
-  //      transition-all shadow-md sm:p-8"
-  //     >
-  //       <h1 className="text-center text-2xl font-bold text-gray-800 ">
-  //         Create Your Account
-  //       </h1>
-  //       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-  //         {/* Username Field */}
-  //         <div>
-  //           <label htmlFor="username">Username*</label>
-  //           <input
-  //             id="username"
-  //             type="text"
-  //             {...register("username")}
-  //             autoComplete="new-username"
-  //             placeholder="Enter the Username here."
-  //             className={`input mt-1 w-full mt-1 w-full  overflow-hidden text-ellipsis whitespace-nowrap  rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none ${
-  //               errors.username ? "border-blue-500" : ""
-  //             }`}
-  //           />
-  //           {errors.username ? (
-  //             <p className="mt-1 text-sm text-red-500">
-  //               {errors.username.message}
-  //             </p>
-  //           ) : (
-  //             renderUsernameStatus()
-  //           )}
-  //         </div>
-
-  //         {/* Email Field */}
-  //         <div>
-  //           <label htmlFor="email">Email*</label>
-  //           <input
-  //             id="email"
-  //             type="email"
-  //             {...register("email")}
-  //             placeholder="Enter email address here."
-  //             autoComplete="new-email"
-  //             className={`input overflow-hidden text-ellipsis whitespace-nowrap  mt-1 w-full mt-1 w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none ${
-  //               errors.email ? "border-red-500" : ""
-  //             }`}
-  //           />
-  //           {errors.email && (
-  //             <p className="mt-1 text-sm text-red-500">
-  //               {errors.email.message}
-  //             </p>
-  //           )}
-  //         </div>
-
-  //         {/* Password */}
-  //         <div className="relative">
-  //           <label className="block text-sm font-medium text-gray-700">
-  //             Password
-  //           </label>
-  //           <input
-  //             placeholder="Passoword must be at least 8 characters long."
-  //             type={showPassword ? "text" : "password"}
-  //             required
-  //             className="mt-1 w-full overflow-hidden text-ellipsis whitespace-nowrap rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none"
-  //             {...register("password")}
-  //             autoComplete="new-password"
-  //           />
-  //           <div className="absolute inset-y-11 right-0 flex items-center pr-3 text-gray-500">
-  //             <button
-  //               type="button"
-  //               onClick={() => setShowPassword(!showPassword)}
-  //               className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-  //             >
-  //               {showPassword ? (
-  //                 <EyeClosed />
-  //               ) : (
-  //                 <FontAwesomeIcon icon={faEye} />
-  //               )}
-  //             </button>
-  //           </div>
-  //         </div>
-
-  //         {/* Confirm Password Field */}
-  //         <div className="relative">
-  //           <label htmlFor="confirmPassword">Confirm Password*</label>
-  //           <input
-  //             placeholder="Confirm your password"
-  //             id="confirmPassword"
-  //             type={showConfirmPassword ? "text" : "password"}
-  //             {...register("confirmPassword")}
-  //             autoComplete="new-password"
-  //             className="mt-1 w-full rounded-md border overflow-hidden text-ellipsis whitespace-nowrap px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none"
-  //             // onCopy={(e) => e.preventDefault()}
-  //             // onPaste={(e) => e.preventDefault()}
-  //             // className={`input mt-1 w-full ${errors.confirmPassword ? "border-red-500" : ""}`}
-  //           />
-  //           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-  //             <button
-  //               type="button"
-  //               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-  //               className="absolute top-9 right-3 text-gray-500"
-  //             >
-  //               {/* {showConfirmPassword ? (
-  //                 <EyeClosed />
-  //               ) : (
-  //                 <FontAwesomeIcon icon={faEye} />
-  //               )} */}
-  //             </button>
-  //           </div>
-  //           {errors.confirmPassword && (
-  //             <p className="mt-1 text-sm text-red-500">
-  //               {errors.confirmPassword.message}
-  //             </p>
-  //           )}
-  //         </div>
-
-  //         {apiError && (
-  //           <p className="text-center text-sm text-red-500">{apiError}</p>
-  //         )}
-
-  //         <Button
-  //           type="submit"
-  //           className="w-full cursor-pointer"
-  //           disabled={isButtonDisabled}
-  //         >
-  //           {isSubmitting ? "Registering..." : "Create Account"}
-  //         </Button>
-
-  //         {/* <PixelButton
-  //           type="submit"
-  //           className="w-full"
-  //           disabled={isButtonDisabled}
-  //         >
-  //           {isSubmitting ? "Registering..." : "Create Account"}
-  //         </PixelButton> */}
-
-  //         <p className="text-center text-sm text-gray-500">
-  //           Already have an account?{" "}
-  //           <Link href="/auth/login" className="text-blue-600 hover:underline">
-  //             Sign In
-  //           </Link>
-  //         </p>
-  //       </form>
-  //     </div>
-  //   </div>
-  // );
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[rgb(200,176,255)] p-3">
+    <div className="flex relative min-h-screen items-center justify-center  p-3">
+      <div
+        className="min-h-screen absolute inset-0"
+        style={{
+          backgroundImage: `url(${loginBg.src})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
       <div
         className="
-        w-full max-w-xl
-        bg-[#f6f5f0]
-        border-2 border-[#1a1a40]
-        rounded-2xl
-        p-8
-        shadow-[6px_6px_0px_0px_#1a1a40]
-        space-y-6
-      "
+        flex  items-center  text-2xl font-bold
+        fixed top-5 left-10 flex items-center gap-3 z-50"
       >
-        <h1 className="text-center text-2xl font-bold text-[#1a1a40] uppercase tracking-wide">
-          Create Your Account
-        </h1>
-
+        <Link href="/" className="flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            className="w-8 h-8 fill-[#F8F8FF] hover:scale-110 transition-all duration-200"
+          >
+            <path d="M399.7 160.2C410.8 149.1 515.2 83.2 538.9 107C562.6 130.7 496.8 235.1 485.7 246.2C474.6 257.3 446.3 247.1 422.6 223.3C398.8 199.6 388.5 171.3 399.7 160.2zM205.9 132.1C169.6 111.5 118 88.6 101.6 105.1C85 121.7 108.7 174.5 129.5 210.8C148 178.6 174.3 151.5 205.9 132.1zM502.7 238C506 249.3 505.4 258.7 500 264.1C479.7 284.4 412.5 237.1 390.7 194C372.7 161.7 379.6 140.6 405.6 145.3C411.3 141.7 417.9 137.7 425.2 133.7C395.4 118.2 361.6 109.4 325.7 109.4C206.6 109.4 110.1 205.9 110.1 325C110.1 444 206.6 540.6 325.7 540.6C444.8 540.6 541.3 444.1 541.3 325C541.3 286.6 531.2 250.5 513.6 219.2C509.7 226.2 506 232.5 502.7 238z" />
+          </svg>
+          <span className="text-2xl font-bold text-[#F8F8FF]"> CONNECT</span>
+        </Link>
+      </div>
+      <AuthModal
+        title=" Create Your Account"
+        subtitle="Sign in to continue to ONECHAT"
+        variant="retro"
+        size="md"
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block font-semibold text-[#1a1a40]">
-              Username*
-            </label>
-            <input
+            <label className="block ">Username*</label>
+            <Input
               {...register("username")}
-              className="
-              mt-1 w-full rounded-md border-2 border-[#1a1a40]
-              bg-white px-3 py-2
-              focus:outline-none focus:ring-2 focus:ring-[#1a1a40]
-            "
+              autoComplete="username"
+              variant="retro"
             />
             {errors.username ? (
               <p className="mt-1 text-sm text-red-500">
@@ -323,16 +179,14 @@ export default function SignupPage() {
 
           {/* Email */}
           <div>
-            <label className="block font-semibold text-[#1a1a40]">Email*</label>
-            <input
+            <label className="block ">Email*</label>
+            <Input
               type="email"
+              autoComplete="email"
               {...register("email")}
-              className="
-              mt-1 w-full rounded-md border-2 border-[#1a1a40]
-              bg-white px-3 py-2
-              focus:outline-none focus:ring-2 focus:ring-[#1a1a40]
-            "
+              variant="retro"
             />
+
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">
                 {errors.email.message}
@@ -342,24 +196,19 @@ export default function SignupPage() {
 
           {/* Password */}
           <div className="relative">
-            <label className="block font-semibold text-[#1a1a40]">
-              Password*
-            </label>
-            <input
+            <label className="block  ">Password*</label>
+            <Input
               type={showPassword ? "text" : "password"}
               {...register("password")}
-              className="
-              mt-1 w-full rounded-md border-2 border-[#1a1a40]
-              bg-white px-3 py-2
-              focus:outline-none focus:ring-2 focus:ring-[#1a1a40]
-            "
+              autoComplete="new-password"
+              variant="retro"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="
                  absolute right-4 top-[37px]
-                 text-[#1a1a40]
+                 text-gray-600 hover:text-gray-300 transition
                 cursor-pointer
                 "
             >
@@ -369,17 +218,11 @@ export default function SignupPage() {
 
           {/* Confirm Password */}
           <div>
-            <label className="block font-semibold text-[#1a1a40]">
-              Confirm Password*
-            </label>
-            <input
+            <label className="block ">Confirm Password*</label>
+            <Input
               type={showConfirmPassword ? "text" : "password"}
               {...register("confirmPassword")}
-              className="
-              mt-1 w-full rounded-md border-2 border-[#1a1a40]
-              bg-white px-3 py-2
-              focus:outline-none focus:ring-2 focus:ring-[#1a1a40]
-            "
+              variant="retro"
             />
             {errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-500">
@@ -393,34 +236,23 @@ export default function SignupPage() {
           )}
 
           {/* Styled Button */}
-          <button
-            type="submit"
-            disabled={isButtonDisabled}
-            className="
-            w-full
-            border-2 border-[#1a1a40]
-            uppercase font-bold
-            px-6 py-2
-            rounded-full
-            bg-[#f6f5f0]
-            shadow-[4px_4px_0px_0px_#1a1a40]
-            hover:translate-y-[2px]
-            hover:shadow-[2px_2px_0px_0px_#1a1a40]
-            transition-all
-            disabled:opacity-50 disabled:cursor-not-allowed
-          "
-          >
-            {isSubmitting ? "Registering..." : "Create Account"}
-          </button>
+          <Button type="submit" variant="brutal" size="full">
+            <p className="text-bold text-1xl">
+              {isSubmitting ? "Registering..." : "Create Account"}
+            </p>
+          </Button>
 
-          <p className="text-center text-sm text-[#1a1a40]">
+          <p className="text-center text-sm ">
             Already have an account?{" "}
-            <Link href="/auth/login" className="underline font-semibold">
+            <Link
+              href="/auth/login"
+              className="underline  text-blue-600 font-semibold"
+            >
               Sign In
             </Link>
           </p>
         </form>
-      </div>
+      </AuthModal>
     </div>
   );
 }

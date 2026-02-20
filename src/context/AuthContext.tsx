@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function bootstrapSession() {
       try {
         const res = await getMe();
-        console.log("Bootstrap session response:", res);
+        // console.log("Bootstrap session response:", res);
         setUser(res.user ?? null);
       } catch (err) {
         if (!user) {

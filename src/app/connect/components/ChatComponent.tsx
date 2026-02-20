@@ -6,7 +6,9 @@ import { Friends } from "@/src/types/friends";
 import { Message } from "@/src/types/messages";
 import { getCrewHistory, getDmHistory } from "@/src/lib/api";
 import { User } from "@/src/types/user";
-
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import ChatSkeleton from "./loading/ChatSkleton";
 
 export default function ChatComponent({
   crew,
@@ -22,11 +24,32 @@ export default function ChatComponent({
   connected: boolean;
   sendMessage: (msg: any) => void;
   currentUser: User | null;
-
 }) {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const fetchOlder = async () => {
+    if (!crew || !hasMore || loadingHistory || !cursor) return;
+
+    setLoadingHistory(true);
+
+    try {
+      const res = await getCrewHistory(crew.id, 50, cursor);
+
+      setHistory((prev) => [...res.messages, ...prev]);
+      setCursor(res.nextCursor);
+      setHasMore(res.hasMore);
+    } catch (err) {
+      console.error("Failed to fetch older messages", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   /* =========================
      Fetch History
@@ -39,20 +62,41 @@ export default function ChatComponent({
 
     const fetchHistory = async () => {
       try {
+        setLoadingHistory(true);
         if (crew) {
           const msgs = await getCrewHistory(crew.id);
-          setHistory(msgs || []);
+          // setHistory(msgs || []);
+          setHistory(msgs.messages);
+          setCursor(msgs.nextCursor);
+          setHasMore(msgs.hasMore);
         } else if (friend) {
           const msgs = await getDmHistory(friend.id);
           setHistory(msgs || []);
         }
       } catch (err) {
         console.error("History fetch failed:", err);
+      } finally {
+        setLoadingHistory(false);
       }
     };
 
     fetchHistory();
   }, [crew?.id, friend?.id]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      if (el.scrollTop === 0) {
+        fetchOlder();
+      }
+    };
+
+    el.addEventListener("scroll", handleScroll);
+
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [cursor, hasMore, loadingHistory]);
 
   /* =========================
      Filter Live Messages
@@ -72,18 +116,17 @@ export default function ChatComponent({
   ========================== */
   const allMessages = useMemo(() => {
     const historyIds = new Set(history.map((h) => h.id));
-    return [
-      ...history,
-      ...filteredLive.filter((m) => !historyIds.has(m.id)),
-    ];
+    return [...history, ...filteredLive.filter((m) => !historyIds.has(m.id))];
   }, [history, filteredLive]);
 
   /* =========================
      Auto Scroll
   ========================== */
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [allMessages]);
+    if (!loadingHistory) {
+      endRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [filteredLive.length]);
 
   /* =========================
      Send Message (Optimistic)
@@ -118,40 +161,54 @@ export default function ChatComponent({
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="border-b p-4 font-bold">
-        {crew?.name || friend?.name}
-      </div>
+      <div className="border-b p-4 font-bold">{crew?.name || friend?.name}</div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        {allMessages.map((m) => (
-          <div key={m.id} className="mb-2">
-            <span className="font-semibold">
-              {/* {m.isMine ? "You" : m.sender?.name}: */}
-              {m.isMine ? "You" : m.sender?.name}
+      <div ref={containerRef} className="flex-1 overflow-y-auto p-4">
+        {loadingHistory && history.length === 0 ? (
+          <ChatSkeleton />
+        ) : (
+          <>
+            {/* Small loader for pagination or refresh */}
+            {loadingHistory && history.length > 0 && (
+              <div className="text-center text-sm text-gray-400 mb-2">
+                Loading older messages...
+              </div>
+            )}
+            {allMessages.map((m) => (
+              <div key={m.id} className="mb-2">
+                <span className="font-semibold">
+                  {/* {m.isMine ? "You" : m.sender?.name}: */}
+                  {m.isMine ? "You" : m.sender?.name}
 
-              {/* {(m.isMine || m.sender?.id === currentUser?.id) ? "You:" : m.sender?.name || "Other"} */}
-            </span>{" "}
-            {m.content}
-            <span className="ml-2 text-xs text-gray-400">
-              {new Date(m.createdAt).toLocaleTimeString()}
-            </span>
-          </div>
-        ))}
+                  {/* {(m.isMine || m.sender?.id === currentUser?.id) ? "You:" : m.sender?.name || "Other"} */}
+                </span>{" "}
+                {m.content}
+                <span className="ml-2 text-xs text-gray-400">
+                  {new Date(m.createdAt).toLocaleTimeString()}
+                </span>
+              </div>
+            ))}
+          </>
+        )}
+
         <div ref={endRef} />
       </div>
 
-      <div className="flex p-4 border-t gap-2">
-        <input
+      <div className="flex p-3 border-t gap-2">
+        <Input
           value={input}
+          variant="retro"
           onChange={(e) => setInput(e.target.value)}
           className="flex-1 border px-2"
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSend();
           }}
         />
-        <button onClick={handleSend} disabled={!connected}>
-          Send
-        </button>
+        <div className="flex p-2">
+          <Button className="h-10" onClick={handleSend} disabled={!connected}>
+            Send
+          </Button>
+        </div>
       </div>
     </div>
   );

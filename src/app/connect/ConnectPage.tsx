@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 
 import { useAuth } from "@/src/context/AuthContext";
 import { Crew } from "@/src/types/crew";
@@ -19,10 +19,13 @@ import {
   createCrew as apiCreateCrew,
   deleteCrew as apiDeleteCrew,
 } from "@/src/lib/api";
+import { useProtectedRoute } from "@/src/hooks/useProtectedRoute";
 
 export default function ChatPage() {
   const { logout, user, loading: authLoading } = useAuth();
   const { connected, messages, sendMessage } = useWebsocket(user);
+  const URL = "/";
+  useProtectedRoute(URL);
 
   //For the react query mutations,
   //we can use the useMutation hook to handle the create and delete operations for crews.
@@ -73,7 +76,7 @@ export default function ChatPage() {
     setSelectedFriend(friend);
     setSelectedCrew(null);
   };
-  console.log("Fetching crews...", crews);
+  // console.log("Fetching crews...", crews);
 
   // Handle loading and empty states
   if (authLoading) {
@@ -82,10 +85,10 @@ export default function ChatPage() {
   if (crewsLoading || friendsLoading) {
     return <div>Loading...</div>;
   }
-  console.log("setting User", user);
+  // console.log("setting User", user);
 
   if (!user) {
-    console.log("User is null", user);
+    // console.log("User is null", user);
     return <div>Unauthorized</div>;
   }
 
@@ -105,9 +108,10 @@ export default function ChatPage() {
         onSelectFriend={handleSelectFriend}
         friendsLoading={friendsLoading}
       />
-        <Button className="fixed top-20 right-4" onClick={logout}>Logout</Button>
+      <Button className="fixed top-20 right-4" onClick={logout}>
+        Logout
+      </Button>
 
-    
       {isEmptyState ? (
         <EmptyState />
       ) : (

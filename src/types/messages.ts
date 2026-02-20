@@ -11,5 +11,12 @@ export interface Message {
         name: string;
     };
     crewId?: string;
-    
+
+}
+
+
+export interface PaginatedMessages {
+    messages: Message[];
+    nextCursor: string | null;
+    hasMore: boolean;
 }

@@ -55,23 +55,29 @@ export default function ChatComponent({
      Fetch History
   ========================== */
   useEffect(() => {
+    setLoadingHistory(true);
+
     if (!crew && !friend) {
       setHistory([]);
       return;
     }
+    setHistory([]);
+    setCursor(null);
+    setHasMore(true);
 
     const fetchHistory = async () => {
       try {
         setLoadingHistory(true);
         if (crew) {
           const msgs = await getCrewHistory(crew.id);
-          // setHistory(msgs || []);
-          setHistory(msgs.messages);
+          setHistory(msgs.messages || []);
           setCursor(msgs.nextCursor);
           setHasMore(msgs.hasMore);
         } else if (friend) {
           const msgs = await getDmHistory(friend.id);
-          setHistory(msgs || []);
+          setHistory(msgs.messages || []);
+          setCursor(msgs.nextCursor);
+          setHasMore(msgs.hasMore);
         }
       } catch (err) {
         console.error("History fetch failed:", err);
@@ -169,7 +175,7 @@ export default function ChatComponent({
         ) : (
           <>
             {/* Small loader for pagination or refresh */}
-            {loadingHistory && history.length > 0 && (
+            {loadingHistory && cursor !== null && (
               <div className="text-center text-sm text-gray-400 mb-2">
                 Loading older messages...
               </div>
@@ -178,9 +184,7 @@ export default function ChatComponent({
               <div key={m.id} className="mb-2">
                 <span className="font-semibold">
                   {/* {m.isMine ? "You" : m.sender?.name}: */}
-                  {m.isMine ? "You" : m.sender?.name}
-
-                  {/* {(m.isMine || m.sender?.id === currentUser?.id) ? "You:" : m.sender?.name || "Other"} */}
+                  {m.isMine ? "You" : m.sender?.name || "Other"}:
                 </span>{" "}
                 {m.content}
                 <span className="ml-2 text-xs text-gray-400">

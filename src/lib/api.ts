@@ -203,14 +203,21 @@ export async function getCrewHistory(
 //   });
 //   return handleResponse(res);
 // }
+export async function getDmHistory(
+  userID: string,
+  limit = 50,
+  cursor?: string
+): Promise<PaginatedMessages> { 
+  let url = `${API_URL}/api/chats/dm/${userID}?limit=${limit}`;
 
-export async function getDmHistory(id: string) {
-  const res = await fetch(`${API_URL}/api/chats/dm/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+  if (cursor) {
+    url += `&cursor=${encodeURIComponent(cursor)}`;
+  }
+
+  const res = await fetch(url, {
     method: "GET",
     credentials: "include",
   });
+
   return handleResponse(res);
 }

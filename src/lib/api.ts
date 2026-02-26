@@ -1,3 +1,4 @@
+import { PaginatedMessages } from "../types/messages";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -15,8 +16,23 @@ async function handleResponse(res: Response) {
   }
 
   if (!res.ok) {
-    console.log(data?.message || data || "Request failed");
+    const message =
+      typeof data === "string"
+        ? data
+        : data?.message || "Request failed";
+
+    // if (res.status === 401) {
+    //   if (typeof window !== "undefined") {
+    //     window.location.href = "/";
+    //   }
+    // }
+
+    const error = new Error(message) as Error & { status?: number };
+    error.status = res.status;
+
+    throw error;
   }
+
 
   return data;
 
@@ -69,14 +85,16 @@ export async function getMe() {
     },
     credentials: "include",
   });
-  return handleResponse(res);
+
+  const data = await handleResponse(res);
+  return data;
 }
 
 
 /**
  * Request OTP
  */
-export async function verifyOTP(email: string, otp: number) {
+export async function verifyOTP(email: string, otp: string) {
   const res = await fetch(`${API_URL}/auth/verify-otp`, {
     headers: {
       "Content-Type": "application/json",
@@ -115,8 +133,11 @@ export async function getCrews() {
     method: "GET",
     credentials: "include",
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  return data.crews ?? [];
+
 }
+
 
 /**
  * Get Friends
@@ -151,27 +172,52 @@ export async function deleteCrew(crewId: string) {
 
 
 /**
- * Get Crews
+ * Get Crews History
  */
+export async function getCrewHistory(
+  crewId: string,
+  limit = 50,
+  cursor?: string
+): Promise<PaginatedMessages> { 
+  let url = `${API_URL}/api/chats/crew/${crewId}?limit=${limit}`;
 
-export async function getCrewHistory(crewId: string) {
-  const res = await fetch(`${API_URL}/api/chats/crew/${crewId}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+  if (cursor) {
+    url += `&cursor=${encodeURIComponent(cursor)}`;
+  }
+
+  const res = await fetch(url, {
     method: "GET",
     credentials: "include",
   });
+
   return handleResponse(res);
 }
 
-export async function getDmHistory(id: string) {
-  const res = await fetch(`${API_URL}/api/chats/dm/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+// export async function getCrewHistory(crewId: string) {
+//   const res = await fetch(`${API_URL}/api/chats/crew/${crewId}`, {
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     method: "GET",
+//     credentials: "include",
+//   });
+//   return handleResponse(res);
+// }
+export async function getDmHistory(
+  userID: string,
+  limit = 50,
+  cursor?: string
+): Promise<PaginatedMessages> { 
+  let url = `${API_URL}/api/chats/dm/${userID}?limit=${limit}`;
+
+  if (cursor) {
+    url += `&cursor=${encodeURIComponent(cursor)}`;
+  }
+
+  const res = await fetch(url, {
     method: "GET",
     credentials: "include",
   });
+
   return handleResponse(res);
 }

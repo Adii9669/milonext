@@ -41,7 +41,7 @@ export default function useCheckUsername(username: string) {
                 return res.json();
             })
             .then(data => {
-                  console.log("Response from backend:", data);
+                //   console.log("Response from backend:", data);
                 setIsAvailable(data.available);
             })
             .catch(err => {

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/src/context/page";
+import { useAuth } from "@/src/context/AuthContext";
 
 
 const GuestRouter = ({ children }: { children: React.ReactNode }) => {

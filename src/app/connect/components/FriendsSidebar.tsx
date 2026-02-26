@@ -4,25 +4,29 @@ import { Friends } from "@/src/types/friends";
 import { useFriendStore } from "@/src/app/stores/friendStore";
 
 interface FriendsSidebarProps {
+  friends: Friends[];
   selectedFriend: Friends | null;
   onSelectFriend: (friend: Friends) => void;
+  friendsLoading: boolean;
 }
 
 export default function FriendsSidebar({
+  friends,
   selectedFriend,
   onSelectFriend,
+  friendsLoading
 }: FriendsSidebarProps) {
-  const { friends, loading } = useFriendStore();
+  // const { friends, loading } = useFriendStore();
 
   return (
     <div className="w-64 border-l border-gray-800 bg-gray-900 p-3 text-white">
       <h2 className="mb-3 text-sm font-semibold text-gray-400">Friends</h2>
 
-      {loading && (
+      {friendsLoading && (
         <div className="text-sm text-gray-500">Loading friends...</div>
       )}
 
-      {!loading && friends.length === 0 && (
+      {!friendsLoading && friends.length === 0 && (
         <div className="text-sm text-gray-500">No friends yet</div>
       )}
 

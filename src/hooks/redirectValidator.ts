@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/src/context/page';
+import { useAuth } from '@/src/context/AuthContext';
 
 export function useRedirectValidator() {
   const { user, loading } = useAuth();
@@ -14,7 +14,7 @@ export function useRedirectValidator() {
       // If a user is found (meaning they are authenticated), redirect them.
       if (user) {
         console.log("User is authenticated, redirecting...");
-        router.push('/main/dashboard'); // Use `replace` to prevent going back to this page
+        router.replace('/'); // Use `replace` to prevent going back to this page
       }
     }
   }, [user, loading, router]);

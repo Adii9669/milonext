@@ -166,10 +166,10 @@ export default function ChatComponent({
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex h-full flex-col">
       <div className="border-b p-4 font-bold">{crew?.name || friend?.name}</div>
 
-      <div ref={containerRef} className="flex-1 overflow-y-auto p-4">
+      <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto p-4">
         {loadingHistory && history.length === 0 ? (
           <ChatSkeleton />
         ) : (
@@ -198,20 +198,22 @@ export default function ChatComponent({
         <div ref={endRef} />
       </div>
 
-      <div className="flex p-3 border-t gap-2">
-        <Input
-          value={input}
-          variant="retro"
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border px-2"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSend();
-          }}
-        />
-        <div className="flex p-2">
-          <Button className="h-10" onClick={handleSend} disabled={!connected}>
-            Send
-          </Button>
+      <div className="sticky bottom-0 z-10 border-t border-slate-700 bg-slate-900 p-3">
+        <div className="flex gap-2">
+          <Input
+            value={input}
+            variant="retro"
+            onChange={(e) => setInput(e.target.value)}
+            className="flex-1 border px-2"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
+          />
+          <div className="flex p-2">
+            <Button className="h-10" onClick={handleSend} disabled={!connected}>
+              Send
+            </Button>
+          </div>
         </div>
       </div>
     </div>

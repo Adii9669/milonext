@@ -40,7 +40,7 @@ export const useCrewStore = create<CrewStore>((set, get) => ({
             if(Array.isArray(crews)){
                 set({ crews });
             }else {
-                // console.error("Unexpected response for crews:", crews);
+                // console.error("Unexpected response for crews:", crews)
                 set({ crews: [] });
             }
             // this is where the crews are set in the state, but it is currently commented out. 

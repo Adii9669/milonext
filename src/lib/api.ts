@@ -2,18 +2,7 @@ import { PaginatedMessages } from "../types/messages";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function getAuthToken() {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem("token") ?? "";
-}
-
-function getAuthHeaders() {
-  const token = getAuthToken();
-  if (!token) return {};
-  return { Authorization: `Bearer ${token}` };
-}
-
-//hepler function for fetch error and throw them
+//helper function for fetch error and throw them
 async function handleResponse(res: Response) {
 
   const contentType = res.headers.get("content-type");
@@ -52,11 +41,7 @@ export async function login(username: string, password: string) {
     credentials: "include",
     body: JSON.stringify({ username, password }),
   });
-  const data = await handleResponse(res);
-  if (typeof window !== "undefined" && data?.token) {
-    localStorage.setItem("token", data.token);
-  }
-  return data;
+  return handleResponse(res);
 }
 
 /**

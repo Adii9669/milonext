@@ -30,50 +30,60 @@ export default function HOME() {
   return (
     <SmoothScrollProvider>
       <div>
-        <section className="min-h-screen bg-[#0F0F12] text-[#F5F5F5] flex flex-col items-center justify-center text-center px-6">
-          {/* Top Micro Label */}
-          <p className="text-xs tracking-[0.6em] uppercase text-[#00E5FF] mb-6">
-            Built For Hackers
-          </p>
+        <section className="relative min-h-screen bg-[#0F0F12] overflow-hidden text-white">
+          <div className="absolute inset-0 bg-[#0F0F12]" />
+          <div className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6">
+            {/* Top Micro Label */}
+            <p className="text-xs tracking-[0.6em] uppercase text-[#00E5FF] mb-6">
+              Built For Hackers
+            </p>
 
-          {/* Massive Typography Container */}
-          <div className="relative">
-            {/* Main Text */}
-            <h1 className="text-[18vw] font-black leading-none text-[#C89BB5]">
-              ONECHAT
-            </h1>
+            {/* Massive Typography Container */}
+            <div className="relative">
+              {/* Main Text */}
+              <h1 className="text-[18vw] font-black leading-none text-[#C89BB5]">
+                ONECHAT
+              </h1>
 
-            {/* Outline Offset Layer */}
-            <h1
-              className="absolute top-3 left-3 text-[18vw] font-black leading-none text-transparent opacity-25"
-              style={{ WebkitTextStroke: "2px #C89BB5" }}
-            >
-              ONECHAT
-            </h1>
-          </div>
+              {/* Outline Offset Layer */}
+              <h1
+                className="absolute top-3 left-3 text-[18vw] font-black leading-none text-transparent opacity-25"
+                style={{ WebkitTextStroke: "2px #C89BB5" }}
+              >
+                ONECHAT
+              </h1>
+            </div>
 
-          {/* Subtitle */}
-          <p className="mt-8 max-w-2xl text-white/60 text-lg">
-            Developer-first realtime communication platform engineered for
-            performance and scale.
-          </p>
+            {/* Subtitle */}
+            <p className="mt-8 max-w-2xl text-white/60 text-lg">
+              Developer-first realtime communication platform engineered for
+              performance and scale.
+            </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-12 flex gap-6">
-            <Button variant="type2">
-              <Link href="/auth/register">Sign Up</Link>
-            </Button>
+            {/* CTA Buttons */}
+            <div className="mt-12 flex gap-6">
+              <Button variant="type2">
+                <Link href="/auth/register">Sign Up</Link>
+              </Button>
 
-            <button className="px-10 py-3 border border-white/30 uppercase tracking-widest">
-              Learn More
-            </button>
+              <button className="px-10 py-3 border border-white/30 uppercase tracking-widest">
+                Learn More
+              </button>
+            </div>
           </div>
         </section>
         {/* MASSIVE DIVIDER */}
         <section className="bg-[#0F0F12] py-40 overflow-hidden">
           <div className="relative">
             {/* Huge Faded Background Word */}
-
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover"
+              src="/videos/testingvidoe.mp4"
+            />
             <h2
               className="
             text-[30vw] font-black 
@@ -93,6 +103,7 @@ export default function HOME() {
             </h2>
           </div>
         </section>
+       
 
         {/* FEATURES SECTION */}
         <section className="bg-[#0F0F12] text-[#F5F5F5] px-10 py-32">

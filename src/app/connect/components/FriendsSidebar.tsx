@@ -14,7 +14,7 @@ export default function FriendsSidebar({
   friends,
   selectedFriend,
   onSelectFriend,
-  friendsLoading
+  friendsLoading,
 }: FriendsSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -28,13 +28,15 @@ export default function FriendsSidebar({
         {!collapsed ? (
           <>
             <h2 className="text-sm font-semibold text-gray-400">Friends</h2>
-            <button
-              className="rounded-md border border-gray-600 p-1 text-xs text-gray-300 hover:bg-gray-700"
-              onClick={() => setCollapsed(true)}
-              aria-label="Collapse friends sidebar"
-            >
-              ←
-            </button>
+            <div>
+              <button
+                className="rounded-md border border-gray-600 p-1 text-xs text-gray-200 hover:bg-gray-700"
+                onClick={() => setCollapsed(true)}
+                aria-label="Collapse friends sidebar"
+              >
+                ←
+              </button>
+            </div>
           </>
         ) : (
           <button
@@ -71,7 +73,9 @@ export default function FriendsSidebar({
                 >
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{friend.name}</span>
-                    <span className="text-xs text-gray-400">{friend.status}</span>
+                    <span className="text-xs text-gray-400">
+                      {friend.status}
+                    </span>
                   </div>
 
                   {/* status dot */}

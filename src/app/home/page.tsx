@@ -3,8 +3,19 @@
 import SmoothScrollProvider from "@/src/components/smoothScrooling/SmoothScrollProvider";
 import Button from "@/src/components/ui/RetroButton";
 import Link from "next/link";
-
+import FeaturesSection from "@/src/components/Features/FeaturesSection";
+import ScrollSection from "@/src/components/Features/ScrollSection";
 import { useEffect, useState } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  stagger,
+  animate,
+} from "framer-motion";
+import { useRef } from "react";
+import SolarSystemBg from "@/src/components/SolarSystem/SolarSystem";
+import PlanetScrollBg from "@/src/components/SolarSystem/PlanetScroll";
 
 export default function HOME() {
   const today = new Date().toLocaleDateString("en-US", {
@@ -13,7 +24,18 @@ export default function HOME() {
     day: "numeric",
   });
   const [scrolled, setScrolled] = useState(false);
+  const ref = useRef(null);
 
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  // const y = useTransform(scrollYProgress, [0, 1], [200, -200]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 0.1]);
+  const y = useTransform(scrollYProgress, [0, 1], [300, -300]);
+  const titleY = useTransform(scrollYProgress, [0, 1], [100, -50]);
+  // const titleY = useTransform(scrollYProgress, [1, 0], [100, -90]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.3], [0, 14]);
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 100) {
@@ -31,31 +53,75 @@ export default function HOME() {
     <SmoothScrollProvider>
       <div>
         <section className="relative min-h-screen bg-[#0F0F12] overflow-hidden text-white">
-          <div className="absolute inset-0 bg-[#0F0F12]" />
+          <div
+            className="absolute inset-0 
+          "
+          />
+          {/* bg-[#0F0F12] */}
           <div className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6">
             {/* Top Micro Label */}
             <p className="text-xs tracking-[0.6em] uppercase text-[#00E5FF] mb-6">
               Built For Hackers
             </p>
-
-            {/* Massive Typography Container */}
-            <div className="relative">
+            <div className="relative  group cursor-pointer">
               {/* Main Text */}
-              <h1 className="text-[18vw] font-black leading-none text-[#C89BB5]">
+              <h1
+                className="
+                        text-[13vw] font-black leading-none text-[#C89BB5]
+                        relative z-10 transition-all duration-300 
+                        group-hover:translate-y-6
+                        group-hover:scale-[0.99]
+                        group-hover:[text-shadow:0_0_10px_rgba(200,155,181,0.4)]
+    "
+                style={{
+                  fontFamily: "var(--font-sigmar)",
+                  fontWeight: "300",
+                }}
+              >
                 ONECHAT
               </h1>
 
-              {/* Outline Offset Layer */}
+              {/* Layer 1 */}
               <h1
-                className="absolute top-3 left-3 text-[18vw] font-black leading-none text-transparent opacity-25"
-                style={{ WebkitTextStroke: "2px #C89BB5" }}
+                className="
+                      absolute inset-0 text-[13vw] font-black leading-none
+                      text-black opacity-50 
+                      translate-x--10px translate-y-6px
+                      transition-all duration-300
+                      group-hover:translate-x-0
+                      group-hover:translate-y-0
+                      group-hover:opacity-0"
+                style={{
+                  WebkitTextStroke: "2px #C89BB5",
+                  fontFamily: "var(--font-sigmar)",
+                  fontWeight: "300",
+                }}
+              >
+                ONECHAT
+              </h1>
+
+              {/* Layer 2 */}
+              <h1
+                className="
+                          absolute inset-0 text-[13vw] font-black leading-none
+                          text-transparent opacity-20
+                          --tw-translate-x: 10px; --tw-translate-y: -6px;
+                          transition-all duration-300
+                          group-hover:translate-x-0
+                          group-hover:translate-y-0
+                          group-hover:opacity-0"
+                style={{
+                  WebkitTextStroke: "2px #C89BB5",
+                  fontFamily: "var(--font-sigmar)",
+                  fontWeight: "300",
+                }}
               >
                 ONECHAT
               </h1>
             </div>
 
             {/* Subtitle */}
-            <p className="mt-8 max-w-2xl text-white/60 text-lg">
+            <p className="mt-8 max-w-2xl text-white/60 text-[1vw]">
               Developer-first realtime communication platform engineered for
               performance and scale.
             </p>
@@ -72,108 +138,48 @@ export default function HOME() {
             </div>
           </div>
         </section>
-        {/* MASSIVE DIVIDER */}
-        <section className="bg-[#0F0F12] py-40 overflow-hidden">
-          <div className="relative">
-            {/* Huge Faded Background Word */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-              src="/videos/testingvidoe.mp4"
-            />
-            <h2
-              className="
-            text-[30vw] font-black 
-            text-transparent translate-y-[-10px]
-            text-center opacity-10 select-none"
-              style={{ WebkitTextStroke: "2px #C89BB5" }}
+
+        {/* // Change this section in your HOME component: */}
+        <section ref={ref} className="bg-[#0F0F12]  overflow-hidden relative">
+          {/* ADD THIS — solar system sits behind everything */}
+          <SolarSystemBg />
+
+          <div className="relative flex items-center justify-center">
+            {/* Background Word */}
+            <motion.h2
+              className="text-[24vw] font-black text-transparent select-none"
+              style={{
+                y,
+                opacity,
+                WebkitTextStroke: "2px #C89BB5",
+              }}
             >
               BUILT
-            </h2>
+            </motion.h2>
 
             {/* Foreground Word */}
-            <h2
-              className="absolute inset-0 flex items-center justify-center 
-      text-6xl md:text-8xl font-black text-[#C89BB5] uppercase tracking-widest"
+            <motion.h2
+              style={{
+                y: titleY,
+                opacity: titleOpacity,
+                fontFamily: "var(--font-sigmar)",
+                fontWeight: "300",
+              }}
+              className="absolute text-[5vw] font-black text-[#C89BB5] tracking-widest"
             >
               Built Different
-            </h2>
+            </motion.h2>
           </div>
         </section>
-       
+        <section className="bg-[#0F0F12] py-30 overflow-hidden ">
+          <FeaturesSection />
+        </section>
 
+        <section className="bg-[#0F0F12]">
+          <PlanetScrollBg />
+        </section>
         {/* FEATURES SECTION */}
-        <section className="bg-[#0F0F12] text-[#F5F5F5] px-10 py-32">
-          {/* Section Title */}
-          <h2 className="text-5xl font-black uppercase tracking-widest mb-20 text-center">
-            What You Get
-          </h2>
 
-          {/* Grid */}
-          <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-            {/* Feature 1 */}
-            <div
-              className="border-2 border-white p-8 
-      shadow-[8px_8px_0px_0px_white]"
-            >
-              <h3 className="text-2xl font-black uppercase text-[#C89BB5]">
-                Realtime Core
-              </h3>
-
-              <p className="mt-4 text-white/60">
-                Ultra-fast messaging engine built with WebSockets and Go backend
-                performance.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div
-              className="border-2 border-white p-8 
-      shadow-[8px_8px_0px_0px_white]"
-            >
-              <h3 className="text-2xl font-black uppercase text-[#C89BB5]">
-                Crew Channels
-              </h3>
-
-              <p className="mt-4 text-white/60">
-                Structured group communication with scalable architecture.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div
-              className="border-2 border-white p-8 
-      shadow-[8px_8px_0px_0px_white]"
-            >
-              <h3 className="text-2xl font-black uppercase text-[#C89BB5]">
-                Direct Messages
-              </h3>
-
-              <p className="mt-4 text-white/60">
-                Secure private messaging optimized for speed and clarity.
-              </p>
-            </div>
-          </div>
-        </section>
-        {/* TECH STACK STRIP */}
-        <section className="bg-[#0A0A0C] py-16 overflow-hidden border-t border-b border-white/10">
-          <div className="whitespace-nowrap animate-marquee text-[6vw] font-black uppercase tracking-widest text-[#00E5FF]">
-            <span className="mx-12">GO</span>
-            <span className="mx-12">WEBSOCKET</span>
-            <span className="mx-12">NEXTJS</span>
-            <span className="mx-12">PRISMA</span>
-            <span className="mx-12">NEONDB</span>
-
-            {/* duplicate for seamless loop */}
-            <span className="mx-12">GO</span>
-            <span className="mx-12">WEBSOCKET</span>
-            <span className="mx-12">NEXTJS</span>
-            <span className="mx-12">NEONDB</span>
-          </div>
-        </section>
         {/* FINAL CTA */}
         <section className="bg-[#0F0F12] py-40 px-6 text-center">
           <div className="relative inline-block">
@@ -196,15 +202,25 @@ export default function HOME() {
 
           {/* Button */}
           <div className="mt-16">
-            <button
-              className="px-12 py-4 border-2 border-white
-      shadow-[10px_10px_0px_0px_white]
-      hover:translate-x-[4px] hover:translate-y-[4px]
-      hover:shadow-[5px_5px_0px_0px_white]
-      transition-all uppercase tracking-[0.3em]"
-            >
-              Create Account
-            </button>
+            <Button variant="type2">
+              <Link href="/auth/register">create account</Link>
+            </Button>
+          </div>
+        </section>
+        {/* TECH STACK STRIP */}
+        <section className="bg-[#0A0A0C] py-16 overflow-hidden border-t border-b border-white/10">
+          <div className="whitespace-nowrap animate-marquee text-[6vw] font-black uppercase tracking-widest text-[#00E5FF]">
+            <span className="mx-12">GO</span>
+            <span className="mx-12">WEBSOCKET</span>
+            <span className="mx-12">NEXTJS</span>
+            <span className="mx-12">GORM</span>
+            <span className="mx-12">NEONDB</span>
+
+            {/* duplicate for seamless loop */}
+            <span className="mx-12">GO</span>
+            <span className="mx-12">WEBSOCKET</span>
+            <span className="mx-12">NEXTJS</span>
+            <span className="mx-12">NEONDB</span>
           </div>
         </section>
       </div>

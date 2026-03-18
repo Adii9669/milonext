@@ -64,8 +64,9 @@ export default function SignInPage() {
   };
   return (
     <GuestRouter>
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="w-full max-w-5xl rounded-3xl overflow-hidden bg-white shadow-2xl border border-white/20 grid md:grid-cols-2">
+      <div className="min-h-screen bg-black flex items-center justify-center p-4 overflow-hidden">
+        <div className="w-full max-w-5xl rounded-3xl overflow-hidden
+         bg-white shadow-2xl border border-white/20 grid md:grid-cols-2">
           <div className="p-8 md:p-12 flex flex-col justify-center">
             <div className="mb-8">
               <div className="text-2xl font-bold">IYSES</div>
@@ -142,7 +143,7 @@ export default function SignInPage() {
               className="h-full w-full bg-cover bg-center"
               style={{ backgroundImage: `url(${loginBg.src})` }}
             >
-              <div className="h-full w-full bg-gradient-to-b from-zinc-50/70 to-zinc-900/20" />
+              <div className="h-full w-full bg-liner-to-b from-zinc-50/70 to-zinc-900/20" />
             </div>
           </div>
         </div>

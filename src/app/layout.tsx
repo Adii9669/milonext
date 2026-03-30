@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Sigmar, Bagel_Fat_One } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import AuthProviderWrapper from "../context/AuthProviderWrapper";
 import Providers from "./provider";
+import StarfieldBg from "../components/SolarSystem/StarsFeild";
+import Navbar from "../components/Navbar/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +15,17 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const sigmar = Sigmar({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-sigmar", // this creates the CSS variable
+});
+const gasoek = Bagel_Fat_One({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-gasoek", // this creates the CSS variable
 });
 
 export const metadata: Metadata = {
@@ -27,8 +41,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`
+        ${geistSans.variable} 
+        ${geistMono.variable}  
+        ${sigmar.variable}
+        ${gasoek.variable}
+         antialiased`}
       >
+        
         <Providers>
           <AuthProviderWrapper>{children}</AuthProviderWrapper>
         </Providers>

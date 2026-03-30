@@ -109,9 +109,10 @@ export default function ChatComponent({
   ========================== */
   const filteredLive = useMemo(() => {
     if (crew) {
-      return messages.filter((m) => m.type === "crew");
+      return messages.filter((m) => m.type === "crew" && m.crewId === crew.id);
     }
     if (friend) {
+      // DM live messages may not include receiver ID, so show all dm messages for now.
       return messages.filter((m) => m.type === "dm");
     }
     return [];

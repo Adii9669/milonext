@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDebounce } from "./ useDebounce";
+import { useDebounce } from "./useDebounce";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

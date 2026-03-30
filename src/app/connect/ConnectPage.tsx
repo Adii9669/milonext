@@ -25,7 +25,7 @@ import { useProtectedRoute } from "@/src/hooks/useProtectedRoute";
 
 export default function ChatPage() {
   const { logout, user, loading: authLoading } = useAuth();
-  const { connected, messages, sendMessage } = useWebsocket(user);
+  const { connected, messages, sendMessage, joinCrew, leaveCrew } = useWebsocket(user);
   const URL = "/";
   useProtectedRoute(URL);
 
@@ -150,27 +150,74 @@ export default function ChatPage() {
     }
   });
   const friendsToShow = Array.from(uniqueFriendsMap.values());
-
-  //For crews
   const { data: crews = [], isLoading: crewsLoading } = useQuery({
     queryKey: ["crews", user?.id],
     queryFn: getCrews,
     enabled: !!user,
   });
 
+  // Auto-select first crew or friend on initial load
+  useEffect(() => {
+    if (selectedCrew || selectedFriend) return;
+    if (crews.length > 0) {
+      setSelectedCrew(crews[0]);
+      return;
+    }
+    if (friendsToShow.length > 0) {
+      setSelectedFriend(friendsToShow[0]);
+    }
+  }, [crews, friendsToShow, selectedCrew, selectedFriend]);
+
+  // Join selected crew channel and leave previous crew channel
+  useEffect(() => {
+    if (!selectedCrew) return;
+    joinCrew(selectedCrew.id);
+    return () => {
+      leaveCrew(selectedCrew.id);
+    };
+  }, [selectedCrew, joinCrew, leaveCrew]);
+
   // To check empty state and redirect on the empty screen page
   const isEmptyState =
     !crewsLoading && crews.length === 0 && friendsToShow.length === 0;
 
   const handleSelectCrew = (crew: Crew) => {
+    if (selectedCrew?.id === crew.id) return;
+    if (selectedCrew) {
+      leaveCrew(selectedCrew.id);
+    }
     setSelectedCrew(crew);
     setSelectedFriend(null);
+    joinCrew(crew.id);
   };
 
   const handleSelectFriend = (friend: Friends) => {
+    if (selectedCrew) {
+      leaveCrew(selectedCrew.id);
+    }
     setSelectedFriend(friend);
     setSelectedCrew(null);
   };
+
+  useEffect(() => {
+    if (!selectedCrew && !selectedFriend && !crewsLoading && !friendsLoading) {
+      if (crews.length > 0) {
+        setSelectedCrew(crews[0]);
+      } else if (friendsToShow.length > 0) {
+        setSelectedFriend(friendsToShow[0]);
+      }
+    }
+  }, [crews, friendsToShow, selectedCrew, selectedFriend, crewsLoading, friendsLoading]);
+
+  useEffect(() => {
+    if (selectedCrew) {
+      joinCrew(selectedCrew.id);
+      return () => {
+        leaveCrew(selectedCrew.id);
+      };
+    }
+  }, [selectedCrew, joinCrew, leaveCrew]);
+
   // console.log("Fetching crews...", crews);
 
   // Handle loading and empty states

@@ -90,7 +90,7 @@ export default function VerifyOtpPage() {
       // --- Replace with your actual API call ---
       await verifyOTP(email, otpCode);
 
-      console.log("Verifying code:", otpCode);
+      // console.log("Verifying code:", otpCode);
       router.push("/auth/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import CreateModal from "@/src/components/Modals/CreateModal";
 import { useCrewStore } from "@/src/app/stores/crewStores";
 import { useAuth } from "@/src/context/AuthContext";

@@ -11,10 +11,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/src/components/ui/dropdown-menu";
 
 import { MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 
 import ConfirmModal from "@/src/components/Modals/Confirmation";
 import CreateModal from "@/src/components/Modals/CreateModal";

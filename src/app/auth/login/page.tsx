@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-// import PixelButton from "@/components/PixelButton/page";
-import loginBg from "@/src/assets/login-bg.jpg";
+import loginBg from "@/src/assets/ONE-CHAT.png";
 import { useAuth } from "@/src/context/AuthContext";
 import { EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,6 +14,8 @@ import { size, z } from "zod";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GuestRouter from "@/src/components/GuestRouter/page";
+// import AuthModal from "@/src/components/Modals/AuthModal";
+import { Input } from "@/src/components/ui/input";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Please enter your username or email."),
@@ -40,133 +40,114 @@ export default function SignInPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    console.log("Form Payload:", data);
+    // console.log("Form Payload:", data);
     setApiError(null);
     try {
       await login(data.username, data.password);
+      console.log("Login successful, redirecting to:", callbackUrl);
       router.push(callbackUrl);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : "Login failed");
+      const message = err instanceof Error ? err.message : "Login failed";
+
+      // Example: if backend says invalid credentials
+      setError("username", {
+        type: "server",
+        message: message,
+      });
     }
   };
-
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <GuestRouter>
-        <div
-          style={{
-            backgroundImage: `url(${loginBg.src})`, // .src is required for imported images
-            backgroundSize: "cover", // cover the whole area
-            backgroundPosition: "center",
-            minBlockSize: "100vh", // full screen height
-          }}
-          className="bg-beige flex min-h-screen flex-col items-center justify-center px-4 pt-23"
-        >
-          {/* Card Box */}
-          <div className="w-full max-w-md space-y-6 rounded-md bg-white p-8 shadow-md">
-            {/* Heading */}
-            <h2 className="item-centre pr-6 text-center text-4xl font-bold text-gray-900">
-              Sign In
-            </h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Username/Email */}
+    <GuestRouter>
+      <div className="min-h-screen bg-black flex items-center justify-center p-4 overflow-hidden">
+        <div className="w-full max-w-5xl rounded-3xl overflow-hidden
+         bg-white shadow-2xl border border-white/20 grid md:grid-cols-2">
+          <div className="p-8 md:p-12 flex flex-col justify-center">
+            <div className="mb-8">
+              <div className="text-2xl font-bold">IYSES</div>
+            </div>
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-zinc-900">Welcome Back!</h1>
+              <p className="mt-2 text-sm text-zinc-500">
+               Interact with your friends in a whole new way. Sign in to continue your cosmic journey through the Miloverse.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email address
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  autoComplete="username email"
+                <label className="text-sm font-medium text-zinc-700">Email or Username</label>
+                <Input
                   {...register("username")}
-                  placeholder="Username or Email address..."
-                  className="mt-1 w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none"
+                  type="text"
+                  placeholder="Enter your email"
+                  variant="retro"
+                  className="mt-2"
                 />
                 {errors.username && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.username.message}
-                  </p>
+                  <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
                 )}
               </div>
 
-              {/* Password */}
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  className="mt-1 w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:ring-indigo-700 focus:outline-none"
-                  {...register("password")}
-                />
-                <div className="absolute inset-y-11 right-0 flex items-center pr-3 text-gray-500">
+              <div>
+                <label className="text-sm font-medium text-zinc-700">Password</label>
+                <div className="relative mt-2">
+                  <Input
+                    {...register("password")}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    variant="retro"
+                  />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    // className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
-                    className="absolute inset-y-0 top-0 right-0 flex items-center pr-3 text-gray-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
                   >
-                    {showPassword ? (
-                      <EyeClosed />
-                    ) : (
-                      <FontAwesomeIcon icon={faEye} />
-                    )}
+                    {showPassword ? <EyeClosed size={18} /> : <FontAwesomeIcon icon={faEye} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.password.message}
-                  </p>
+                  <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
                 )}
               </div>
 
-              {status === "registered" && (
-                <div
-                  style={{
-                    padding: "1rem",
-                    backgroundColor: "#d4edda",
-                    color: "#155724",
-                    border: "1px solid #c3e6cb",
-                    borderRadius: "0.25rem",
-                  }}
-                >
-                  Registration successful! Please check your email to verify
-                  your account before logging in.
-                </div>
-              )}
-              {apiError && (
-                <p className="text-center text-sm text-red-500">{apiError}</p>
-              )}
+              <div className="flex items-center justify-between text-sm text-zinc-500">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" className="w-4 h-4 text-blue-600" />
+                  Remember me
+                </label>
+                <Link href="#" className="text-blue-700 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
 
-              {/* Sign In Button */}
-              <Button
-                type="submit"
-                className="hover:pointer w-full cursor-pointer"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Logging..." : "Login"}
+              <Button type="submit" className="w-full bg-zinc-900 text-white hover:bg-zinc-800">
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
-            <p className=" pl-1 text-sm text-gray-600">
-              Not a member?{" "}
-              <Link
-                href="/auth/register"
-                className="text-indigo-600 hover:underline"
-              >
-                {" "}
-                Register Now!!!
+
+            <p className="mt-5 text-sm text-zinc-500">
+              Don't have an account?{' '}
+              <Link href="/auth/register" className="text-blue-700 font-semibold hover:underline">
+                Register
               </Link>
             </p>
           </div>
+
+          <div className="hidden md:block bg-zinc-100">
+            <div
+              className="h-full w-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${loginBg.src})` }}
+            >
+              <div className="h-full w-full bg-liner-to-b from-zinc-50/70 to-zinc-900/20" />
+            </div>
+          </div>
         </div>
-      </GuestRouter>
-    </Suspense>
+      </div>
+    </GuestRouter>
   );
 }
-

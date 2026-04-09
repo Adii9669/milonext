@@ -10,7 +10,6 @@ import { EyeClosed } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/src/context/AuthContext";
-import loginBg from "@/src/assets/space.png";
 import useCheckUsername from "@/src/hooks/useCheckUsername";
 import { useRedirectValidator } from "@/src/hooks/redirectValidator";
 import { Button } from "@/src/components/ui/button";
@@ -133,7 +132,7 @@ export default function SignupPage() {
     
     <div className="flex relative min-h-screen bg-[#0F0F12] items-center justify-center  p-3">
        <StarfieldBg />
-      {/* <Navbar></Navbar> */}
+      <Navbar></Navbar>
       <div
         className="min-h-screen absolute inset-0"
       ></div>

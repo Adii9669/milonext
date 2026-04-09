@@ -9,9 +9,7 @@ export default function AuthLayout({
 }) {
   return (
     <>
-      <StarfieldBg />
-
-      <Navbar />
+     
 
       {children}
     </>

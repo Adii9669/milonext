@@ -31,12 +31,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           `
           w-full
-          border-2
+          border
           rounded-lg
           px-4 py-3
-          transition
-          focus:outline-none
-          focus:ring-2
+          transition-color duration-200
+          focus:outline-1
+          focus:ring 
           disabled:opacity-50
         `,
           variants[variant],

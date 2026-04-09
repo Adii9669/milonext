@@ -77,9 +77,9 @@ export default function AuthModal({
               {subtitle && (
                 <p
                   className={`text-xs tracking-[0.15em] ${
-                    variant === "retor"
+                    variant === "retro"
                       ? "text-white/30"
-                      : variant === "retro"
+                      : variant === "dark"
                       ? "text-[#1a1a40]/70"
                       : "text-white/50"
                   }`}

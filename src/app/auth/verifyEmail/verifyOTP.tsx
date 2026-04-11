@@ -1,61 +1,53 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { verifyOTP } from "@/src/lib/api";
 import { useAuth } from "@/src/context/AuthContext";
+import { verifyOTP, resendOTP } from "@/src/lib/api";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { loginWithToken, login } = useAuth();
 
-  // Get the email from the URL to show the user
   const email = searchParams.get("email");
-  if (!email) {
-    return <div>Email parameter missing.</div>;
-    // throw new Error("Email is missing in query params");
-  }
 
-  // State to manage the 6 input boxes
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0); // ✅ cooldown timer
 
-  // Refs to manage focus between input boxes
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Handle changes and auto-focus to the next input
+  if (!email || email === "undefined") {
+    return <div>Email parameter missing or invalid.</div>;
+  }
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
   ) => {
     const { value } = e.target;
-    // Only allow numbers
     if (isNaN(Number(value))) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1); // Take only the last character
+    newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < 5 && inputRefs.current[index + 1]) {
+    // ✅ auto focus next
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
-    }
-    if (index === 5 && value) {
-      // Since you are in a form, the button click will handle submission,
-      // but adding a programmatic submit call here can be a nice touch if not using a form.
     }
   };
 
-  // Handle backspace to move to the previous input
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number,
   ) => {
-    if (e.key === "Backspace" && index > 0) {
-      if (!otp[index]) {
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
         const newOtp = [...otp];
-        newOtp[index - 1] = ""; // Clear the previous digit
+        newOtp[index - 1] = "";
         setOtp(newOtp);
         inputRefs.current[index - 1]?.focus();
       }
@@ -65,14 +57,40 @@ export default function VerifyOtpPage() {
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
-    if (!/^\d{6}$/.test(pastedData)) return; // Only paste if it's 6 digits
+    if (!/^\d{6}$/.test(pastedData)) return;
 
     const newOtp = pastedData.split("");
     setOtp(newOtp);
-    inputRefs.current[5]?.focus(); // Focus the last input after paste
+    inputRefs.current[5]?.focus();
   };
 
-  // Handle the form submission
+  // ✅ Resend OTP handler with 30s cooldown
+  const handleResend = useCallback(async () => {
+    if (resendCooldown > 0) return;
+
+    try {
+      await resendOTP(email);
+
+      setOtp(new Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+      setError(null);
+
+      setResendCooldown(30);
+
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setError("Failed to resend OTP. Please try again.");
+    }
+  }, [email, resendCooldown]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -87,10 +105,7 @@ export default function VerifyOtpPage() {
     }
 
     try {
-      // --- Replace with your actual API call ---
       await verifyOTP(email, otpCode);
-
-      // console.log("Verifying code:", otpCode);
       router.push("/auth/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");
@@ -114,8 +129,9 @@ export default function VerifyOtpPage() {
             {otp.map((digit, index) => (
               <input
                 key={index}
-                // ref={(el) => (inputRefs.current[index] = el)}
+                ref={(el) => (inputRefs.current[index] = el)} // ✅ fix: uncommented
                 type="text"
+                inputMode="numeric" // ✅ shows number keyboard on mobile
                 maxLength={1}
                 value={digit}
                 onChange={(e) => handleChange(e, index)}
@@ -137,9 +153,16 @@ export default function VerifyOtpPage() {
           </button>
         </form>
 
+        {/* ✅ Resend button with cooldown */}
         <div className="mt-6 text-center">
-          <button className="text-sm text-blue-600 hover:underline">
-            {`Didn't receive a code? Resend`}
+          <button
+            onClick={handleResend}
+            disabled={resendCooldown > 0}
+            className="text-sm text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline"
+          >
+            {resendCooldown > 0
+              ? `Resend code in ${resendCooldown}s`
+              : `Didn't receive a code? Resend`}
           </button>
         </div>
       </div>

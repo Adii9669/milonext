@@ -100,7 +100,20 @@ export async function verifyOTP(email: string, otp: string) {
   return handleResponse(res);
 }
 
-
+/**
+ * RESEND OTP
+ */
+export async function resendOTP(email: string) {
+  const res = await fetch(`${API_URL}/auth/resend-otp`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(res);
+}
 
 //-----------------------------------------Friends----------------------------//
 

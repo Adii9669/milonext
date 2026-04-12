@@ -106,15 +106,15 @@ export default function SignupPage() {
       // router.push("/");
       const res = await signup(data.username, data.email, data.password);
 
-      if (res.email) {
+      // if (res.email) {
         // Use encodeURIComponent to correctly handle special characters like '+' do this later for testing only
         // const encodedEmail = encodeURIComponent(response.email);
-        const encodedEmail = encodeURIComponent(res.email);
-
+        const encodedEmail = encodeURIComponent(data.email);
+        // console.log("Encoded email:", encodedEmail);
         router.push(`/auth/verifyEmail?email=${encodedEmail}`);
-      } else {
-        setApiError("Signup failed: No email returned from server.");
-      }
+      // } else {
+        // setApiError("Signup failed: No email returned from server.");
+      // }
     } catch (err) {
       if (err instanceof Error) {
         setApiError(err.message);

@@ -2,13 +2,12 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/src/context/AuthContext";
+// import { useAuth } from "@/src/context/AuthContext";
 import { verifyOTP, resendOTP } from "@/src/lib/api";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { loginWithToken, login } = useAuth();
 
   const email = searchParams.get("email");
 
@@ -106,7 +105,7 @@ export default function VerifyOtpPage() {
 
     try {
       await verifyOTP(email, otpCode);
-      router.push("/auth/login");
+      router.push("/connect");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
@@ -129,7 +128,9 @@ export default function VerifyOtpPage() {
             {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)} // ✅ fix: uncommented
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }} 
                 type="text"
                 inputMode="numeric" // ✅ shows number keyboard on mobile
                 maxLength={1}

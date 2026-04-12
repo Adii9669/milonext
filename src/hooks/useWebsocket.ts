@@ -91,6 +91,7 @@ export function useWebsocket(user: User | null) {
                 return;
             }
             const ws = new WebSocket("ws://localhost:8000/api/ws");
+
             wsRef.current = ws;
 
             ws.onopen = () => {
@@ -134,7 +135,7 @@ export function useWebsocket(user: User | null) {
                     console.warn("[WS] invalid JSON:", e.data, err);
                 }
             };
-            
+
 
             ws.onerror = (err) => {
                 console.warn("[WS] error", err);
@@ -143,16 +144,18 @@ export function useWebsocket(user: User | null) {
             ws.onclose = () => {
                 setConnected(false);
                 connectingRef.current = false;
-
                 wsRef.current = null;
                 console.log("[WS] closed");
                 if (reconnectRef.current) {
                     window.clearTimeout(reconnectRef.current);
                 }
+                // ← ADD THIS CHECK — don't reconnect if component unmounted
+                if (destroyedRef.current) return;
                 reconnectRef.current = window.setTimeout(() => {
                     connect();
                 }, 1000);
             };
+
         };
 
         connect();

@@ -3,32 +3,82 @@ import { PaginatedMessages } from "../types/messages";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 //helper function for fetch error and throw them
-async function handleResponse(res: Response) {
+// async function handleResponse(res: Response) {
 
+//   const contentType = res.headers.get("content-type");
+
+//   // Safely parse JSON only when available
+//   let data;
+//   if (contentType && contentType.includes("application/json")) {
+//     data = await res.json();
+//   } else {
+//     data = await res.text(); // fallback for plain-text or HTML errors
+//   }
+
+//   if (!res.ok) {
+//     const backendMessage =
+//       typeof data === "string"
+//         ? data
+//         : data?.message || data?.error || JSON.stringify(data);
+//     const errorMessage = backendMessage || "Request failed";
+//     const error = new Error(errorMessage) as Error & { status?: number };
+//     error.status = res.status;
+
+//     throw error;
+//   }
+
+//   return data;
+
+// }
+
+
+let isRefreshing = false;
+
+async function handleResponse(res: Response, isRetry = false): Promise<any> {
   const contentType = res.headers.get("content-type");
 
-  // Safely parse JSON only when available
   let data;
   if (contentType && contentType.includes("application/json")) {
     data = await res.json();
   } else {
-    data = await res.text(); // fallback for plain-text or HTML errors
+    data = await res.text();
   }
 
   if (!res.ok) {
+    // Token expired — try silent refresh once
+    if (
+      res.status === 401 &&
+      res.headers.get("X-Token-Expired") === "true" &&
+      !isRetry &&
+      !isRefreshing
+    ) {
+      isRefreshing = true;
+      try {
+        await fetch(`${API_URL}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        isRefreshing = false;
+        // retry original request — caller must retry
+        throw Object.assign(new Error("TOKEN_REFRESHED"), { status: 401, refreshed: true });
+      } catch {
+        isRefreshing = false;
+        throw Object.assign(new Error("Session expired"), { status: 401 });
+      }
+    }
+
     const backendMessage =
       typeof data === "string"
         ? data
         : data?.message || data?.error || JSON.stringify(data);
-    const errorMessage = backendMessage || "Request failed";
-    const error = new Error(errorMessage) as Error & { status?: number };
+    const error = new Error(backendMessage || "Request failed") as Error & {
+      status?: number;
+    };
     error.status = res.status;
-
     throw error;
   }
 
   return data;
-
 }
 
 /**
@@ -43,6 +93,17 @@ export async function login(username: string, password: string) {
   });
   return handleResponse(res);
 }
+/**
+ * Refresh access token using refresh token cookie
+ */
+export async function refreshToken() {
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
 
 /**
  * singup
@@ -58,15 +119,15 @@ export async function signup(username: string, email: string, password: string) 
 }
 
 /**
- * Calls the logout endpoint.
+ * Logout — fix endpoint and method
  */
 export async function logout() {
-  await fetch(`${API_URL}/api/logout`, {
+  const res = await fetch(`${API_URL}/api/logout`, {
     method: "POST",
     credentials: "include",
   });
+  return handleResponse(res);
 }
-
 /**
  * Fetches the current user's data if they are logged in.
  */

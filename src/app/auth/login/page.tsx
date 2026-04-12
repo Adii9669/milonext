@@ -6,11 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import loginBg from "@/src/assets/ONE-CHAT.png";
 import { useAuth } from "@/src/context/AuthContext";
 import { EyeClosed, Star } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { size, z } from "zod";
+import {  z } from "zod";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GuestRouter from "@/src/components/GuestRouter/page";
@@ -27,16 +25,15 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function SignInPage() {
-  // const router = useRouter();
-  //
-  const router = useRouter();
+ 
+ 
   const { login } = useAuth();
   const [apiError, setApiError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/connect";
-  const status = searchParams.get("status");
+  
 
   const {
     register,
@@ -51,9 +48,9 @@ export default function SignInPage() {
     // console.log("Form Payload:", data);
     setApiError(null);
     try {
-      await login(data.username, data.password);
+      await login(data.username, data.password, callbackUrl);
       console.log("Login successful, redirecting to:", callbackUrl);
-      router.push(callbackUrl);
+      // router.push(callbackUrl);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
 

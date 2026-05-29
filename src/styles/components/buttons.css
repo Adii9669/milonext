@@ -1,0 +1,54 @@
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-retro {
+  border: 2px solid var(--foreground);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 4px 4px 0 0 var(--foreground);
+  transition: all 0.15s ease;
+}
+
+.btn-retro:hover {
+  transform: translateY(2px);
+  box-shadow: 2px 2px 0 0 var(--foreground);
+}
+
+.btn-type2 {
+  border: 1px solid var(--accent-brand);
+  color: var(--accent-brand);
+  background: transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.btn-type2:hover {
+  background: var(--accent-brand);
+  color: var(--background);
+}
+
+.btn-brutal {
+  border: 1px solid color-mix(in srgb, var(--foreground) 40%, transparent);
+  color: var(--foreground);
+  background: var(--background);
+  box-shadow: 6px 8px 0 0 color-mix(in srgb, var(--foreground) 25%, transparent);
+  transition: all 0.15s ease;
+}
+
+.btn-brutal:hover {
+  box-shadow: 0 0 0 0 transparent;
+  transform: translate(2px, 4px);
+}
+
+.btn-brutal:active {
+  transform: translate(6px, 6px);
+  box-shadow: none;
+}

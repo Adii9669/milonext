@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../**/*.{js,ts,jsx,tsx}";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent-brand: var(--accent-brand);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --color-button: var(--button);
+  --color-button-foreground: var(--button-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-input: var(--input);
+  --color-message-sent: var(--message-sent);
+  --color-message-received: var(--message-received);
+  --color-chat-background: var(--chat-background);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-button-bg: var(--sidebar-button-bg);
+  --color-sidebar-button-hover: var(--sidebar-button-hover);
+  --color-sidebar-button-active: var(--sidebar-button-active);
+}
+
+/* =========================
+   THEMES
+========================= */
+
+@import "./themes/base.css";
+@import "./themes/light.css";
+@import "./themes/dark.css";
+@import "./themes/retro.css";
+@import "./themes/pomegranate.css";
+@import "./themes/custom.css";
+
+/* =========================
+   UTILITIES
+========================= */
+
+@import "./utilities/autofill.css";
+@import "./utilities/animations.css";
+@import "./utilities/contrast.css";
+@import "./utilities/typography.css";
+
+/* =========================
+   COMPONENTS
+========================= */
+
+@import "./components/sidebar.css";
+@import "./components/chat.css";
+@import "./components/auth.css";
+@import "./components/buttons.css";
+@import "./components/composer.css";
+@import "./components/home.css";

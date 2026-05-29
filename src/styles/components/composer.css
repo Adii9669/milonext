@@ -1,0 +1,353 @@
+/* =========================================================
+   OUTER COMPOSER SHELL
+========================================================= */
+
+.chat-composer {
+
+  position:
+    relative;
+
+  inline-size:
+    100%;
+
+  border-block-start:
+    1px solid var(--border);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 92%,
+      transparent
+    );
+
+  backdrop-filter:
+    blur(16px);
+
+  -webkit-backdrop-filter:
+    blur(16px);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* =========================================================
+   INNER COMPOSER SURFACE
+========================================================= */
+
+.chat-composer-inner {
+
+  display:
+    flex;
+
+  align-items:
+    flex-end;
+
+  gap:
+    12px;
+
+  inline-size:
+    100%;
+
+  min-block-size:
+    60px;
+
+  padding:
+    12px 16px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    24px;
+
+  background:
+    var(--surface-elevated);
+
+  box-shadow:
+    var(--shadow-soft);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* =========================================================
+   FOCUS STATE
+========================================================= */
+
+.chat-composer-inner:focus-within {
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 45%,
+      var(--border)
+    );
+
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.chat-composer-textarea {
+
+  flex:
+    1;
+
+  min-block-size:
+    24px;
+
+  max-block-size:
+    180px;
+
+  resize:
+    none;
+
+  overflow-y:
+    auto;
+
+  border:
+    none;
+
+  background:
+    transparent;
+
+  padding:
+    7px 0;
+
+  font-size:
+    15px;
+
+  line-height:
+    1.5;
+
+  color:
+    var(--text-primary);
+
+  outline:
+    none;
+}
+
+/* Placeholder */
+
+.chat-composer-textarea::placeholder {
+
+  color:
+    var(--text-muted);
+}
+
+/* Scrollbar */
+
+.chat-composer-textarea::-webkit-scrollbar {
+
+  inline-size:
+    6px;
+}
+
+.chat-composer-textarea::-webkit-scrollbar-thumb {
+
+  background:
+    var(--surface-hover);
+
+  border-radius:
+    999px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.chat-composer-action {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  inline-size:
+    40px;
+
+  block-size:
+    40px;
+
+  border:
+    none;
+
+  border-radius:
+    14px;
+
+  background:
+    transparent;
+
+  color:
+    var(--text-secondary);
+
+  cursor:
+    pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.chat-composer-action:hover {
+
+  background:
+    var(--surface-hover);
+
+  color:
+    var(--text-primary);
+
+  transform:
+    translateY(-1px);
+}
+
+.chat-composer-action:active {
+
+  transform:
+    scale(0.96);
+}
+
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+.chat-composer-send {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  inline-size:
+    42px;
+
+  block-size:
+    42px;
+
+  border:
+    none;
+
+  border-radius:
+    14px;
+
+  background:
+    var(--primary);
+
+  color:
+    var(--primary-foreground);
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 4px 18px color-mix(in srgb, var(--primary) 18%, transparent);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    opacity 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.chat-composer-send:hover {
+
+  background:
+    var(--primary-hover);
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 24px color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+.chat-composer-send:active {
+
+  transform:
+    scale(0.96);
+}
+
+.chat-composer-send:disabled {
+
+  opacity:
+    0.45;
+
+  cursor:
+    not-allowed;
+
+  transform:
+    none;
+
+  box-shadow:
+    none;
+}
+
+/* =========================================================
+   ATTACHMENT PREVIEW AREA
+========================================================= */
+
+.chat-composer-attachments {
+
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    12px;
+
+  margin-block-end:
+    12px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .chat-composer {
+
+    padding-block-end:
+      env(safe-area-inset-bottom);
+  }
+
+  .chat-composer-inner {
+
+    min-block-size:
+      56px;
+
+    padding:
+      10px 14px;
+
+    border-radius:
+      20px;
+  }
+
+  .chat-composer-action,
+  .chat-composer-send {
+
+    inline-size:
+      38px;
+
+    block-size:
+      38px;
+  }
+}

@@ -2,10 +2,8 @@ import { create } from "zustand";
 import { Crew } from '../../types/crew';
 
 import {
-    getCrews,
-    createCrew as apiCreateCrew,
-    deleteCrew as apiDeleteCrew,
-} from "@/src/lib/api";
+    crewsApi
+} from "@/src/features/Crews/api/crewApi";
 
 
 /* =======================
@@ -36,7 +34,7 @@ export const useCrewStore = create<CrewStore>((set, get) => ({
     fetchCrews: async () => {
         set({ loading: true });
         try {
-            const crews = await getCrews();
+            const crews = await crewsApi.getCrews();
             if(Array.isArray(crews)){
                 set({ crews });
             }else {
@@ -55,14 +53,14 @@ export const useCrewStore = create<CrewStore>((set, get) => ({
     },
     
     createCrew: async (name: string) => { 
-        await apiCreateCrew(name);
+        await crewsApi.createCrew({ name });
         await useCrewStore.getState().fetchCrews();
         const crews = get().crews;
         return crews[crews.length - 1];
     },
 
     deleteCrew: async (crewId: string) => {
-        await apiDeleteCrew(crewId);
+        await crewsApi.deleteCrew(crewId);
         await useCrewStore.getState().fetchCrews();
     },
     

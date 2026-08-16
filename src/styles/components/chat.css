@@ -1,0 +1,67 @@
+/* Chat layout — always use theme tokens for background + readable text */
+
+.chat-container {
+  background-color: var(--chat-background);
+  color: var(--text-primary);
+}
+
+.chat-header {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.chat-header-title {
+  color: var(--text-primary);
+}
+
+.chat-header-menu-trigger {
+  color: var(--text-primary);
+}
+
+.chat-header-menu-trigger:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.chat-header-menu-icon {
+  color: var(--text-primary);
+}
+
+.chat-messages {
+  background-color: var(--chat-background);
+  color: var(--text-primary);
+}
+
+.chat-messages .chat-message-sender {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.chat-messages .chat-message-meta {
+  color: var(--text-muted);
+}
+
+.chat-messages .chat-message-status {
+  color: var(--text-secondary);
+}
+
+.chat-empty {
+  background-color: var(--chat-background);
+  color: var(--text-secondary);
+}
+
+.chat-bubble-sent {
+  background: var(--message-sent);
+  color: var(--primary-foreground);
+  border-radius: 18px 18px 4px 18px;
+  padding: 10px 14px;
+}
+
+.chat-bubble-received {
+  background: var(--message-received);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 18px 18px 18px 4px;
+  padding: 10px 14px;
+}

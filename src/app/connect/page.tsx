@@ -1,5 +1,6 @@
-import ConnectPage from "./ConnectPage";
+import { ConnectLayout } from "@/src/features/Connect/Components/ConnectLayout";
 
 export default function Page() {
-  return <ConnectPage />;
+  return <ConnectLayout />;
 }
+

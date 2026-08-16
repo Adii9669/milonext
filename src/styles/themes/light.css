@@ -1,0 +1,50 @@
+/* Default light — skipped when custom theme is active */
+[data-theme="light"]:not([data-custom-theme="true"]) {
+  --radius: 16px;
+
+  --background: #f7f8fa;
+  --foreground: #111827;
+
+  --surface: #ffffff;
+  --surface-elevated: #f3f4f6;
+  --surface-hover: #e5e7eb;
+  --surface-active: #d1d5db;
+
+  --border: rgba(17, 24, 39, 0.08);
+  --border-strong: rgba(17, 24, 39, 0.16);
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-inverse: #ffffff;
+
+  --primary: #00e5ff;
+  --primary-hover: #22d3ee;
+  --primary-foreground: #000000;
+
+  --accent-brand: #c89bb5;
+  --accent-glow: color-mix(in srgb, var(--accent-brand) 40%, transparent);
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+
+  --message-sent: #111827;
+  --message-received: #ffffff;
+
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 40px rgba(0, 229, 255, 0.12);
+
+  --chat-background: #f3f4f6;
+
+  --sidebar-background: #f7f8fa;
+  --sidebar-button-bg: #e5e7eb;
+  --sidebar-button-hover: #d1d5db;
+  --sidebar-button-active: #00e5ff;
+}
+
+/* SSR / first paint before data-theme is set (layout defaults to dark) */
+:root:not([data-custom-theme="true"]) {
+  --radius: 16px;
+}

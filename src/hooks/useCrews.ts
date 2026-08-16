@@ -1,7 +1,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCrews } from "@/src/lib/api";
-import { useAuth } from "@/src/context/AuthContext";
+import { apiCrews } from "@/src/lib/api";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 
 
 export const useCrews = () => {

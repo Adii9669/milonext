@@ -6,6 +6,7 @@ import { Bot, CalendarDays, MessageCircle, Plus, Search, UserRound, UserRoundPlu
 import { Crew } from "@/src/types/crew";
 import { Friends } from "@/src/types/friends";
 import { Message } from "@/src/features/Chat/types/messages";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import CreateModal from "@/src/shared/components/Modals/CreateModal";
 import ThemeToggle from "@/src/shared/components/ToggleTheme";
 
@@ -43,6 +44,7 @@ export default function SideBar({
   sidebarOpen = true,
   onToggleSidebar,
 }: CrewSidebarProps) {
+  const { logout } = useAuth();
   const [localView, setLocalView] = useState<"dm" | "crew">(activeView ?? "crew");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chats");
   const [search, setSearch] = useState("");
@@ -201,7 +203,15 @@ export default function SideBar({
         ) : mobileTab === "plans" ? (
           <div className="mobile-panel-card"><span className="mobile-panel-eyebrow">Coming soon</span><h2>Make a plan together</h2><p>Keep a little plan with your people, right alongside the conversation.</p><div className="mobile-plan-preview"><strong>Saturday, 7pm</strong><span>Café with the best cake</span><div><b>I’m in</b><i>Maybe</i></div></div></div>
         ) : (
-          <div className="mobile-panel-card"><span className="mobile-panel-eyebrow">Your account</span><h2>{user?.name || user?.username || "Your profile"}</h2><p>{user?.email || "Your Onechat account"}</p><Link href="/auth/login" className="mobile-account-link">Account settings</Link></div>
+          <div className="mobile-panel-card">
+            <span className="mobile-panel-eyebrow">Your account</span>
+            <h2>{user?.name || user?.username || "Your profile"}</h2>
+            <p>{user?.email || "Your Onechat account"}</p>
+            <div className="mobile-account-actions">
+              <Link href="/auth/login" className="mobile-account-link">Account settings</Link>
+              <button type="button" onClick={logout} className="mobile-account-link mobile-account-logout">Log out</button>
+            </div>
+          </div>
         )}
 
         <nav className="mobile-tab-bar" aria-label="App sections">

@@ -37,23 +37,6 @@ export function CleanRegisterForm() {
             </p>
           </div>
 
-          {/* Stepper indicator */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-foreground text-background font-mono text-xs font-bold flex items-center justify-center shadow-sm">
-                1
-              </div>
-              <span className="text-xs font-bold text-foreground tracking-wide">Details</span>
-            </div>
-            <div className="flex-1 h-px bg-border" />
-            <div className="flex items-center gap-2">
-              <div className="size-6 rounded-full bg-surface-elevated border border-border text-text-muted font-mono text-xs font-bold flex items-center justify-center">
-                2
-              </div>
-              <span className="text-xs font-medium text-text-muted tracking-wide">Verify email</span>
-            </div>
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Username */}

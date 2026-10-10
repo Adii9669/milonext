@@ -3,7 +3,6 @@
 import { Crew } from "@/src/types/crew";
 import { Friends } from "@/src/types/friends";
 import { Message } from "@/src/features/Chat/types/messages";
-import { useAuth } from "@/src/features/auth/hooks/useAuth";
 import { useChatLogic } from "@/src/hooks/useChatLogic";
 import { ChatHeader } from "@/src/features/Chat/ui/ChatHeader";
 import { MessageList } from "@/src/features/Chat/ui/MessageList";
@@ -50,8 +49,6 @@ export default function ChatContainer({
   sidebarOpen = true,
   onToggleSidebar,
 }: ChatContainerProps) {
-  const { logout } = useAuth();
-
   const {
     input,
     setInput,
@@ -83,7 +80,6 @@ export default function ChatContainer({
       <ChatHeader
         crew={crew}
         friend={friend}
-        logout={logout}
         onBack={onBack}
         members={crewMembers}
         sidebarOpen={sidebarOpen}

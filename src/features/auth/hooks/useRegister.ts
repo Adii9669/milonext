@@ -76,9 +76,7 @@ export function useRegister() {
                     data.password,
             });
 
-            router.push(
-                "/auth/verify-email"
-            );
+            router.push("/auth/login");
 
         } catch (error) {
 

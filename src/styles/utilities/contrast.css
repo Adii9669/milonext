@@ -1,0 +1,11 @@
+.text-on-background {
+  color: var(--foreground);
+}
+
+.text-on-primary {
+  color: var(--primary-foreground);
+}
+
+.text-on-surface {
+  color: var(--text-primary);
+}

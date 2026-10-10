@@ -1,14 +1,10 @@
-// app/auth/verifyEmail/page.tsx
-import { Suspense } from 'react';
-// Import the renamed client component
-import VerifyOtpForm from './verifyOTP'; 
+import { Suspense } from "react";
+import { VerifyOTPForm } from "@/src/features/auth/components/VerifyOTPForm";
 
-export default function VerifyOtpPage() {
+export default function VerifyEmailPage() {
   return (
-    // The Suspense boundary is essential here
-    <Suspense fallback={<div>Loading verification form...</div>}>
-      {/* Render your client component inside the Suspense boundary */}
-      <VerifyOtpForm />
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <VerifyOTPForm />
     </Suspense>
   );
 }

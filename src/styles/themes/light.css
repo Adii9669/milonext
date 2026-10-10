@@ -1,0 +1,50 @@
+/* Light Onechat palette from design/Homepage (light)-1.pdf */
+[data-theme="light"]:not([data-custom-theme="true"]) {
+  --radius: 16px;
+
+  --background: #f5f6fb;
+  --foreground: #11151e;
+
+  --surface: #ffffff;
+  --surface-elevated: #e8ebf1;
+  --surface-hover: #dfe4ed;
+  --surface-active: #d4dbe8;
+
+  --border: rgba(27, 38, 56, 0.1);
+  --border-strong: rgba(27, 38, 56, 0.2);
+
+  --text-primary: #11151e;
+  --text-secondary: #566173;
+  --text-muted: #8490a0;
+  --text-inverse: #ffffff;
+
+  --primary: #8eafff;
+  --primary-hover: #a3bcff;
+  --primary-foreground: #101522;
+
+  --accent-brand: #356bd4;
+  --accent-glow: color-mix(in srgb, var(--accent-brand) 24%, transparent);
+
+  --success: #65d5ae;
+  --warning: #f0d889;
+  --error: #d94b63;
+  --info: #216ff2;
+
+  --message-sent: #216ff2;
+  --message-received: #e7e9ee;
+
+  --shadow-soft: 0 8px 28px rgba(36, 48, 70, 0.08);
+  --shadow-glow: 0 0 38px rgba(80, 123, 211, 0.14);
+
+  --chat-background: #f6f7fb;
+
+  --sidebar-background: #f7f8fb;
+  --sidebar-button-bg: #e8ebf1;
+  --sidebar-button-hover: #dfe4ed;
+  --sidebar-button-active: #8eafff;
+}
+
+/* Default shape until theme hydration. */
+:root:not([data-custom-theme="true"]) {
+  --radius: 16px;
+}

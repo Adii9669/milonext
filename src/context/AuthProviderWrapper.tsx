@@ -1,16 +1,16 @@
-"use client";
+// "use client";
 
-import { Suspense } from "react";
-import { AuthProvider } from "@/src/context/AuthContext"; // adjust the path if needed
+// import { Suspense } from "react";
+// // import { AuthProvider } from "@/src/context/AuthContext"; // adjust the path if needed
 
-export default function AuthProviderWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <Suspense fallback={<div>Loading session...</div>}>
-      <AuthProvider>{children}</AuthProvider>
-    </Suspense>
-  );
-}
+// export default function AuthProviderWrapper({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <Suspense fallback={<div>Loading session...</div>}>
+//       <AuthProvider>{children}</AuthProvider>
+//     </Suspense>
+//   );
+// }

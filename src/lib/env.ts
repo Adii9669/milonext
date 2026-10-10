@@ -1,18 +1,26 @@
-import zod from "zod";
+import { z } from "zod";
 
-const envSchema = zod.object({
-  DATABASE_URL: zod.string().nonempty(),
-  Google_Client_id: zod.string().nonempty(),
-  Google_secret: zod.string().nonempty(),
-  NEXTAUTH_SECRET: zod.string().nonempty(),
-  NEXTAUTH_URL: zod.string().nonempty(),
-  NEXTAUTH_CLIENT_ID: zod.string().nonempty(),
+const envSchema = z.object({
+  NEXT_PUBLIC_API_URL:
+    z.string().url(),
 });
 
+const parsedEnv =
+  envSchema.safeParse({
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL,
+  });
 
-const clientSchema = zod.object({
-  NEXT_PUBLIC_API_URL: zod.string().url(),
-});
+if (!parsedEnv.success) {
 
-export const clientEnv = clientSchema.parse(process.env);
-export const env = envSchema.parse(process.env);
+  console.error(
+    "Invalid environment variables:",
+    parsedEnv.error.flatten().fieldErrors
+  );
+
+  throw new Error(
+    "Invalid environment variables."
+  );
+}
+
+export const env = parsedEnv.data;

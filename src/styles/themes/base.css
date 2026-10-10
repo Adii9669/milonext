@@ -1,0 +1,23 @@
+/* Shared aliases — token values come from light/dark/palette/custom theme files */
+
+:root {
+  --accent-brand: #c89bb5;
+  --accent-glow: color-mix(in srgb, var(--accent-brand) 40%, transparent);
+
+  /* shadcn / UI aliases */
+  --ring: var(--primary);
+  --destructive: var(--error);
+  --button: var(--primary);
+  --button-foreground: var(--primary-foreground);
+  --secondary: var(--surface-elevated);
+  --secondary-foreground: var(--text-primary);
+  --accent: var(--surface-hover);
+  --accent-foreground: var(--text-primary);
+  --muted: var(--surface-hover);
+  --muted-foreground: var(--text-muted);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --input: var(--border);
+}

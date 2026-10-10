@@ -1,8 +1,6 @@
-// src/hooks/useRedirectValidator.ts
-
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/src/context/AuthContext';
+import { useAuth } from '@/src/features/auth/hooks/useAuth';
 
 export function useRedirectValidator() {
   const { user, loading } = useAuth();

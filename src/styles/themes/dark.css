@@ -1,0 +1,42 @@
+[data-theme="dark"]:not([data-custom-theme="true"]) {
+  --background: #1E232B;
+  --foreground: #eef2f8;
+
+  --surface: #252B34;
+  --surface-elevated: #303744;
+  --surface-hover: #343c4a;
+  --surface-active: #3e4757;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text-primary: #f0f4fa;
+  --text-secondary: #c2cbd7;
+  --text-muted: #9aa8bc;
+  --text-inverse: #1E232B;
+
+  --primary: #91b0ff;
+  --primary-hover: #a9c0ff;
+  --primary-foreground: #101522;
+
+  --accent-brand: #91b0ff;
+  --accent-glow: color-mix(in srgb, var(--accent-brand) 24%, transparent);
+
+  --success: #65d8b5;
+  --warning: #f2d98c;
+  --error: #ff778b;
+  --info: #8ebcff;
+
+  --message-sent: #216ff2;
+  --message-received: #303744;
+
+  --shadow-soft: 0 16px 42px rgba(0, 0, 0, 0.38);
+  --shadow-glow: 0 0 40px rgba(90, 135, 235, 0.14);
+
+  --chat-background: #1E232B;
+
+  --sidebar-background: #170202;
+  --sidebar-button-bg: #303744;
+  --sidebar-button-hover: #3a4353;
+  --sidebar-button-active: #6f7686;
+}

@@ -1,5 +1,4 @@
-import Navbar from "@/src/components/Navbar/navbar";
-import StarfieldBg from "@/src/components/SolarSystem/StarsFeild";
+import Navbar from "@/src/shared/components/Navbar/navbar";
 
 // no navbar here — auth pages are standalone
 export default function AuthLayout({
@@ -7,11 +6,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-     
-
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

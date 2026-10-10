@@ -1,85 +1,39 @@
 "use client";
 
 import Link from "next/link";
-
-import Button from "@/src/shared/components/ui/RetroButton";
-
-import { motion } from "framer-motion";
-
-import AnimatedHeroTitle from "../../components/HeroTitle";
-
-import { useHeroMotion } from "../../hooks/userHeroMotion";
-import BuiltDifferent from "./BuiltDifferentSection";
+import { ArrowDown } from "lucide-react";
+import laptopBackdrop from "../../../../../design/laptopimage.webp";
+import catLightBackdrop from "../../../../../design/catlight.jpg";
 
 export default function HeroSection() {
-  const {
-    mainTitleY,
-
-    mainTitleOpacity,
-  } = useHeroMotion();
-
   return (
-    <div>
-      <section
-        className="relative   flex
-    justify-center
-     min-h-screen overflow-hidden bg-background text-foreground"
-      >
-        <div
-          className="
-          relative
-          z-10
-          flex
-          min-h-screen
-          flex-col
-          items-center
-          justify-center
-          px-6
-          text-center
-        "
-        >
-          <p className="mb-6 text-xs uppercase tracking-[0.6em] text-primary">
-            Built For Hackers
-          </p>
+    <section id="top" className="home-orbit-hero relative isolate min-h-[100svh] overflow-hidden bg-background px-5 pb-8 pt-24 text-foreground sm:px-8 sm:pt-28">
+      <div className="home-cinematic-backdrop home-cinematic-backdrop--dark pointer-events-none absolute inset-0" style={{ backgroundImage: `url("${laptopBackdrop.src}")` }} aria-hidden="true" />
+      <div className="home-cinematic-backdrop home-cinematic-backdrop--light pointer-events-none absolute inset-0" style={{ backgroundImage: `url("${catLightBackdrop.src}")` }} aria-hidden="true" />
 
-          <div className=" group cursor-pointer ">
-            <AnimatedHeroTitle />
-          </div>
-
-          <p
-            className="
-            mt-8
-            max-w-2xl
-            text-[clamp(1rem,1.2vw,1.25rem)]
-            text-text-secondary "
-          >
-            Developer-first realtime communication platform engineered for
-            performance and scale.
-          </p>
-
-          <div className="mt-12 flex gap-6">
-            <Button className="cursor-pointer" variant="type2">
-              <Link href="/auth/register">Sign Up</Link>
-            </Button>
-
-            <button
-              className="
-              border
-              border-border
-              px-10
-              py-3
-              uppercase
-              tracking-widest
-              text-foreground
-              transition
-              hover:bg-surface-hover
-            "
-            >
-              Learn More
-            </button>
-          </div>
+      <div className="home-cinematic-copy relative z-10 mx-auto flex min-h-[calc(100svh-8.5rem)] max-w-[1280px] flex-col items-center text-center">
+        <div className="mt-[18vh] sm:mt-[16vh]">
+          <h1 className="max-w-5xl text-[clamp(3.2rem,7vw,6.5rem)] font-semibold leading-[.96] tracking-[-.06em]">
+            Your people.<br /><span className="text-text-muted">Your place.</span>
+          </h1>
         </div>
-      </section>
-    </div>
+
+        <Link
+          className="home-scroll-invite mt-auto mb-1 flex flex-col items-center gap-3"
+          href="#conversation-preview"
+          onClick={(event) => {
+            event.preventDefault();
+            document.getElementById("conversation-preview")?.scrollIntoView({
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+              block: "start",
+            });
+            window.history.replaceState(null, "", "#conversation-preview");
+          }}
+        >
+          <span>SCROLL TO ENTER</span>
+          <ArrowDown aria-hidden="true" className="size-4 animate-bounce" />
+        </Link>
+      </div>
+    </section>
   );
 }

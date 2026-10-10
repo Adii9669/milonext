@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/src/features/auth/hooks/useAuth w q";
+import { useAuth } from "@/src/features/auth/hooks/useAuth";
 
 
 const GuestRouter = ({ children }: { children: React.ReactNode }) => {

@@ -1,158 +1,67 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-import { Plus, SendHorizonal, Smile } from "lucide-react";
+import { CalendarDays, Image as ImageIcon, MapPin, Mic, Plus, SendHorizontal, Vote, X } from "lucide-react";
+import { useState } from "react";
 
 interface Props {
   input: string;
-
   setInput: (value: string) => void;
-
   onSend: () => void;
-
   connected: boolean;
 }
 
 export function MessageComposer({ input, setInput, onSend, connected }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const canSend = connected && Boolean(input.trim());
 
   useEffect(() => {
     const textarea = textareaRef.current;
-
     if (!textarea) return;
     textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
   }, [input]);
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      onSend();
-    }
+  function send() {
+    if (canSend) onSend();
   }
 
   return (
-    <div className="chat-composer px-4 py-4">
-      {/* Attachment Preview Area */}
-
-      <div className="mb-3 hidden"></div>
-
-      {/* Main Composer */}
-      <div
-        className="
-                    chat-composer-inner
-                    flex
-                    items-end
-                    gap-2
-                    px-4
-                    py-3
-                    transition-all
-                    duration-200"
-      >
-        {/* Left Actions */}
-
-        <div
-          className="
-                        flex
-                        items-center
-                        gap-2
-                    "
-        >
-          {/* Upload */}
-          <button
-            type="button"
-            className="
-                            flex
-                            h-10
-                            w-10
-                            items-center
-                            justify-center
-                            rounded-xl
-                            text-text-secondary
-                            transition-all
-                            duration-200
-                            hover:bg-surface-hover
-                            hover:text-text-primary
-                        "
-          >
-            <Plus size={20} />
-          </button>
-        </div>
-
-        {/* Textarea */}
-
+    <form className="chat-composer" onSubmit={(event) => { event.preventDefault(); send(); }}>
+      {toolsOpen && <div className="chat-composer-popover" aria-label="Quick message tools">
+        {[["Plan", "Plan: Saturday 7pm — ", CalendarDays], ["Poll", "Poll: ", Vote], ["Photo", "Photo: ", ImageIcon], ["Place", "Place: ", MapPin]].map(([label, value, Icon]) => {
+          const ToolIcon = Icon as typeof CalendarDays;
+          return <button key={label as string} type="button" onClick={() => { setInput(value as string); setToolsOpen(false); }}><ToolIcon aria-hidden="true" />{label as string}</button>;
+        })}
+      </div>}
+      <div className="chat-composer-inner">
+        <button type="button" className="chat-composer-plus" onClick={() => setToolsOpen((open) => !open)} aria-label={toolsOpen ? "Close message tools" : "Open message tools"} aria-expanded={toolsOpen}>
+          {toolsOpen ? <X aria-hidden="true" /> : <Plus aria-hidden="true" />}
+        </button>
+        <div className="chat-composer-field">
         <textarea
           ref={textareaRef}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={connected ? "Type anything..." : "Connecting..."}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              send();
+            }
+          }}
+          placeholder={connected ? "Message your people…" : "Connecting…"}
           disabled={!connected}
           rows={1}
-          className="
-                        min-h-24px
-                        max-h-40
-                        flex-1
-                        resize-none
-                        overflow-y-auto
-                        bg-transparent
-                        pb-3
-                        leading-2
-                        text-text-primary
-                        placeholder:text-text-muted
-                        outline-none
-                    "
+          aria-label="Message"
+          className="chat-composer-textarea"
         />
-
-        {/* Right Actions */}
-
-        <div className="flex items-center gap-2">
-          {/* Emoji */}
-          <button
-            type="button"
-            className="
-                            flex
-                            h-10
-                            w-10
-                            items-center
-                            justify-center
-                            rounded-xl
-                            text-text-secondary
-                            transition-all
-                            duration-200
-                            hover:bg-surface-hover
-                            hover:text-text-primary
-                        "
-          >
-            <Smile size={20} />
-          </button>
-
-          {/* Send */}
-
-          <button
-            onClick={onSend}
-            disabled={!input.trim() || !connected}
-            className="
-                            flex
-                            h-10
-                            w-10
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-primary
-                            text-primary-foreground
-                            transition-all
-                            duration-200
-                            hover:scale-105
-                            disabled:opacity-40
-                            disabled:hover:scale-100
-                        "
-          >
-            <SendHorizonal size={18} />
-          </button>
+        <span className="chat-composer-mic" aria-hidden="true"><Mic /></span>
+        <button type="submit" className="chat-composer-send" disabled={!canSend} aria-label="Send message">
+          <SendHorizontal size={18} aria-hidden="true" />
+        </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

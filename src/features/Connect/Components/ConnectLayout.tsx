@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { Bot } from "lucide-react";
+
 import {
     useProtectedRoute,
 } from "@/src/hooks/useProtectedRoute";
@@ -12,6 +15,7 @@ from "@/src/features/SideBar/EmptyState";
 
 import ChatComponent
 from "@/src/features/Chat/ui/ChatContainer";
+import { ChatDetailsPanel } from "@/src/features/Chat/ui/ChatDetailsPanel";
 
 import {
     useConnectPage,
@@ -24,6 +28,8 @@ import {
 export function ConnectLayout() {
 
     useProtectedRoute("/");
+    const [mobileChatOpen, setMobileChatOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const {
 
@@ -74,15 +80,13 @@ export function ConnectLayout() {
     return (
 
         <div
-            className="
-                flex
-                h-screen
-            "
+            className={`connect-shell font-chillax ${mobileChatOpen ? "mobile-chat-open" : ""} flex h-[100dvh] min-w-0 overflow-hidden`}
         >
 
             <CrewSidebar
 
                 crews={queries.crews}
+                messages={realtime.messages}
 
                 loading={
                     queries.crewsLoading
@@ -117,13 +121,7 @@ export function ConnectLayout() {
                 }}
 
                 friendsLoading={
-                    queries.friendsLoading ||
-
-                    queries.incomingRequests
-                        .length > 0 ||
-
-                    queries.outgoingRequests
-                        .length > 0
+                    queries.friendsLoading
                 }
 
                 selectedCrew={
@@ -160,13 +158,20 @@ export function ConnectLayout() {
                     selection
                     .setSelectedCrew(null)
                 }
+                onOpenChat={() => setMobileChatOpen(true)}
+                incomingRequestCount={queries.incomingRequests.length}
+                incomingRequestNames={queries.incomingRequests.map((request: any) => request.name || request.username).filter(Boolean)}
+                user={user}
+                sidebarOpen={sidebarOpen}
+                onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
             />
 
             <div
                 className="
+                    connect-main
                     flex
                     flex-1
-                    flex-col
+                    flex-row
                     bg-chat-background
                     text-text-primary
                 "
@@ -174,6 +179,7 @@ export function ConnectLayout() {
 
                 <div
                     className="
+                        connect-conversation-shell
                         flex
                         flex-1
                         overflow-hidden
@@ -181,8 +187,10 @@ export function ConnectLayout() {
                 >
 
                     <div
-                        className="
-                            flex-1
+                    className="
+                        connect-chat-pane
+                        relative
+                        flex-1
                             overflow-hidden
                             bg-chat-background
                             text-text-primary
@@ -191,7 +199,20 @@ export function ConnectLayout() {
 
                         {isEmptyState ? (
 
-                            <EmptyState />
+                            <div className="relative h-full w-full">
+                                {!sidebarOpen && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSidebarOpen(true)}
+                                        className="chat-header-sidebar-toggle absolute top-4 left-4 z-20"
+                                        title="Show sidebar"
+                                        aria-label="Show sidebar"
+                                    >
+                                        <Bot aria-hidden="true" className="size-4" />
+                                    </button>
+                                )}
+                                <EmptyState />
+                            </div>
 
                         ) : (
 
@@ -249,6 +270,10 @@ export function ConnectLayout() {
                                     realtime
                                     .stopTyping
                                 }
+                                onBack={() => setMobileChatOpen(false)}
+                                crewMembers={queries.crewMembers}
+                                sidebarOpen={sidebarOpen}
+                                onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
                             />
 
                         )}
@@ -256,6 +281,14 @@ export function ConnectLayout() {
                     </div>
 
                 </div>
+
+                {(selection.selectedCrew || selection.selectedFriend) && (
+                    <ChatDetailsPanel
+                        crew={selection.selectedCrew}
+                        friend={selection.selectedFriend}
+                        members={queries.crewMembers}
+                    />
+                )}
 
             </div>
 

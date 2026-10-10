@@ -68,7 +68,7 @@ export function LOGO({
                     viewBox="0 0 640 640"
 
                     className={`
-                        fill-foreground
+                        fill-accent-brand
 
                         transition-all
                         duration-200

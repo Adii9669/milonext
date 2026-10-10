@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 
-interface SingINProps {
+interface AuthCardProps {
   title: string;
   children: ReactNode;
   header?: ReactNode;
@@ -13,7 +13,7 @@ interface SingINProps {
   size?: "sm" | "md" | "lg";
 }
 
-export default function SIGNIN({
+export default function AuthCard({
   title,
   children,
   header,
@@ -21,7 +21,7 @@ export default function SIGNIN({
   className = "",
   variant = "plane",
   size = "md",
-}: SingINProps) {
+}: AuthCardProps) {
   const sizes = {
     sm: "max-w-md",
     md: "max-w-xl ",
@@ -33,14 +33,14 @@ export default function SIGNIN({
     bg-surface border-2 border-foreground
     rounded-2xl p-8 text-foreground
     shadow-[6px_6px_0px_0px_var(--foreground)] space-y-6`,
-    plane: "h-150 text-foreground rounded-2xl p-8 shadow-lg space-y-6 bg-surface/80",
+    plane:
+      "auth-card text-foreground rounded-2xl p-6 sm:p-8 space-y-6 bg-surface/95",
 
     dark: "bg-surface rounded-xl text-foreground p-10 shadow-xl space-y-6",
   };
 
   return (
-    <div className="w-full min-h-screen flex relative items-center justify-center px-6">
-      
+    <div className="w-full min-h-[100dvh] flex relative items-center justify-center px-5 py-24 sm:px-8">
 
       <motion.div
         key={title}
@@ -55,10 +55,10 @@ export default function SIGNIN({
           <div className="mb-9">{header}</div>
         ) : (
           (title || subtitle) && (
-            <div className="text-center mb-8 space-y-6">
+            <div className="text-center mb-8 space-y-3">
               {title && (
                 <h1
-                  className={`text-5xl font-black uppercase tracking-widest leading-none text-foreground ${
+                  className={`text-3xl font-black uppercase tracking-[0.12em] leading-tight text-foreground sm:text-4xl ${
                     variant === "retro"
                       ? "[text-shadow:0_0_40px_var(--accent-glow)]"
                       : variant === "dark"

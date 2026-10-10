@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/src/shared/components/Navbar/navbar";
 import HOME from "./home/page";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +22,6 @@ export default function Home() {
 
   return (
     <div>
-      <Navbar />
       <HOME />
     </div>
   );

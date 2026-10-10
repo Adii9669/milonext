@@ -1,69 +1,131 @@
 "use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { LOGO } from "../logo";
 import ThemeToggle from "../ToggleTheme";
 
+const links = [
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Privacy", href: "#privacy" },
+  { label: "Roadmap", href: "#up-next" },
+];
+
 export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav
-      className="flex font-chillax 
-     top-0 z-50 items-center 
-     justify-between px-10 py-5
-      shadow-sm bg-background"
-    >
-      {/* Left Logo */}
-      <div
-        className="
-        flex  item-center  text-3xl
-        fixed top-5 left-10 gap-3 z-50"
+    <header className="home-navbar fixed inset-x-0 top-0 z-50 px-5 pt-4 sm:px-8 sm:pt-5">
+      <nav
+        aria-label="Main navigation"
+        className={`
+          mx-auto grid max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-3
+          rounded-2xl px-4 py-2.5 sm:px-6 sm:py-3
+          transition-all duration-300
+          ${scrolled
+            ? "bg-surface/85 border border-border backdrop-blur-xl shadow-[var(--shadow-soft)]"
+            : "bg-transparent border border-transparent"
+          }
+        `}
       >
-        <Link href="/" className="flex items-center gap-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className="w-8 h-8 fill-foreground hover:scale-110 transition-all duration-200"
-          >
-            <path d="M399.7 160.2C410.8 149.1 515.2 83.2 538.9 107C562.6 130.7 496.8 235.1 485.7 246.2C474.6 257.3 446.3 247.1 422.6 223.3C398.8 199.6 388.5 171.3 399.7 160.2zM205.9 132.1C169.6 111.5 118 88.6 101.6 105.1C85 121.7 108.7 174.5 129.5 210.8C148 178.6 174.3 151.5 205.9 132.1zM502.7 238C506 249.3 505.4 258.7 500 264.1C479.7 284.4 412.5 237.1 390.7 194C372.7 161.7 379.6 140.6 405.6 145.3C411.3 141.7 417.9 137.7 425.2 133.7C395.4 118.2 361.6 109.4 325.7 109.4C206.6 109.4 110.1 205.9 110.1 325C110.1 444 206.6 540.6 325.7 540.6C444.8 540.6 541.3 444.1 541.3 325C541.3 286.6 531.2 250.5 513.6 219.2C509.7 226.2 506 232.5 502.7 238z" />
-          </svg>
+        {/* ── Logo ──────────────────────────────────────────── */}
+        <LOGO
+          href="/"
+          className="home-nav-logo justify-self-start"
+          textClassName="text-sm sm:text-base"
+          iconClassName="size-5 sm:size-6"
+        />
 
-          {/* Animated CONNECT logo */}
-          <div
-            className="
-            flex items-center gap-1px
-            text-[1em] font-bold
-            text-3xl tracking-[0.2em] 
-            group cursor-pointer"
-          >
-            {"ONECHAT".split("").map((char, i) => (
-              <span
-                key={i}
-                style={{ transitionDelay: `${i * 60}ms` }}
-                className="
-                    text-foreground
-                    transition-all duration-100
-                    group-hover:scale-110"
-              >
-                {char}
-              </span>
-            ))}
-          </div>
-        </Link>
-      </div>
+        {/* ── Center nav links ─────────────────────────────── */}
+        <div className="home-nav-links hidden items-center justify-center gap-1 md:flex lg:gap-1">
+          {links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="home-nav-link"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
 
-      {/* Right Buttons */}
-      <div
-        className="flex  items-center gap-3
-        fixed top-5 right-10  z-50
-      
-      "
-      >
-        <ThemeToggle />
-        <Button variant="type2">
-          <Link rel="noopener noreferrer" href="/auth/login">
-            Log In
+        {/* ── Right actions ─────────────────────────────────── */}
+        <div className="flex items-center justify-self-end gap-2 sm:gap-3">
+          <ThemeToggle />
+
+          <Link className="home-nav-signin hidden sm:inline-flex" href="/auth/login">
+            Sign in
           </Link>
-        </Button>
-      </div>
-    </nav>
+
+          <Link className="home-nav-cta" href="/auth/register">
+            <span className="hidden sm:inline">Create account</span>
+            <span className="sm:hidden">Sign up</span>
+          </Link>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="home-nav-menu-button md:hidden"
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Mobile menu ─────────────────────────────────── */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="home-nav-mobile-panel md:hidden"
+            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            {links.map((link) => (
+              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
+                {link.label}
+              </a>
+            ))}
+
+            <div className="home-nav-mobile-divider" />
+
+            <Link
+              href="/auth/login"
+              className="home-nav-mobile-action"
+              onClick={() => setMenuOpen(false)}
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/auth/register"
+              className="home-nav-mobile-action home-nav-mobile-action--primary"
+              onClick={() => setMenuOpen(false)}
+            >
+              Create account
+            </Link>
+
+            <div className="home-nav-mobile-theme">
+              <span>Appearance</span>
+              <ThemeToggle />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }

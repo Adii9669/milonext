@@ -1,50 +1,50 @@
-/* Default light — skipped when custom theme is active */
+/* Light Onechat palette from design/Homepage (light)-1.pdf */
 [data-theme="light"]:not([data-custom-theme="true"]) {
   --radius: 16px;
 
-  --background: #f7f8fa;
-  --foreground: #111827;
+  --background: #f5f6fb;
+  --foreground: #11151e;
 
   --surface: #ffffff;
-  --surface-elevated: #f3f4f6;
-  --surface-hover: #e5e7eb;
-  --surface-active: #d1d5db;
+  --surface-elevated: #e8ebf1;
+  --surface-hover: #dfe4ed;
+  --surface-active: #d4dbe8;
 
-  --border: rgba(17, 24, 39, 0.08);
-  --border-strong: rgba(17, 24, 39, 0.16);
+  --border: rgba(27, 38, 56, 0.1);
+  --border-strong: rgba(27, 38, 56, 0.2);
 
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --text-primary: #11151e;
+  --text-secondary: #566173;
+  --text-muted: #8490a0;
   --text-inverse: #ffffff;
 
-  --primary: #00e5ff;
-  --primary-hover: #22d3ee;
-  --primary-foreground: #000000;
+  --primary: #8eafff;
+  --primary-hover: #a3bcff;
+  --primary-foreground: #101522;
 
-  --accent-brand: #c89bb5;
-  --accent-glow: color-mix(in srgb, var(--accent-brand) 40%, transparent);
+  --accent-brand: #356bd4;
+  --accent-glow: color-mix(in srgb, var(--accent-brand) 24%, transparent);
 
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
+  --success: #65d5ae;
+  --warning: #f0d889;
+  --error: #d94b63;
+  --info: #216ff2;
 
-  --message-sent: #111827;
-  --message-received: #ffffff;
+  --message-sent: #216ff2;
+  --message-received: #e7e9ee;
 
-  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.08);
-  --shadow-glow: 0 0 40px rgba(0, 229, 255, 0.12);
+  --shadow-soft: 0 8px 28px rgba(36, 48, 70, 0.08);
+  --shadow-glow: 0 0 38px rgba(80, 123, 211, 0.14);
 
-  --chat-background: #f3f4f6;
+  --chat-background: #f6f7fb;
 
-  --sidebar-background: #f7f8fa;
-  --sidebar-button-bg: #e5e7eb;
-  --sidebar-button-hover: #d1d5db;
-  --sidebar-button-active: #00e5ff;
+  --sidebar-background: #f7f8fb;
+  --sidebar-button-bg: #e8ebf1;
+  --sidebar-button-hover: #dfe4ed;
+  --sidebar-button-active: #8eafff;
 }
 
-/* SSR / first paint before data-theme is set (layout defaults to dark) */
+/* Default shape until theme hydration. */
 :root:not([data-custom-theme="true"]) {
   --radius: 16px;
 }

@@ -1,16 +1,12 @@
 import { create } from "zustand";
 
-import { User } from "../types/auth.types";
+import type { User } from "@/src/types/user";
 
 interface AuthStore {
     user: User | null;
-
     isAuthenticated: boolean;
-
     isLoading: boolean;
-
     setUser: (user: User | null) => void;
-
     logout: () => void;
 }
 
@@ -34,5 +30,6 @@ export const useAuthStore =
             set({
                 user: null,
                 isAuthenticated: false,
+                isLoading: false,
             }),
     }));

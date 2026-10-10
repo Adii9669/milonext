@@ -4,6 +4,9 @@
 @source "../**/*.{js,ts,jsx,tsx}";
 
 @theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-chillax: var(--font-geist-sans);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -46,6 +49,11 @@
   --color-sidebar-button-bg: var(--sidebar-button-bg);
   --color-sidebar-button-hover: var(--sidebar-button-hover);
   --color-sidebar-button-active: var(--sidebar-button-active);
+  --color-avatar-blue: #c8d9f5;
+  --color-avatar-sand: #f0e1bd;
+  --color-avatar-coral: #f0d0ca;
+  --color-avatar-mint: #cee6d8;
+  --color-avatar-lilac: #ded4ed;
 }
 
 /* =========================

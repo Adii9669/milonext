@@ -146,6 +146,7 @@ export function useWebsocket(user: User | null) {
               createdAt: m.createdAt,
               sender: m.sender,
               crewId: m.crewId ?? undefined,
+              receiverId: m.receiverId ?? undefined,
               isMine: m.sender?.id === user?.id,
               status: "sent",
             };
@@ -259,6 +260,7 @@ export function useWebsocket(user: User | null) {
       createdAt: new Date().toISOString(),
       isMine: true,
       crewId: msg.type === "crew" ? msg.crewId : undefined,
+      receiverId: msg.type === "dm" ? msg.receiverId : undefined,
       status: "sent",
     };
 

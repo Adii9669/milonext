@@ -11,9 +11,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, variant = "default", error, ...props }, ref) => {
     const variants = {
       default: `
-         bg-surface text-foreground
+        border border-border bg-surface text-foreground
         rounded-xl
-        focus:ring-0 focus:ring-ring focus:ring-offset-1
+        hover:border-border-strong
+        focus:border-primary focus:ring-2 focus:ring-ring/40
         disabled:cursor-not-allowed disabled:opacity-20
       `,
       chat: `  
@@ -51,7 +52,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             placeholder:text-foreground/50
             transition-all duration-200
             focus:outline-none
-            focus:ring-2 focus:ring-ring
+            focus:ring-2 focus:ring-ring/40
             disabled:opacity-50
           `,
           variants[variant],

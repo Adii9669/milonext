@@ -11,6 +11,7 @@ export interface Message {
         name: string;
     };
     crewId?: string;
+    receiverId?: string;
     status?: "sent" | "delivered" | "read";
 
 }

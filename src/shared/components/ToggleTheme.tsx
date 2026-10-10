@@ -19,13 +19,14 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleMode}
-      className="p-2 rounded-md hover:bg-accent transition"
+      aria-label={`Switch to ${mode === "dark" ? "light" : "dark"} mode`}
+      className="grid size-11 place-items-center rounded-full border border-border bg-background/85 text-foreground shadow-[var(--shadow-soft)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-surface-hover hover:text-primary active:translate-y-0 active:scale-95"
       title={`Switch to ${mode === "dark" ? "light" : "dark"} mode`}
     >
       {mode === "dark" ? (
-        <Sun className="w-5 h-5 text-primary" />
+        <Sun aria-hidden="true" className="size-5 transition-transform duration-300 hover:rotate-12" />
       ) : (
-        <Moon className="w-5 h-5 text-primary" />
+        <Moon aria-hidden="true" className="size-5 transition-transform duration-300 hover:rotate-12" />
       )}
     </button>
   );

@@ -53,7 +53,7 @@ export function useRegister() {
         });
 
     const {
-        isChecking,
+        isLoading: isChecking,
         isAvailable,
     } = useCheckUsername(
         username

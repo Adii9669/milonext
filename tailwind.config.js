@@ -49,7 +49,9 @@ module.exports = {
         "sidebar-button-active": "var(--sidebar-button-active)",
       },
       fontFamily: {
-        chillax: ["var(--font-chillax)"],
+        sans: ["var(--font-geist-sans)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        chillax: ["var(--font-geist-sans)", "system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

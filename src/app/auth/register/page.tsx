@@ -1,5 +1,5 @@
-import {RegisterForm} from "@/src/features/auth/components/RegisterForm";
+import { CleanRegisterForm } from "@/src/features/auth/components/CleanRegisterForm";
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  return <CleanRegisterForm />;
 }

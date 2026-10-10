@@ -4,8 +4,9 @@ import { create } from "zustand";
 import { applyTheme } from "@/src/lib/theme/theme";
 
 export type ThemeMode = "dark" | "light";
-export type ThemePalette = "default" | "retro" | "pomegranate";
 
+// Kept for backward type-compat — consumers that import these won't break
+export type ThemePalette = "default";
 export interface CustomThemeColors {
   background: string;
   foreground: string;
@@ -14,41 +15,37 @@ export interface CustomThemeColors {
 
 export interface ThemeState {
   mode: ThemeMode;
+  /** @deprecated no-op — palette system removed */
   palette: ThemePalette;
+  /** @deprecated no-op — custom colors removed */
   customColors: CustomThemeColors | null;
 }
 
 interface ThemeStore extends ThemeState {
   setMode: (mode: ThemeMode) => void;
+  /** @deprecated no-op */
   setPalette: (palette: ThemePalette) => void;
+  /** @deprecated no-op */
   setCustomColors: (colors: CustomThemeColors) => void;
+  /** @deprecated no-op */
   clearCustom: () => void;
   toggleMode: () => void;
-  /** @deprecated use mode — kept for gradual migration */
+  /** @deprecated use mode */
   theme: ThemeMode;
   setTheme: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
 
-const STORAGE_MODE = "theme-mode";
-const STORAGE_PALETTE = "theme-palette";
-const STORAGE_CUSTOM = "theme-custom";
+const STORAGE_KEY = "theme-mode";
 
-function persist(state: ThemeState) {
+function persist(mode: ThemeMode) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_MODE, state.mode);
-  localStorage.setItem(STORAGE_PALETTE, state.palette);
-  if (state.customColors) {
-    localStorage.setItem(STORAGE_CUSTOM, JSON.stringify(state.customColors));
-  } else {
-    localStorage.removeItem(STORAGE_CUSTOM);
-  }
-  localStorage.setItem("theme", state.mode);
-}
-
-function commit(state: ThemeState) {
-  persist(state);
-  applyTheme(state);
+  localStorage.setItem(STORAGE_KEY, mode);
+  // Keep legacy key in sync so ThemeInitializer still works
+  localStorage.setItem("theme", mode);
+  // Wipe obsolete keys
+  localStorage.removeItem("theme-palette");
+  localStorage.removeItem("theme-custom");
 }
 
 export function loadThemeFromStorage(): ThemeState {
@@ -56,31 +53,16 @@ export function loadThemeFromStorage(): ThemeState {
     return { mode: "dark", palette: "default", customColors: null };
   }
 
+  const stored = localStorage.getItem(STORAGE_KEY);
   const legacy = localStorage.getItem("theme");
-  const mode =
-    (localStorage.getItem(STORAGE_MODE) as ThemeMode | null) ??
-    (legacy === "light" || legacy === "dark" ? legacy : "dark");
+  const mode: ThemeMode =
+    stored === "light" || stored === "dark"
+      ? stored
+      : legacy === "light"
+        ? "light"
+        : "dark";
 
-  const paletteRaw = localStorage.getItem(STORAGE_PALETTE);
-  const palette: ThemePalette =
-    paletteRaw === "retro" || paletteRaw === "pomegranate"
-      ? paletteRaw
-      : "default";
-
-  let customColors: CustomThemeColors | null = null;
-  const customRaw = localStorage.getItem(STORAGE_CUSTOM);
-  if (customRaw) {
-    try {
-      const parsed = JSON.parse(customRaw) as CustomThemeColors;
-      if (parsed.background && parsed.foreground && parsed.primary) {
-        customColors = parsed;
-      }
-    } catch {
-      customColors = null;
-    }
-  }
-
-  return { mode, palette, customColors };
+  return { mode, palette: "default", customColors: null };
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
@@ -90,37 +72,20 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   theme: "dark",
 
   setMode: (mode) => {
-    const next = { ...get(), mode, theme: mode };
     set({ mode, theme: mode });
-    commit(next);
-  },
-
-  setPalette: (palette) => {
-    const next = {
-      ...get(),
-      palette,
-      customColors: null as CustomThemeColors | null,
-    };
-    set({ palette, customColors: null });
-    commit(next);
-  },
-
-  setCustomColors: (colors) => {
-    const next = { ...get(), customColors: colors };
-    set({ customColors: colors });
-    commit(next);
-  },
-
-  clearCustom: () => {
-    const next = { ...get(), customColors: null };
-    set({ customColors: null });
-    commit(next);
+    persist(mode);
+    applyTheme({ mode, palette: "default", customColors: null });
   },
 
   toggleMode: () => {
-    const current = get().mode;
-    get().setMode(current === "dark" ? "light" : "dark");
+    const next = get().mode === "dark" ? "light" : "dark";
+    get().setMode(next);
   },
+
+  // No-ops — kept so existing call-sites don't break at runtime
+  setPalette: () => {},
+  setCustomColors: () => {},
+  clearCustom: () => {},
 
   setTheme: (mode) => get().setMode(mode),
   toggleTheme: () => get().toggleMode(),

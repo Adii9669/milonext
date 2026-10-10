@@ -282,7 +282,9 @@
 .mobile-plan-preview div { display: flex; gap: 9px; margin-top: 7px; }
 .mobile-plan-preview b, .mobile-plan-preview i { padding: 6px 10px; border-radius: 99px; background: var(--message-sent); color: #fff; font-size: 11px; font-style: normal; }
 .mobile-plan-preview i { border: 1px solid var(--border); background: transparent; color: var(--text-secondary); }
-.mobile-account-link { display: inline-block; margin-top: 16px; color: var(--primary); font-size: 13px; font-weight: 600; }
+.mobile-account-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+.mobile-account-link { display: block; margin: 0; color: var(--primary); font-size: 13px; font-weight: 600; line-height: 1.5; }
+.mobile-account-logout { padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
 
 @media (max-width: 767px) {
   .connect-shell { display: block; border: 0; }

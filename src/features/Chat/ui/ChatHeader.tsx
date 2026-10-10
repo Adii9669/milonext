@@ -16,14 +16,13 @@ import { Bot, ChevronLeft, Info, MoreVertical, Search } from "lucide-react";
 interface ChatHeaderProps {
   crew: Crew | null;
   friend: Friends | null;
-  logout: () => void;
   onBack?: () => void;
   members?: Array<{ name?: string; username?: string; user?: { name?: string; username?: string } }>;
   sidebarOpen?: boolean;
   onToggleSidebar?: () => void;
 }
 
-export function ChatHeader({ crew, friend, logout, onBack, members = [], sidebarOpen = true, onToggleSidebar }: ChatHeaderProps) {
+export function ChatHeader({ crew, friend, onBack, members = [], sidebarOpen = true, onToggleSidebar }: ChatHeaderProps) {
   const memberInitials = members.slice(0, 3).map((member) => (member.name || member.user?.name || member.username || member.user?.username || "?").slice(0, 1).toUpperCase());
   const memberNames = members.slice(0, 3).map((member) => member.name || member.user?.name || member.username || member.user?.username).filter(Boolean);
   return (
@@ -97,18 +96,6 @@ export function ChatHeader({ crew, friend, logout, onBack, members = [], sidebar
               Open Crew
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-border" />
-
-            <DropdownMenuItem
-              stylevariant="dark"
-              onSelect={(e) => {
-                e.stopPropagation();
-                logout();
-              }}
-              className="text-error focus:bg-error/10 focus:text-error"
-            >
-              Logout
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         </div>

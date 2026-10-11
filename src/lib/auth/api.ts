@@ -45,7 +45,7 @@ export const refreshToken = async () => {
 
 
 /**
- * Logout — fix endpoint and method
+ * Logout
  */
 export const logout = async () => {
     return apiFetch("/api/logout", {

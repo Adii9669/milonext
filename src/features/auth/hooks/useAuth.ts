@@ -1,7 +1,12 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { logoutUser } from "../api/authApi";
 import { useAuthStore }
     from "../stores/authStores";
 
 export function useAuth() {
+    const router = useRouter();
 
     const user =
         useAuthStore((state) => state.user);
@@ -11,11 +16,17 @@ export function useAuth() {
             (state) => state.isAuthenticated
         );
 
-    const logout =
+    const clearAuth =
         useAuthStore((state) => state.logout);
 
-        const loading =
+    const loading =
         useAuthStore((state) => state.isLoading);
+
+    const logout = async () => {
+        await logoutUser();
+        clearAuth();
+        router.replace("/auth/login");
+    };
 
     return {
         user,

@@ -95,7 +95,12 @@ export function useWebsocket(user: User | null) {
         return;
       }
 
-      const ws = new WebSocket("ws://localhost:8000/api/ws");
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+      const WS_URL = API_URL.replace(/^http/, "ws");
+
+      const ws = new WebSocket(`${WS_URL}/api/ws`);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -125,9 +130,7 @@ export function useWebsocket(user: User | null) {
               if (!isValidStatus(status)) return prev;
 
               const id = String(messageId);
-              return prev.map((m) =>
-                m.id === id ? { ...m, status } : m
-              );
+              return prev.map((m) => (m.id === id ? { ...m, status } : m));
             });
 
             return;
@@ -160,8 +163,8 @@ export function useWebsocket(user: User | null) {
                     (!p.sender || !p.sender.id) &&
                     Math.abs(
                       new Date(p.createdAt).getTime() -
-                      new Date(message.createdAt).getTime()
-                    ) < 60000
+                        new Date(message.createdAt).getTime(),
+                    ) < 60000,
                 );
 
                 if (idx !== -1) {
@@ -190,9 +193,7 @@ export function useWebsocket(user: User | null) {
               const id = String(messageId);
 
               setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === id ? { ...m, status } : m
-                )
+                prev.map((m) => (m.id === id ? { ...m, status } : m)),
               );
             }
 

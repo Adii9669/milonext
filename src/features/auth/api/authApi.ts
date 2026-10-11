@@ -21,7 +21,7 @@ export async function loginUser(
 
 
 export async function logoutUser(){
-    return apiFetch("/auth/logout",{
+    return apiFetch("/api/logout",{
         method: "POST",
         headers:{
             "Content-Type":"application/json",

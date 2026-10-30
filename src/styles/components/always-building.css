@@ -1,0 +1,1062 @@
+/* ============================================================
+   Onechat: "Always Building" Cinematic Scroll Experience
+   Visual & Animation Design Tokens and Layout Engine
+   ============================================================ */
+
+:root {
+  --ab-black: #0b0b0b;
+  --ab-black-elevated: #141414;
+  --ab-cream: #f2ebdd;
+  --ab-cream-card: #e8dfcf;
+  --ab-cream-border: #d6ccba;
+  --ab-cream-muted: #6e6a62;
+  --ab-amber: #e4a15a;
+  --ab-amber-glow: rgba(228, 161, 90, 0.22);
+  --ab-gray: #a9a69e;
+  --ab-border: #383630;
+  --ab-font-display: Impact, "Archivo Black", "Anton", -apple-system, BlinkMacSystemFont, sans-serif;
+  --ab-font-mono: ui-monospace, "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  --ab-font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Lenis smooth scroll ──────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* ── Global Container ──────────────────────────────────────── */
+.ab-page {
+  background-color: var(--ab-black);
+  color: var(--ab-cream);
+  font-family: var(--ab-font-body);
+  line-height: 1.5;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ab-page * {
+  box-sizing: border-box;
+}
+
+/* ── Noise Texture Overlay ─────────────────────────────────── */
+.ab-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ── Navigation ────────────────────────────────────────────── */
+.ab-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px clamp(20px, 5vw, 64px);
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(56, 54, 48, 0.45);
+  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+
+.ab-nav.ab-nav--cream {
+  background: rgba(242, 235, 221, 0.9);
+  border-bottom-color: rgba(214, 204, 186, 0.8);
+  color: var(--ab-black);
+}
+
+.ab-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ab-nav-logo {
+  font-family: var(--ab-font-display);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ab-nav-badge {
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ab-amber);
+  border: 1px solid rgba(228, 161, 90, 0.35);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(228, 161, 90, 0.08);
+}
+
+.ab-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ab-nav-link {
+  color: var(--ab-gray);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+  padding: 4px 0;
+}
+
+.ab-nav-link:hover,
+.ab-nav-link.active {
+  color: inherit;
+}
+
+.ab-nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ab-amber);
+}
+
+.ab-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ab-btn-text {
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  padding: 8px 14px;
+  transition: opacity 0.2s ease;
+}
+
+.ab-btn-text:hover {
+  opacity: 0.75;
+}
+
+.ab-btn-primary {
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: var(--ab-cream);
+  color: var(--ab-black);
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 4px;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ab-nav--cream .ab-btn-primary {
+  background: var(--ab-black);
+  color: var(--ab-cream);
+}
+
+.ab-btn-primary:hover {
+  background: var(--ab-amber) !important;
+  color: var(--ab-black) !important;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 20px var(--ab-amber-glow);
+}
+
+/* ── Typography & Base Section Styles ──────────────────────── */
+.ab-section {
+  position: relative;
+  width: 100%;
+}
+
+.ab-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 80px);
+  position: relative;
+  z-index: 2;
+}
+
+.ab-tag {
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ab-amber);
+  margin-bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ab-tag::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--ab-amber);
+}
+
+.ab-h1 {
+  font-family: var(--ab-font-display);
+  font-size: clamp(48px, 8.8vw, 130px);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0 0 32px 0;
+}
+
+.ab-h2 {
+  font-family: var(--ab-font-display);
+  font-size: clamp(38px, 6.5vw, 92px);
+  line-height: 0.94;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin: 0 0 24px 0;
+}
+
+/* ── SCENE 1: THE IDEA (HERO) ──────────────────────────────── */
+.ab-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--ab-black);
+}
+
+.ab-hero .ab-container {
+  will-change: transform, opacity;
+}
+
+.ab-hero-headline-wrap {
+  position: relative;
+  perspective: 1000px;
+}
+
+.ab-split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.ab-hero-lead {
+  font-size: clamp(16px, 1.8vw, 22px);
+  color: var(--ab-gray);
+  max-width: 52ch;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  will-change: transform, opacity;
+}
+
+.ab-hero-lead b {
+  color: var(--ab-cream);
+  font-weight: 600;
+}
+
+.ab-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ab-hero-cue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ab-gray);
+  margin-top: 54px;
+}
+
+.ab-cue-line {
+  width: 40px;
+  height: 1px;
+  background: var(--ab-gray);
+  animation: ab-cue-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ab-cue-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.7); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
+.ab-orb-container {
+  position: absolute;
+  right: -5vw;
+  top: 15%;
+  width: min(55vw, 700px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+}
+
+.ab-orb {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, rgba(228, 161, 90, 0.32), rgba(228, 161, 90, 0.05) 55%, transparent 75%);
+  filter: blur(80px);
+  animation: ab-orb-breathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes ab-orb-breathe {
+  0% { transform: scale(0.9) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-30px, 30px); }
+}
+
+/* ── SCENE 2: THE PROCESS (PINNED SCROLL SEQUENCE) ─────────── */
+.ab-process-pin-wrapper {
+  position: relative;
+  background-color: var(--ab-cream);
+  color: var(--ab-black);
+  width: 100%;
+}
+
+.ab-process-viewport {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 80px 0;
+  width: 100%;
+  position: relative;
+}
+
+.ab-process-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: clamp(40px, 6vw, 90px);
+  align-items: center;
+  width: 100%;
+}
+
+.ab-process-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.ab-process-left .ab-tag {
+  color: #a05a1b;
+}
+.ab-process-left .ab-tag::before {
+  background: #a05a1b;
+}
+
+.ab-process-left .ab-h2 {
+  color: var(--ab-black);
+}
+
+/* Progression bar & counter */
+.ab-process-meter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  font-family: var(--ab-font-mono);
+  font-size: 13px;
+  color: #a05a1b;
+  font-weight: 700;
+}
+
+.ab-meter-track {
+  width: 180px;
+  height: 3px;
+  background: var(--ab-cream-border);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ab-meter-fill {
+  height: 100%;
+  width: 25%;
+  background: #a05a1b;
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Right stage display & morphing cards */
+.ab-process-right {
+  position: relative;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ab-process-stage-card {
+  width: 100%;
+  background: var(--ab-cream-card);
+  border: 1px solid var(--ab-cream-border);
+  border-radius: 8px;
+  padding: 44px 38px;
+  box-shadow: 0 20px 50px rgba(11, 11, 11, 0.08);
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.ab-stage-badge {
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #a05a1b;
+  margin-bottom: 14px;
+  display: block;
+  font-weight: 700;
+}
+
+.ab-stage-title-text {
+  font-family: var(--ab-font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  text-transform: uppercase;
+  color: var(--ab-black);
+  margin: 0 0 16px 0;
+  line-height: 1;
+}
+
+.ab-stage-body-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ab-cream-muted);
+  margin-bottom: 28px;
+  max-width: 44ch;
+}
+
+/* Visual development diagram within stage */
+.ab-stage-graphic {
+  height: 110px;
+  background: rgba(242, 235, 221, 0.7);
+  border: 1px dashed var(--ab-cream-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ── SCENE 3: THE PRODUCT (ASSEMBLED INTERFACE) ─────────────── */
+.ab-product-section {
+  background-color: var(--ab-black);
+  color: var(--ab-cream);
+  padding: clamp(100px, 14vh, 180px) 0;
+  border-bottom: 1px solid var(--ab-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.ab-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(40px, 6vw, 90px);
+  align-items: center;
+}
+
+.ab-product-desc {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ab-gray);
+  margin-bottom: 32px;
+}
+
+.ab-product-desc strong {
+  color: var(--ab-cream);
+}
+
+.ab-specs-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.ab-spec-card {
+  border-left: 2px solid var(--ab-amber);
+  padding-left: 14px;
+}
+
+.ab-spec-k {
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ab-gray);
+  margin-bottom: 4px;
+}
+
+.ab-spec-v {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ab-cream);
+}
+
+/* Magnetically Assembling Chat Box */
+.ab-assembly-stage {
+  position: relative;
+  perspective: 1200px;
+}
+
+.ab-chat-box {
+  background: var(--ab-black-elevated);
+  border: 1px solid var(--ab-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.ab-chat-topbar {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ab-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #181818;
+}
+
+.ab-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ab-gray);
+  text-transform: uppercase;
+}
+
+.ab-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+
+.ab-local-chip {
+  font-family: var(--ab-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(228, 161, 90, 0.12);
+  color: var(--ab-amber);
+  border: 1px solid rgba(228, 161, 90, 0.3);
+}
+
+.ab-chat-scroll-area {
+  height: 290px;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #0e0e0e;
+}
+
+.ab-msg-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  animation: ab-bubble-in 0.25s ease-out;
+}
+
+@keyframes ab-bubble-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ab-msg-bubble--peer {
+  background: #1c1c1c;
+  border: 1px solid #2b2b2b;
+  color: var(--ab-cream);
+  align-self: flex-start;
+}
+
+.ab-msg-bubble--user {
+  background: #261f14;
+  border: 1px solid rgba(228, 161, 90, 0.45);
+  color: #ffffff;
+  align-self: flex-end;
+}
+
+.ab-msg-meta {
+  font-family: var(--ab-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--ab-gray);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.ab-chat-input-bar {
+  padding: 12px 14px;
+  border-top: 1px solid var(--ab-border);
+  background: #161616;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ab-chat-field {
+  flex: 1;
+  background: #0b0b0b;
+  border: 1px solid var(--ab-border);
+  color: var(--ab-cream);
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ab-chat-field:focus {
+  border-color: var(--ab-amber);
+  box-shadow: 0 0 0 2px var(--ab-amber-glow);
+}
+
+.ab-chat-btn-send {
+  background: var(--ab-amber);
+  color: var(--ab-black);
+  border: none;
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.ab-chat-btn-send:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.ab-chat-btn-reset {
+  background: transparent;
+  color: var(--ab-gray);
+  border: 1px solid var(--ab-border);
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ab-chat-btn-reset:hover {
+  color: var(--ab-cream);
+  border-color: var(--ab-gray);
+}
+
+/* ── SCENE 4: THE ENGINEERING (DRAWING ARCHITECTURE) ───────── */
+.ab-engineering-section {
+  background-color: var(--ab-black);
+  padding: clamp(100px, 14vh, 180px) 0;
+  border-bottom: 1px solid var(--ab-border);
+  position: relative;
+}
+
+.ab-arch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin: 54px 0 32px;
+  position: relative;
+}
+
+.ab-arch-card {
+  background: #121212;
+  border: 1px solid var(--ab-border);
+  border-radius: 8px;
+  padding: 26px 22px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.ab-arch-card:hover,
+.ab-arch-card.active {
+  border-color: var(--ab-amber);
+  background: #171510;
+  box-shadow: 0 0 28px var(--ab-amber-glow);
+  transform: translateY(-3px);
+}
+
+.ab-arch-idx {
+  font-family: var(--ab-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ab-amber);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.ab-arch-name {
+  font-family: var(--ab-font-display);
+  font-size: 24px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ab-cream);
+  margin: 0 0 10px 0;
+}
+
+.ab-arch-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ab-gray);
+  margin: 0;
+}
+
+/* SVG pipeline connection trace */
+.ab-pipeline-canvas {
+  width: 100%;
+  height: 36px;
+  margin: 10px 0;
+}
+
+.ab-pipeline-path {
+  stroke: rgba(228, 161, 90, 0.25);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  fill: none;
+}
+
+.ab-pipeline-path-glow {
+  stroke: var(--ab-amber);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.ab-ws-panel {
+  background: rgba(228, 161, 90, 0.05);
+  border: 1px dashed rgba(228, 161, 90, 0.35);
+  border-radius: 8px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+}
+
+.ab-ws-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ab-ws-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ab-amber);
+  box-shadow: 0 0 10px var(--ab-amber);
+  animation: ab-pulse-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes ab-pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
+
+.ab-ws-text-bold {
+  color: var(--ab-amber);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ab-ws-text-muted {
+  color: var(--ab-gray);
+}
+
+/* ── SCENE 5: THE WORK (PINNED HORIZONTAL SHOWCASE) ────────── */
+.ab-work-pin-wrapper {
+  background-color: var(--ab-cream);
+  color: var(--ab-black);
+  position: relative;
+  width: 100%;
+}
+
+.ab-work-viewport {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 90px 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ab-work-head {
+  padding-bottom: 30px;
+}
+
+.ab-work-head .ab-tag {
+  color: #a05a1b;
+}
+.ab-work-head .ab-tag::before {
+  background: #a05a1b;
+}
+
+.ab-work-head .ab-h2 {
+  color: var(--ab-black);
+}
+
+.ab-work-track {
+  display: flex;
+  gap: 32px;
+  will-change: transform;
+  padding: 20px 0;
+}
+
+.ab-project-panel {
+  flex: 0 0 clamp(320px, 42vw, 560px);
+  background: var(--ab-cream-card);
+  border: 1px solid var(--ab-cream-border);
+  border-radius: 12px;
+  padding: 38px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 380px;
+  box-shadow: 0 18px 45px rgba(11, 11, 11, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ab-project-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(11, 11, 11, 0.14);
+}
+
+.ab-project-h3 {
+  font-family: var(--ab-font-display);
+  font-size: clamp(34px, 4vw, 48px);
+  text-transform: uppercase;
+  color: var(--ab-black);
+  margin: 0 0 10px 0;
+  line-height: 1;
+}
+
+.ab-project-meta-stack {
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a05a1b;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.ab-project-info-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ab-cream-muted);
+  margin: 0 0 28px 0;
+}
+
+.ab-project-cta-btn {
+  align-self: flex-start;
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 4px;
+  background: var(--ab-black);
+  color: var(--ab-cream);
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.ab-project-cta-btn:hover {
+  background: #a05a1b;
+  color: #ffffff;
+}
+
+/* ── SCENE 6: THE CLOSING (CINEMATIC FINALE) ────────────────── */
+.ab-closing-section {
+  background-color: var(--ab-black);
+  color: var(--ab-cream);
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 60px;
+}
+
+.ab-closing-orb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(70vw, 850px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(228, 161, 90, 0.16) 0%, rgba(228, 161, 90, 0.02) 65%, transparent 75%);
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ab-closing-lead {
+  font-size: clamp(17px, 2.2vw, 26px);
+  color: var(--ab-gray);
+  max-width: 54ch;
+  line-height: 1.6;
+  margin-bottom: 48px;
+}
+
+.ab-closing-lead b {
+  color: var(--ab-cream);
+  font-weight: 600;
+}
+
+.ab-closing-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3;
+}
+
+.ab-footer {
+  border-top: 1px solid var(--ab-border);
+  padding: 38px clamp(20px, 5vw, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--ab-font-mono);
+  font-size: 12px;
+  color: var(--ab-gray);
+  letter-spacing: 0.08em;
+  background: var(--ab-black);
+}
+
+.ab-footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.ab-footer-link {
+  color: var(--ab-gray);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.ab-footer-link:hover {
+  color: var(--ab-cream);
+}
+
+/* ── Responsive Adaptations ────────────────────────────────── */
+@media (max-width: 992px) {
+  .ab-nav-links {
+    display: none;
+  }
+  .ab-process-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .ab-product-grid {
+    grid-template-columns: 1fr;
+  }
+  .ab-arch-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ab-hero {
+    padding-top: 100px;
+  }
+  .ab-specs-list {
+    grid-template-columns: 1fr;
+  }
+  .ab-arch-grid {
+    grid-template-columns: 1fr;
+  }
+  .ab-ws-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ab-project-panel {
+    flex: 0 0 88vw;
+    padding: 28px 22px;
+  }
+  .ab-footer {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}
+
+/* ── Reduced Motion Override ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ab-orb,
+  .ab-ws-pulse,
+  .ab-cue-line {
+    animation: none !important;
+  }
+  .ab-page * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

@@ -1,15 +1,14 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Crew } from "@/src/types/crew";
+import { Channel } from "@/src/types/channel";
 import { Friends } from "@/src/types";
 import {
-  crewApi,
+  channelApi,
   friendApi,
-  userApi,
 } from "@/src/lib/api";
 
-export function useChatQueries(user: any, selectedCrew: Crew | null) {
+export function useChatQueries(user: any, selectedChannel: Channel | null) {
   const queryClient = useQueryClient();
 
   
@@ -50,97 +49,85 @@ export function useChatQueries(user: any, selectedCrew: Crew | null) {
   });
 
   /* =========================
-     CREWS
+     CHANNELS
   ========================== */
-  // const { data: crews = [], isLoading: crewsLoading } = useQuery({
-  //   queryKey: ["crews", user?.id],
-  //   queryFn: crewApi.getCrews,
+  // const { data: channels = [], isLoading: channelsLoading } = useQuery({
+  //   queryKey: ["channels", user?.id],
+  //   queryFn: channelApi.getChannels,
   //   enabled: !!user,
   // });
 
-  const { data: crews = [], isLoading: crewsLoading } = useQuery({
-    queryKey: ["crews"],
+  const { data: channels = [], isLoading: channelsLoading } = useQuery({
+    queryKey: ["channels"],
     queryFn: async () => {
-      const res = await crewApi.getCrews();
-      return res.crews ?? []; // 🔥 normalize here
+      const res = await channelApi.getChannels();
+      return res.channels ?? []; // 🔥 normalize here
     },
   });
 
   /* =========================
-     USERS (for adding members)
+     CHANNEL MEMBERS
   ========================== */
-  const { data: users = [] } = useQuery({
-    queryKey: ["users"],
+  const { data: channelMembers = [], isLoading: channelMembersLoading } = useQuery({
+    queryKey: ["channelMembers", selectedChannel?.id],
     queryFn: async () => {
-      const res = await userApi.getUsers();
-      return res.users || [];
-    },
-    enabled: !!user,
-  });
-
-  /* =========================
-     CREW MEMBERS
-  ========================== */
-  const { data: crewMembers = [], isLoading: crewMembersLoading } = useQuery({
-    queryKey: ["crewMembers", selectedCrew?.id],
-    queryFn: async () => {
-      if (!selectedCrew) return [];
-      const res = await crewApi.getCrewMembers(selectedCrew.id);
+      if (!selectedChannel) return [];
+      const res = await channelApi.getChannelMembers(selectedChannel.id);
       return res.members || [];
     },
-    enabled: !!selectedCrew,
+    enabled: !!selectedChannel,
   });
 
   /* =========================
      MUTATIONS
   ========================== */
 
-  const createCrewMutation = useMutation({
-    mutationFn: crewApi.createCrew,
+  const createChannelMutation = useMutation({
+    mutationFn: channelApi.createChannel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crews", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["channels", user?.id] });
     },
   });
 
-  const deleteCrewMutation = useMutation({
-    mutationFn: crewApi.deleteCrew,
+  const deleteChannelMutation = useMutation({
+    mutationFn: channelApi.deleteChannel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crews", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["channels", user?.id] });
     },
   });
 
-  const addCrewMemberMutation = useMutation({
+  const addChannelMemberMutation = useMutation({
     mutationFn: (memberId: string) => {
-      if (!selectedCrew) throw new Error("Crew not selected");
-      return crewApi.addCrewMember(selectedCrew.id, memberId);
+      if (!selectedChannel) throw new Error("Channel not selected");
+      return channelApi.addChannelMember(selectedChannel.id, memberId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["crewMembers", selectedCrew?.id],
+        queryKey: ["channelMembers", selectedChannel?.id],
       });
     },
   });
 
-  const removeCrewMemberMutation = useMutation({
+  const removeChannelMemberMutation = useMutation({
     mutationFn: (memberId: string) => {
-      if (!selectedCrew) throw new Error("Crew not selected");
-      return crewApi.removeCrewMember(selectedCrew.id, memberId);
+      if (!selectedChannel) throw new Error("Channel not selected");
+      return channelApi.removeChannelMember(selectedChannel.id, memberId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["crewMembers", selectedCrew?.id],
+        queryKey: ["channelMembers", selectedChannel?.id],
       });
     },
   });
 
-  const updateCrewRoleMutation = useMutation({
+  const updateChannelRoleMutation = useMutation({
     mutationFn: ({ memberId, role }: { memberId: string; role: string }) => {
-      if (!selectedCrew) throw new Error("Crew not selected");
-      return crewApi.updateCrewMemberRole(selectedCrew.id, memberId, role);
+      if (!selectedChannel) throw new Error("Channel not selected");
+      return channelApi.updateChannelMemberRole(selectedChannel.id, memberId, role);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["crewMembers", selectedCrew?.id],
+        queryKey: ["channelMembers", selectedChannel?.id],
       });
     },
   });
@@ -170,17 +157,16 @@ export function useChatQueries(user: any, selectedCrew: Crew | null) {
     incomingRequests,
     outgoingRequests,
 
-    crews,
-    crewsLoading,
+    channels,
+    channelsLoading,
 
-    users,
-    crewMembers,
-    crewMembersLoading,
+    channelMembers,
+    channelMembersLoading,
 
-    createCrew: createCrewMutation.mutate,
-    deleteCrew: deleteCrewMutation.mutate,
-    addCrewMember: addCrewMemberMutation.mutate,
-    removeCrewMember: removeCrewMemberMutation.mutate,
-    updateCrewRole: updateCrewRoleMutation.mutate,
+    createChannel: createChannelMutation.mutate,
+    deleteChannel: deleteChannelMutation.mutate,
+    addChannelMember: addChannelMemberMutation.mutate,
+    removeChannelMember: removeChannelMemberMutation.mutate,
+    updateChannelRole: updateChannelRoleMutation.mutate,
   };
 }

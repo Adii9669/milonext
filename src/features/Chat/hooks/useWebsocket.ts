@@ -10,23 +10,23 @@ import { User } from "@/src/types/user";
 
 export type OutgoingWSMessage =
   | { type: "dm"; receiverId: string; content: string }
-  | { type: "crew_message"; crewId: string; content: string }
-  | { type: "typing_start"; crewId: string }
-  | { type: "typing_stop"; crewId: string }
-  | { type: "join_crew"; crewId: string }
-  | { type: "leave_crew"; crewId: string }
+  | { type: "channel_message"; channelId: string; content: string }
+  | { type: "typing_start"; channelId: string }
+  | { type: "typing_stop"; channelId: string }
+  | { type: "join_channel"; channelId: string }
+  | { type: "leave_channel"; channelId: string }
   | { type: "delivered"; messageId: string }
   | { type: "read"; messageId: string };
 
 export type WSRequestMessage =
   | { type: "dm"; receiverId: string; content: string }
-  | { type: "crew"; crewId: string; content: string };
+  | { type: "channel"; channelId: string; content: string };
 
 export type WSMessageEvent = {
   event: "message";
   data: {
     id: string;
-    type: "dm" | "crew";
+    type: "dm" | "channel";
     content: string;
     createdAt: string;
     sender: {
@@ -34,7 +34,32 @@ export type WSMessageEvent = {
       name: string;
     };
     receiverId?: string | null;
-    crewId?: string | null;
+    channelId?: string | null;
+  };
+};
+
+export type WSMessageDeletedEvent = {
+  event: "message.deleted";
+  data: { messageId: string; senderId: string; receiverId?: string | null; channelId?: string | null };
+};
+
+export type PlanRealtimeEventName =
+  | "plan.created"
+  | "plan.response_changed"
+  | "plan.updated"
+  | "plan.confirmed"
+  | "plan.cancelled"
+  | "plan.status_changed"
+  | "plan.poll_changed";
+
+export type PlanRealtimeEvent = {
+  event: PlanRealtimeEventName;
+  data: {
+    eventId: string;
+    planId: string;
+    channelId?: string;
+    dmUserLowId?: string;
+    dmUserHighId?: string;
   };
 };
 
@@ -46,7 +71,7 @@ export type WSAckEvent = {
   };
 };
 
-export type IncomingWS = WSMessageEvent | WSAckEvent;
+export type IncomingWS = WSMessageEvent | WSMessageDeletedEvent | WSAckEvent;
 
 /* =========================
    Status Guard (FIX)
@@ -68,6 +93,8 @@ export function useWebsocket(user: User | null) {
   const outgoingQueue = useRef<OutgoingWSMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [deletedMessageIds, setDeletedMessageIds] = useState<string[]>([]);
+  const [planEvents, setPlanEvents] = useState<PlanRealtimeEvent[]>([]);
   const [typing, setTyping] = useState<Record<string, string[]>>({});
 
   const reconnectRef = useRef<number | null>(null);
@@ -75,6 +102,7 @@ export function useWebsocket(user: User | null) {
   const connectingRef = useRef(false);
 
   const typingTimeouts = useRef<Record<string, Record<string, number>>>({});
+  const seenPlanEventIDs = useRef<Set<string>>(new Set());
 
   /* =========================
      Connect
@@ -120,6 +148,26 @@ export function useWebsocket(user: User | null) {
         try {
           const raw = JSON.parse(e.data);
 
+          if (typeof raw.event === "string" && raw.event.startsWith("plan.") && raw.data?.eventId && raw.data?.planId) {
+            const event = raw as PlanRealtimeEvent;
+            if (!seenPlanEventIDs.current.has(event.data.eventId)) {
+              seenPlanEventIDs.current.add(event.data.eventId);
+              if (seenPlanEventIDs.current.size > 500) {
+                const oldest = seenPlanEventIDs.current.values().next().value;
+                if (oldest) seenPlanEventIDs.current.delete(oldest);
+              }
+              setPlanEvents((previous) => [...previous, event].slice(-200));
+            }
+            return;
+          }
+
+          if (raw.event === "message.deleted" && raw.data?.messageId) {
+            const deletedId = String(raw.data.messageId);
+            setDeletedMessageIds((previous) => previous.includes(deletedId) ? previous : [...previous, deletedId]);
+            setMessages((previous) => previous.filter((message) => message.id !== deletedId));
+            return;
+          }
+
           /* =========================
              ACK EVENT (FIXED)
           ========================== */
@@ -147,15 +195,22 @@ export function useWebsocket(user: User | null) {
               type: m.type,
               content: m.content,
               createdAt: m.createdAt,
+              isOptimistic: false,
               sender: m.sender,
-              crewId: m.crewId ?? undefined,
+              channelId: m.channelId ?? undefined,
               receiverId: m.receiverId ?? undefined,
               isMine: m.sender?.id === user?.id,
               status: "sent",
+              fileUrl: m.fileUrl ?? undefined,
+              filePreviewUrl: m.filePreviewUrl ?? undefined,
+              fileName: m.fileName ?? undefined,
+              fileSize: m.fileSize ?? undefined,
+              mimeType: m.mimeType ?? undefined,
             };
 
-            if (message.isMine) {
-              setMessages((prev) => {
+            setMessages((prev) => {
+              if (prev.some((existing) => existing.id === message.id)) return prev;
+              if (message.isMine) {
                 const idx = prev.findIndex(
                   (p) =>
                     p.isMine &&
@@ -174,10 +229,9 @@ export function useWebsocket(user: User | null) {
                 }
 
                 return [...prev, message];
-              });
-            } else {
-              setMessages((prev) => [...prev, message]);
-            }
+              }
+              return [...prev, message];
+            });
 
             return;
           }
@@ -250,8 +304,8 @@ export function useWebsocket(user: User | null) {
 
   function sendMessage(msg: WSRequestMessage) {
     const outgoing: OutgoingWSMessage =
-      msg.type === "crew"
-        ? { type: "crew_message", crewId: msg.crewId, content: msg.content }
+      msg.type === "channel"
+        ? { type: "channel_message", channelId: msg.channelId, content: msg.content }
         : { type: "dm", receiverId: msg.receiverId, content: msg.content };
 
     const optimistic: Message = {
@@ -260,7 +314,8 @@ export function useWebsocket(user: User | null) {
       content: msg.content,
       createdAt: new Date().toISOString(),
       isMine: true,
-      crewId: msg.type === "crew" ? msg.crewId : undefined,
+      isOptimistic: true,
+      channelId: msg.type === "channel" ? msg.channelId : undefined,
       receiverId: msg.type === "dm" ? msg.receiverId : undefined,
       status: "sent",
     };
@@ -283,32 +338,33 @@ export function useWebsocket(user: User | null) {
   function sendRead(messageId: string) {
     sendOutgoing({ type: "read", messageId });
   }
-  function joinCrew(crewId: string) {
-    sendOutgoing({ type: "join_crew", crewId });
+  function joinChannel(channelId: string) {
+    sendOutgoing({ type: "join_channel", channelId });
   }
 
-  function leaveCrew(crewId: string) {
-    sendOutgoing({ type: "leave_crew", crewId });
+  function leaveChannel(channelId: string) {
+    sendOutgoing({ type: "leave_channel", channelId });
   }
 
-  function startTyping(crewId: string) {
-    sendOutgoing({ type: "typing_start", crewId });
+  function startTyping(channelId: string) {
+    sendOutgoing({ type: "typing_start", channelId });
   }
 
-  function stopTyping(crewId: string) {
-    sendOutgoing({ type: "typing_stop", crewId });
+  function stopTyping(channelId: string) {
+    sendOutgoing({ type: "typing_stop", channelId });
   }
 
-  function getTypingUsers(crewId: string) {
-    return typing[crewId] || [];
+  function getTypingUsers(channelId: string) {
+    return typing[channelId] || [];
   }
 
   return {
     connected,
     messages,
+    planEvents,
     sendMessage,
-    joinCrew,
-    leaveCrew,
+    joinChannel,
+    leaveChannel,
     sendDelivered,
     sendRead,
     startTyping,

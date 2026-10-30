@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowDown } from "lucide-react";
 import laptopBackdrop from "../../../../../design/laptopimage.webp";
-import catLightBackdrop from "../../../../../design/catlight.jpg";
+import catLightBackdrop from "../../../../../design/404.png";
 
 export default function HeroSection() {
   return (

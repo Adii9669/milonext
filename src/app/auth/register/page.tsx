@@ -1,5 +1,9 @@
-import { CleanRegisterForm } from "@/src/features/auth/components/CleanRegisterForm";
+import OnechatAuthExperience from "@/src/features/auth/components/OnechatAuthExperience";
 
-export default function RegisterPage() {
-  return <CleanRegisterForm />;
+export const metadata = {
+  title: "Sign up — Onechat",
+};
+
+export default function AuthRegisterPage() {
+  return <OnechatAuthExperience initialMode="signup" />;
 }

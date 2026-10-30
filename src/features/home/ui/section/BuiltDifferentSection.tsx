@@ -8,7 +8,7 @@ import { Button } from "@/src/shared/components/ui/button";
 const steps = [
   { number: "01", title: "Find your people", description: "Search by username. No phone number or contact syncing needed." },
   { number: "02", title: "Send a request", description: "Add people at your pace with a friend request they can accept or decline." },
-  { number: "03", title: "Get talking", description: "Start a one-to-one chat or bring your circle together in a crew." },
+  { number: "03", title: "Get talking", description: "Start a one-to-one chat or bring your circle together in a channel." },
 ];
 
 export default function BuiltDifferent() {
@@ -45,14 +45,14 @@ export default function BuiltDifferent() {
 
             <motion.article
               initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ delay: 0.08 }}
-              className="home-crew-card rounded-[1.6rem] border border-border bg-surface p-6 sm:p-8"
+              className="home-channel-card rounded-[1.6rem] border border-border bg-surface p-6 sm:p-8"
             >
-              <p className="text-[11px] font-bold uppercase tracking-[0.15em] opacity-75">Crews</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] opacity-75">Channels</p>
               <div className="mt-4 flex items-center gap-3">
                 <Users aria-hidden="true" className="size-5 text-accent-brand" />
                 <h3 className="text-2xl font-bold tracking-tight">Bring your circle together</h3>
               </div>
-              <p className="mt-4 leading-relaxed text-text-secondary">Start a one-to-one chat or gather everyone in a crew.</p>
+              <p className="mt-4 leading-relaxed text-text-secondary">Start a one-to-one chat or gather everyone in a channel.</p>
               <div aria-label="Maya, Jules, and Alex" className="mt-6 flex -space-x-2">
                 <span className="grid size-10 place-items-center rounded-full border-2 border-current bg-primary text-sm font-bold text-primary-foreground">M</span>
                 <span className="grid size-10 place-items-center rounded-full border-2 border-current bg-surface text-sm font-bold">J</span>

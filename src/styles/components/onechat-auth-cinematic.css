@@ -1,0 +1,829 @@
+/* ============================================================
+   Onechat Authentication: Cinematic Dual-State Experience
+   Exact Design Implementation: Login (Dark) & Sign Up (Cream)
+   ============================================================ */
+
+.oa-cinematic-root {
+  --oa-black: #0b0b0b;
+  --oa-black-elevated: rgba(18, 18, 18, 0.78);
+  --oa-cream: #f2ebdd;
+  --oa-cream-elevated: rgba(232, 223, 207, 0.78);
+  --oa-amber: #e4a15a;
+  --oa-amber-glow: rgba(228, 161, 90, 0.28);
+  --oa-gray: #a9a69e;
+  --oa-cream-muted: #6e6a62;
+  --oa-border-dark: #383630;
+  --oa-border-cream: #d6ccba;
+  --oa-font-display: Impact, "Archivo Black", "Anton", -apple-system, BlinkMacSystemFont, sans-serif;
+  --oa-font-mono: ui-monospace, "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  --oa-font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--oa-font-body);
+  transition: background-color 0.75s cubic-bezier(0.22, 1, 0.36, 1), color 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  box-sizing: border-box;
+}
+
+.oa-cinematic-root * {
+  box-sizing: border-box;
+}
+
+/* ── Dual-State Themes ─────────────────────────────────────── */
+.oa-cinematic-root--login {
+  background-color: var(--oa-black);
+  color: var(--oa-cream);
+}
+
+.oa-cinematic-root--signup {
+  background-color: var(--oa-cream);
+  color: var(--oa-black);
+}
+
+/* ── Backdrop Layers for Flawless Cross-Fade ───────────────── */
+.oa-backdrop-dark {
+  position: fixed;
+  inset: 0;
+  background-color: var(--oa-black);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.oa-backdrop-cream {
+  position: fixed;
+  inset: 0;
+  background-color: var(--oa-cream);
+  z-index: 1;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* ── Grain Texture Overlay ─────────────────────────────────── */
+.oa-cinematic-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ── Planetary Background Stage ────────────────────────────── */
+.oa-planetary-stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.oa-planetary-sphere-anchor {
+  position: absolute;
+  top: 50%;
+  right: -8vw;
+  width: min(80vw, 900px);
+  height: min(80vw, 900px);
+  margin-top: calc(min(80vw, 900px) / -2);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.oa-sphere-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.oa-sphere-dark {
+  background: radial-gradient(circle at 35% 35%, #2a1f11 0%, #151109 45%, #0b0b0b 70%);
+  box-shadow:
+    inset -15px -15px 40px rgba(0, 0, 0, 0.9),
+    inset 25px 25px 80px rgba(228, 161, 90, 0.38),
+    0 0 120px rgba(228, 161, 90, 0.16);
+}
+
+.oa-sphere-cream {
+  background: radial-gradient(circle at 65% 65%, #d9cbba 0%, #c8b9a5 45%, #f2ebdd 75%);
+  box-shadow:
+    inset 25px 25px 60px rgba(255, 255, 255, 0.65),
+    inset -30px -30px 80px rgba(160, 90, 27, 0.22),
+    0 0 140px rgba(228, 161, 90, 0.2);
+}
+
+/* Orbital Rings Overlay */
+.oa-orbit-rings-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.oa-orbit-ring {
+  stroke: rgba(228, 161, 90, 0.22);
+  stroke-dasharray: 4 8;
+  transition: stroke 0.6s ease;
+}
+
+.oa-cinematic-root--signup .oa-orbit-ring {
+  stroke: rgba(160, 90, 27, 0.22);
+}
+
+/* ── Minimal Top Header ────────────────────────────────────── */
+.oa-topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px clamp(20px, 5vw, 70px);
+  width: 100%;
+}
+
+.oa-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+}
+
+.oa-topbar-brand:hover {
+  opacity: 0.85;
+}
+
+.oa-topbar-logo {
+  font-family: var(--oa-font-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.oa-topbar-badge {
+  font-family: var(--oa-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--oa-amber);
+  border: 1px solid rgba(228, 161, 90, 0.35);
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(228, 161, 90, 0.08);
+}
+
+.oa-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.oa-topbar-link {
+  font-family: var(--oa-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.oa-topbar-link:hover {
+  opacity: 1;
+}
+
+/* ── Main Content Stage ────────────────────────────────────── */
+.oa-main-stage {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px clamp(20px, 5vw, 70px) 40px;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(40px, 6vw, 100px);
+  align-items: center;
+}
+
+/* ── Left Column: Editorial Headline & Narrative ──────────── */
+.oa-editorial-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.oa-editorial-tag {
+  font-family: var(--oa-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--oa-amber);
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.oa-editorial-tag::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--oa-amber);
+}
+
+.oa-editorial-h1 {
+  font-family: var(--oa-font-display);
+  font-size: clamp(42px, 6vw, 84px);
+  line-height: 0.94;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px 0;
+}
+
+.oa-amber-highlight {
+  color: var(--oa-amber);
+}
+
+.oa-editorial-sub {
+  font-size: clamp(15px, 1.4vw, 19px);
+  line-height: 1.6;
+  max-width: 44ch;
+  margin: 0;
+}
+
+.oa-cinematic-root--login .oa-editorial-sub {
+  color: var(--oa-gray);
+}
+
+.oa-cinematic-root--signup .oa-editorial-sub {
+  color: var(--oa-cream-muted);
+}
+
+/* ── Right Column: Translucent Form Container ──────────────── */
+.oa-form-card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 16px;
+  padding: clamp(28px, 4vw, 42px) clamp(24px, 3.5vw, 36px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  position: relative;
+  will-change: transform, opacity;
+}
+
+.oa-cinematic-root--login .oa-form-card {
+  background: var(--oa-black-elevated);
+  border: 1px solid var(--oa-border-dark);
+}
+
+.oa-cinematic-root--signup .oa-form-card {
+  background: var(--oa-cream-elevated);
+  border: 1px solid var(--oa-border-cream);
+  box-shadow: 0 20px 50px rgba(11, 11, 11, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Form Layout ───────────────────────────────────────────── */
+.oa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oa-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.oa-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oa-field-label {
+  font-family: var(--oa-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.oa-cinematic-root--login .oa-field-label {
+  color: var(--oa-gray);
+}
+
+.oa-cinematic-root--signup .oa-field-label {
+  color: var(--oa-cream-muted);
+}
+
+.oa-forgot-btn {
+  font-family: var(--oa-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--oa-amber);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.oa-forgot-btn:hover {
+  opacity: 0.8;
+}
+
+/* Input Shell */
+.oa-input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden; /* Clips all inner elements/autofill cleanly to rounded container */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.oa-cinematic-root--login .oa-input-shell {
+  background: #0f0f0f;
+  border: 1px solid var(--oa-border-dark);
+}
+
+.oa-cinematic-root--signup .oa-input-shell {
+  background: #ffffff;
+  border: 1px solid #d4cabb;
+}
+
+.oa-input-shell:hover {
+  border-color: var(--oa-amber);
+}
+
+.oa-input-shell.focused {
+  border-color: var(--oa-amber);
+  box-shadow: 0 0 0 3px var(--oa-amber-glow);
+}
+
+.oa-input-shell.error {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+}
+
+.oa-input-icon {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--oa-gray);
+  transition: color 0.2s ease;
+  z-index: 2;
+}
+
+.oa-cinematic-root--signup .oa-input-icon {
+  color: #928a7e;
+}
+
+.oa-input-shell.focused .oa-input-icon {
+  color: var(--oa-amber);
+}
+
+.oa-input {
+  width: 100%;
+  height: 48px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 0 14px 0 44px;
+  color: inherit;
+  border-radius: inherit; /* Ensures background & autofill follow shell curve */
+  position: relative;
+  z-index: 1;
+}
+
+.oa-cinematic-root--login .oa-input::placeholder {
+  color: #55524b;
+}
+
+.oa-cinematic-root--signup .oa-input::placeholder {
+  color: #a49c8f;
+}
+
+/* ── WebKit / Chromium Autofill Override ──────────────────────── */
+/* Prevents Chrome user-agent dark-slate/blue background from breaking corners & colors */
+.oa-cinematic-root--login .oa-input:-webkit-autofill,
+.oa-cinematic-root--login .oa-input:-webkit-autofill:hover,
+.oa-cinematic-root--login .oa-input:-webkit-autofill:focus,
+.oa-cinematic-root--login .oa-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0f0f0f inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.oa-cinematic-root--signup .oa-input:-webkit-autofill,
+.oa-cinematic-root--signup .oa-input:-webkit-autofill:hover,
+.oa-cinematic-root--signup .oa-input:-webkit-autofill:focus,
+.oa-cinematic-root--signup .oa-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #181613 !important;
+  caret-color: #181613 !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.oa-eye-btn {
+  background: none;
+  border: none;
+  padding: 0 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--oa-gray);
+  transition: color 0.15s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.oa-eye-btn:hover {
+  color: var(--oa-amber);
+}
+
+.oa-err-text {
+  font-size: 12px;
+  color: #f43f5e;
+  padding-left: 2px;
+}
+
+/* ── Username Status Indicator (High Contrast) ───────────────── */
+.oa-username-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding-left: 2px;
+  margin-top: 4px;
+}
+
+/* Cream Theme (Sign Up) Contrast Overrides */
+.oa-cinematic-root--signup .oa-username-status--available {
+  color: #15803d !important; /* Deep rich forest emerald: AAA contrast against cream */
+}
+
+.oa-cinematic-root--signup .oa-username-status--taken {
+  color: #dc2626 !important; /* Vivid deep crimson */
+}
+
+.oa-cinematic-root--signup .oa-username-status--checking {
+  color: #78716c !important; /* Crisp stone gray */
+}
+
+/* Dark Theme (Login / Fallback) */
+.oa-cinematic-root--login .oa-username-status--available {
+  color: #34d399 !important; /* Bright emerald */
+}
+
+.oa-cinematic-root--login .oa-username-status--taken {
+  color: #f87171 !important;
+}
+
+.oa-cinematic-root--login .oa-username-status--checking {
+  color: #a9a69e !important;
+}
+
+/* ── Email Verification / OTP Components ─────────────────────── */
+.oa-verify-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  margin-bottom: 22px;
+  max-width: 100%;
+}
+
+.oa-cinematic-root--login .oa-verify-badge {
+  background: rgba(228, 161, 90, 0.12);
+  border: 1px solid rgba(228, 161, 90, 0.35);
+  color: #f5f2eb;
+}
+
+.oa-cinematic-root--signup .oa-verify-badge {
+  background: rgba(184, 115, 51, 0.08);
+  border: 1px solid rgba(184, 115, 51, 0.25);
+  color: #181613;
+}
+
+.oa-verify-badge-email {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oa-verify-edit-btn {
+  background: none;
+  border: none;
+  color: var(--oa-amber);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.oa-verify-edit-btn:hover {
+  opacity: 0.8;
+}
+
+.oa-otp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin: 18px 0 24px;
+}
+
+.oa-otp-box {
+  width: 100%;
+  height: 54px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--oa-font-mono), monospace;
+  border-radius: 8px;
+  outline: none;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.oa-cinematic-root--login .oa-otp-box {
+  background: #0f0f0f;
+  border: 1px solid var(--oa-border-dark);
+  color: #ffffff;
+}
+
+.oa-cinematic-root--signup .oa-otp-box {
+  background: #ffffff;
+  border: 1px solid #d4cabb;
+  color: #181613;
+}
+
+.oa-otp-box:hover {
+  border-color: var(--oa-amber);
+}
+
+.oa-otp-box:focus {
+  border-color: var(--oa-amber);
+  box-shadow: 0 0 0 3px var(--oa-amber-glow);
+}
+
+.oa-otp-box.filled {
+  border-color: var(--oa-amber);
+}
+
+.oa-otp-box:-webkit-autofill,
+.oa-otp-box:-webkit-autofill:hover,
+.oa-otp-box:-webkit-autofill:focus {
+  border-radius: 8px !important;
+}
+
+.oa-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.oa-resend-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oa-amber);
+  cursor: pointer;
+  padding: 4px;
+  transition: opacity 0.15s ease;
+}
+
+.oa-resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--oa-gray);
+}
+
+/* Keep Signed In Checkbox */
+.oa-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 2px 0;
+}
+
+.oa-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--oa-amber);
+  cursor: pointer;
+}
+
+.oa-checkbox-label {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.oa-cinematic-root--login .oa-checkbox-label {
+  color: var(--oa-gray);
+}
+
+.oa-cinematic-root--signup .oa-checkbox-label {
+  color: var(--oa-cream-muted);
+}
+
+/* Primary Amber Button */
+.oa-submit-btn {
+  width: 100%;
+  height: 50px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background: var(--oa-amber);
+  color: #0b0b0b;
+  font-family: var(--oa-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 20px var(--oa-amber-glow);
+}
+
+.oa-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 6px 26px rgba(228, 161, 90, 0.4);
+}
+
+.oa-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.oa-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.oa-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(11, 11, 11, 0.25);
+  border-top-color: #0b0b0b;
+  border-radius: 50%;
+  animation: oa-spin 0.7s linear infinite;
+}
+
+@keyframes oa-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Account Switcher Footer inside form */
+.oa-switch-footer {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.oa-cinematic-root--login .oa-switch-footer {
+  color: var(--oa-gray);
+}
+
+.oa-cinematic-root--signup .oa-switch-footer {
+  color: var(--oa-cream-muted);
+}
+
+.oa-switch-link-btn {
+  background: none;
+  border: none;
+  color: var(--oa-amber);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.oa-switch-link-btn:hover {
+  opacity: 0.8;
+}
+
+/* Success status alert */
+.oa-alert-success {
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #34d399;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.oa-alert-error {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #f43f5e;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+/* ── Minimal Bottom Footer ─────────────────────────────────── */
+.oa-footer-bar {
+  position: relative;
+  z-index: 10;
+  padding: 20px clamp(20px, 5vw, 70px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--oa-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+/* ── Responsive Adaptations ────────────────────────────────── */
+@media (max-width: 992px) {
+  .oa-main-stage {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-top: 10px;
+  }
+  .oa-editorial-h1 {
+    font-size: clamp(34px, 7vw, 54px);
+  }
+  .oa-form-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .oa-topbar {
+    padding: 16px 20px;
+  }
+  .oa-main-stage {
+    padding: 10px 20px 30px;
+  }
+  .oa-form-card {
+    padding: 24px 20px;
+  }
+  .oa-footer-bar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 16px 20px;
+  }
+}
+
+/* ── Reduced Motion Override ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .oa-cinematic-root,
+  .oa-planetary-sphere,
+  .oa-form-card {
+    transition: none !important;
+    animation: none !important;
+  }
+}

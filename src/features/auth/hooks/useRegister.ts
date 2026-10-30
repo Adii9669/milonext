@@ -25,7 +25,7 @@ import {
     useCheckUsername,
 } from "./useCheckUsername";
 
-export function useRegister() {
+export function useRegister(onSuccess?: (email: string) => void) {
 
     const router = useRouter();
 
@@ -33,6 +33,7 @@ export function useRegister() {
         register,
         handleSubmit,
         control,
+        watch,
 
         formState: {
             errors,
@@ -76,7 +77,11 @@ export function useRegister() {
                     data.password,
             });
 
-            router.push("/auth/login");
+            if (onSuccess) {
+                onSuccess(data.email);
+            } else {
+                router.push(`/auth/verifyEmail?email=${encodeURIComponent(data.email)}`);
+            }
 
         } catch (error) {
 
@@ -95,6 +100,8 @@ export function useRegister() {
     return {
         register,
         handleSubmit,
+        control,
+        watch,
         errors,
         isSubmitting,
         onSubmit,

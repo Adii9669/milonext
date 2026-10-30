@@ -1,17 +1,17 @@
 import { apiFetch }
 from "@/src/lib/api/apiClient";
 
-export const crewsApi = {
+export const channelsApi = {
 
-    getCrews: () =>
-        apiFetch("/api/crews/"),
+    getChannels: () =>
+        apiFetch("/api/channels/"),
 
-    createCrew: (
+    createChannel: (
         body: any
     ) =>
 
         apiFetch(
-            "/api/crews/",
+            "/api/channels/",
             {
                 method: "POST",
 
@@ -25,24 +25,24 @@ export const crewsApi = {
             }
         ),
 
-    deleteCrew: (
-        crewID: string
+    deleteChannel: (
+        channelID: string
     ) =>
 
         apiFetch(
-            `/api/crews/${crewID}/`,
+            `/api/channels/${channelID}/`,
             {
                 method: "DELETE",
             }
         ),
 
-    updateCrew: (
-        crewID: string,
+    updateChannel: (
+        channelID: string,
         body: any
     ) =>
 
         apiFetch(
-            `/api/crews/${crewID}/`,
+            `/api/channels/${channelID}/`,
             {
                 method: "PUT",
 

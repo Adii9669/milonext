@@ -20,7 +20,7 @@ export default function PlanTogetherSection() {
         <motion.div initial={{ opacity: 0, y: 42, scale: .97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: .7 }} className="home-story-card mx-auto w-full max-w-xl rounded-[2rem] border border-border bg-surface p-5 shadow-[var(--shadow-soft)] sm:p-8">
           <div className="flex items-center justify-between border-b border-border pb-5">
             <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-surface-elevated text-foreground"><CalendarDays className="size-5" /></span><div><p className="text-xs font-bold uppercase tracking-[.16em] text-text-muted">A plan with your people</p><p className="mt-1 font-semibold">Saturday catch-up</p></div></div>
-            <span className="rounded-full border border-border px-3 py-1 text-[10px] font-semibold text-text-secondary">Crew plan</span>
+            <span className="rounded-full border border-border px-3 py-1 text-[10px] font-semibold text-text-secondary">Channel plan</span>
           </div>
           <div className="py-6">
             <p className="text-2xl font-semibold tracking-tight sm:text-3xl">Coffee & a long catch-up</p>

@@ -1,0 +1,970 @@
+/* ── Onechat Near-Black & Blue Dark Theme ──────────────────────────── */
+
+:root {
+  /* Main Surfaces */
+  --oc-bg-app: #09090B;
+  --oc-bg-sidebar: #101012;
+  --oc-bg-chat: #09090B;
+  --oc-bg-surface: #17171B;
+  --oc-bg-elevated: #17171B;
+  --oc-bg-input: #18181C;
+  --oc-bg-hover: #202026;
+  --oc-bg-subtle-accent: #14243A;
+  --oc-border: #25252B;
+  --oc-border-subtle: #1C1C22;
+
+  /* Message Bubbles */
+  --oc-bubble-incoming: #1B1B20;
+  --oc-bubble-outgoing: #1557A6;
+
+  /* Typography */
+  --oc-text-primary: #F4F4F5;
+  --oc-text-secondary: #A1A1AA;
+  --oc-text-muted: #71717A;
+  --oc-text-disabled: #52525B;
+
+  /* Accent Colors */
+  --oc-accent: #3B82F6;
+  --oc-accent-hover: #60A5FA;
+  --oc-accent-deep: #1557A6;
+  --oc-accent-subtle: #14243A;
+  --oc-accent-glow: rgba(59, 130, 246, 0.25);
+  --oc-online: #22C55E;
+  --oc-destructive: #EF4444;
+}
+
+/* Base App Shell */
+.oc-app-shell {
+  background-color: var(--oc-bg-app);
+  color: var(--oc-text-primary);
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  position: relative;
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Clean Scrollbars */
+.oc-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.oc-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.oc-scroll::-webkit-scrollbar-thumb {
+  background: var(--oc-border);
+  border-radius: 9999px;
+}
+
+.oc-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--oc-text-muted);
+}
+
+/* ── Left Sidebar (280px–320px) ──────────────────────────────────── */
+.oc-sidebar {
+  background-color: var(--oc-bg-sidebar);
+  border-right: 1px solid var(--oc-border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.oc-sidebar-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+}
+
+.oc-sidebar-brand {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--oc-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.oc-sidebar-brand-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--oc-accent);
+}
+
+/* Search Bar in Left Panel */
+.oc-search-wrap {
+  padding: 0 14px 10px;
+}
+
+.oc-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--oc-bg-input);
+  border: 1px solid var(--oc-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 36px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.oc-search-box:focus-within {
+  border-color: var(--oc-accent);
+  box-shadow: 0 0 0 1px var(--oc-accent);
+}
+
+.oc-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--oc-text-primary);
+  font-size: 13px;
+  width: 100%;
+}
+
+.oc-search-input::placeholder {
+  color: var(--oc-text-muted);
+}
+
+/* Navigation List (Chats, Friends, Channels, Plans, Explore) */
+.oc-nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px 10px;
+  border-bottom: 1px solid var(--oc-border-subtle);
+}
+
+.oc-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--oc-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.oc-nav-item:hover {
+  color: var(--oc-text-primary);
+  background: var(--oc-bg-hover);
+}
+
+.oc-nav-item.active {
+  color: var(--oc-text-primary);
+  background: var(--oc-bg-subtle-accent);
+  font-weight: 600;
+}
+
+.oc-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--oc-accent);
+}
+
+.oc-nav-badge {
+  background: var(--oc-accent);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Section Headers (DIRECT MESSAGES, CHANNELS) */
+.oc-section-header {
+  padding: 12px 14px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oc-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--oc-text-muted);
+}
+
+.oc-section-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--oc-text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.oc-section-action-btn:hover {
+  color: var(--oc-text-primary);
+}
+
+/* Conversation / DM / Channel Rows */
+.oc-conv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  margin: 1px 6px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: calc(100% - 12px);
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.oc-conv-row:hover {
+  background: var(--oc-bg-hover);
+}
+
+.oc-conv-row.active {
+  background: var(--oc-bg-elevated);
+}
+
+.oc-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.oc-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--oc-bg-surface);
+  color: var(--oc-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  border: 1px solid var(--oc-border);
+}
+
+.oc-avatar-channel {
+  border-radius: 8px;
+  background: var(--oc-bg-input);
+  color: var(--oc-accent);
+  border: 1px solid var(--oc-border);
+}
+
+.oc-online-badge {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--oc-online);
+  border: 2px solid var(--oc-bg-sidebar);
+}
+
+.oc-conv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.oc-conv-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.oc-conv-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oc-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oc-conv-row.active .oc-conv-name {
+  color: #ffffff;
+}
+
+.oc-conv-time {
+  font-size: 11px;
+  color: var(--oc-text-muted);
+  flex-shrink: 0;
+}
+
+.oc-conv-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.oc-conv-preview {
+  font-size: 12px;
+  color: var(--oc-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oc-unread-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--oc-accent);
+  flex-shrink: 0;
+}
+
+/* User Footer Section */
+.oc-sidebar-user {
+  margin-top: auto;
+  padding: 10px 14px;
+  border-top: 1px solid var(--oc-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--oc-bg-sidebar);
+}
+
+.oc-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.oc-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--oc-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oc-user-sub {
+  font-size: 11px;
+  color: var(--oc-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Center Chat Panel ────────────────────────────────────────────── */
+.oc-chat-center {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--oc-bg-chat);
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Chat Header */
+.oc-chat-topbar {
+  height: 58px;
+  min-height: 58px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--oc-bg-chat);
+  border-bottom: 1px solid var(--oc-border);
+  z-index: 20;
+}
+
+.oc-chat-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.oc-topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--oc-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oc-topbar-status {
+  font-size: 12px;
+  color: var(--oc-online);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.oc-chat-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.oc-btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--oc-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.oc-btn-icon.hidden,
+.hidden.oc-btn-icon {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .md\:hidden.oc-btn-icon,
+  .oc-btn-icon.md\:hidden {
+    display: none !important;
+  }
+}
+
+.oc-btn-icon:hover {
+  color: var(--oc-text-primary);
+  background: var(--oc-bg-hover);
+}
+
+.oc-btn-icon.active {
+  color: var(--oc-accent);
+  background: var(--oc-bg-subtle-accent);
+}
+
+/* Message Timeline */
+.oc-messages-timeline {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--oc-bg-chat);
+}
+
+/* Date Divider with Subtle Horizontal Rule */
+.oc-date-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 14px 0;
+  width: 100%;
+}
+
+.oc-date-badge-wrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--oc-border);
+  z-index: 1;
+}
+
+.oc-date-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--oc-text-muted);
+  background: var(--oc-bg-chat);
+  padding: 2px 10px;
+  position: relative;
+  z-index: 2;
+  border-radius: 9999px;
+}
+
+/* Message Rows */
+.oc-msg-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.oc-msg-row.incoming {
+  justify-content: flex-start;
+}
+
+.oc-msg-row.outgoing {
+  justify-content: flex-end;
+}
+
+.oc-msg-bubble {
+  min-width: 68px;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 13px;
+  padding: 6px 10px 7px 11px;
+  font-size: 14px;
+  line-height: 1.45;
+  position: relative;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.oc-msg-row.incoming .oc-msg-bubble {
+  background: var(--oc-bubble-incoming);
+  color: var(--oc-text-primary);
+  border-top-left-radius: 3px;
+  border: 1px solid var(--oc-border);
+}
+
+.oc-msg-row.outgoing .oc-msg-bubble {
+  background: var(--oc-bubble-outgoing);
+  color: #ffffff;
+  border-top-right-radius: 3px;
+}
+
+/* Container creating a Block Formatting Context so floats are fully encapsulated */
+.oc-msg-body {
+  display: flow-root;
+  position: relative;
+}
+
+.oc-msg-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.45;
+  color: inherit;
+}
+
+/* WhatsApp-style Inline Metadata: sits beside text if space permits, floats right bottom */
+.oc-msg-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  float: right;
+  margin-left: 9px;
+  margin-top: 4px;
+  position: relative;
+  bottom: -2px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  vertical-align: bottom;
+}
+
+.oc-msg-time {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.oc-msg-status {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.oc-msg-row.incoming .oc-msg-meta {
+  color: var(--oc-text-muted);
+}
+
+.oc-msg-row.outgoing .oc-msg-meta {
+  color: rgba(244, 244, 245, 0.72);
+}
+
+/* ── Rich Plan Card in Timeline ───────────────────────────────────── */
+.oc-plan-timeline-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--oc-bg-surface);
+  border: 1px solid var(--oc-border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 4px 0;
+}
+
+.oc-plan-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.oc-plan-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--oc-accent);
+}
+
+.oc-plan-btn-view {
+  background: var(--oc-bg-subtle-accent);
+  color: var(--oc-accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--oc-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.oc-plan-btn-view:hover {
+  background: var(--oc-accent);
+  color: #ffffff;
+}
+
+.oc-plan-title-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--oc-text-primary);
+  margin-bottom: 4px;
+}
+
+.oc-plan-desc-text {
+  font-size: 13px;
+  color: var(--oc-text-secondary);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.oc-plan-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.oc-plan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--oc-bg-input);
+  border: 1px solid var(--oc-border);
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--oc-text-secondary);
+}
+
+.oc-plan-pill svg {
+  color: var(--oc-text-muted);
+}
+
+.oc-plan-rsvp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--oc-border-subtle);
+}
+
+.oc-rsvp-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.oc-rsvp-going {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--oc-online);
+}
+
+.oc-rsvp-neutral {
+  background: var(--oc-bg-hover);
+  color: var(--oc-text-secondary);
+}
+
+.oc-rsvp-neutral:hover {
+  color: var(--oc-text-primary);
+  background: var(--oc-border);
+}
+
+/* ── Fixed Message Composer ──────────────────────────────────────── */
+.oc-composer-container {
+  padding: 12px 20px 14px;
+  background: var(--oc-bg-chat);
+  border-top: 1px solid var(--oc-border);
+}
+
+.oc-composer-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--oc-bg-input);
+  border: 1px solid var(--oc-border);
+  border-radius: 12px;
+  padding: 6px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.oc-composer-box:focus-within {
+  border-color: var(--oc-accent);
+  box-shadow: 0 0 0 1px var(--oc-accent);
+}
+
+.oc-composer-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--oc-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  max-height: 120px;
+  padding: 4px 2px;
+  font-family: inherit;
+}
+
+.oc-composer-input::placeholder {
+  color: var(--oc-text-muted);
+}
+
+.oc-composer-btn-send {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--oc-accent);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.oc-composer-btn-send:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.oc-composer-btn-send:not(:disabled):hover {
+  background: var(--oc-accent-hover);
+}
+
+/* ── Right Details Sidebar (300px–340px) ─────────────────────────── */
+.oc-right-sidebar {
+  background-color: var(--oc-bg-sidebar);
+  border-left: 1px solid var(--oc-border);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 25;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.oc-right-topbar {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  border-bottom: 1px solid var(--oc-border-subtle);
+}
+
+/* Profile Cover and Avatar Area */
+.oc-profile-cover-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.oc-profile-cover {
+  width: 100%;
+  height: 90px;
+  background: var(--oc-bg-surface);
+  border-bottom: 1px solid var(--oc-border);
+}
+
+.oc-profile-avatar-overlap {
+  position: absolute;
+  left: 20px;
+  bottom: -32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--oc-bg-surface);
+  color: var(--oc-text-primary);
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--oc-bg-sidebar);
+}
+
+.oc-profile-info {
+  padding: 0 20px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.oc-profile-name-lg {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--oc-text-primary);
+}
+
+.oc-profile-handle-lg {
+  font-size: 13px;
+  color: var(--oc-text-muted);
+  margin-top: 1px;
+}
+
+.oc-profile-status-sub {
+  font-size: 12px;
+  color: var(--oc-text-secondary);
+  margin-top: 3px;
+}
+
+/* 5 Tabs (About, Plans, Files, Links, Media) */
+.oc-tabs-bar {
+  display: flex;
+  border-bottom: 1px solid var(--oc-border);
+  padding: 0 16px;
+  gap: 16px;
+}
+
+.oc-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--oc-text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.oc-tab-btn:hover {
+  color: var(--oc-text-primary);
+}
+
+.oc-tab-btn.active {
+  color: var(--oc-accent);
+  font-weight: 600;
+}
+
+.oc-tab-underline {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--oc-accent);
+}
+
+/* Right Sidebar Content Sections */
+.oc-right-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.oc-card-section {
+  margin-bottom: 18px;
+}
+
+.oc-card-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--oc-text-muted);
+  margin-bottom: 8px;
+}
+
+.oc-card-section-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--oc-accent);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.oc-card-section-link:hover {
+  text-decoration: underline;
+}
+
+/* Upcoming Plan Item in Sidebar */
+.oc-sidebar-plan-card {
+  background: var(--oc-bg-elevated);
+  border: 1px solid var(--oc-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.oc-sidebar-plan-card:hover {
+  border-color: var(--oc-accent);
+}
+
+.oc-plan-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: var(--oc-bg-subtle-accent);
+  color: var(--oc-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { crewApi } from "@/src/lib/api";
+import { channelApi } from "@/src/lib/api";
 import { useAuth } from "@/src/features/auth/hooks/useAuth";
 
-export const useCrews = () => {
+export const useChannels = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["crews", user?.id],
-    queryFn: crewApi.getCrews,
+    queryKey: ["channels", user?.id],
+    queryFn: channelApi.getChannels,
     enabled: !!user,
   });
 };

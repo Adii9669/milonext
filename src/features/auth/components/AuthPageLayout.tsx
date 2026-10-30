@@ -93,7 +93,7 @@ export function AuthPageLayout({
                 <div className="mb-3 flex items-center justify-between font-mono text-[10px] text-text-muted">
                   <span className="inline-flex items-center gap-1.5 font-bold text-accent-brand">
                     <span className="size-1.5 rounded-full bg-success" />
-                    The usual crew
+                    The usual channel
                   </span>
                   <span>4 members</span>
                 </div>

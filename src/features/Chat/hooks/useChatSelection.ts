@@ -1,29 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Crew } from "@/src/types/crew";
+import { Channel } from "@/src/types/channel";
 import { Friends } from "@/src/types";
 
 export function useChatSelection({
-  crews,
+  channels,
   friendsToShow,
-  joinCrew,
-  leaveCrew,
+  joinChannel,
+  leaveChannel,
 }: {
-  crews: Crew[];
+  channels: Channel[];
   friendsToShow: Friends[];
-  joinCrew: (id: string) => void;
-  leaveCrew: (id: string) => void;
+  joinChannel: (id: string) => void;
+  leaveChannel: (id: string) => void;
 }) {
-  const [activeView, setActiveView] = useState<"dm" | "crew">("crew");
-  const [selectedCrew, setSelectedCrew] = useState<Crew | null>(null);
+  const [activeView, setActiveView] = useState<"dm" | "channel">("channel");
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<Friends | null>(null);
 
   /* =========================
      Auto select
   ========================== */
   useEffect(() => {
-    if (selectedCrew || selectedFriend) return;
+    if (selectedChannel || selectedFriend) return;
 
     if (activeView === "dm") {
       if (friendsToShow.length > 0) {
@@ -32,8 +32,8 @@ export function useChatSelection({
       return;
     }
 
-    if (crews.length > 0) {
-      setSelectedCrew(crews[0]);
+    if (channels.length > 0) {
+      setSelectedChannel(channels[0]);
       return;
     }
 
@@ -41,59 +41,59 @@ export function useChatSelection({
       setActiveView("dm");
       setSelectedFriend(friendsToShow[0]);
     }
-  }, [activeView, crews, friendsToShow, selectedCrew, selectedFriend]);
+  }, [activeView, channels, friendsToShow, selectedChannel, selectedFriend]);
 
   /* =========================
-     Join / Leave crew
+     Join / Leave channel
   ========================== */
   useEffect(() => {
-    if (!selectedCrew) return;
+    if (!selectedChannel) return;
 
-    joinCrew(selectedCrew.id);
+    joinChannel(selectedChannel.id);
 
     return () => {
-      leaveCrew(selectedCrew.id);
+      leaveChannel(selectedChannel.id);
     };
-  }, [selectedCrew, joinCrew, leaveCrew]);
+  }, [selectedChannel, joinChannel, leaveChannel]);
 
   /* =========================
      Handlers
   ========================== */
 
-  const handleSelectCrew = (crew: Crew) => {
-    if (selectedCrew?.id === crew.id) return;
+  const handleSelectChannel = (channel: Channel) => {
+    if (selectedChannel?.id === channel.id) return;
 
-    if (selectedCrew) {
-      leaveCrew(selectedCrew.id);
+    if (selectedChannel) {
+      leaveChannel(selectedChannel.id);
     }
 
-    setActiveView("crew");
-    setSelectedCrew(crew);
+    setActiveView("channel");
+    setSelectedChannel(channel);
     setSelectedFriend(null);
-    joinCrew(crew.id);
+    joinChannel(channel.id);
   };
 
   const handleSelectFriend = (friend: Friends) => {
-    if (selectedCrew) {
-      leaveCrew(selectedCrew.id);
+    if (selectedChannel) {
+      leaveChannel(selectedChannel.id);
     }
 
     setActiveView("dm");
     setSelectedFriend(friend);
-    setSelectedCrew(null);
+    setSelectedChannel(null);
   };
 
   return {
     activeView,
     setActiveView,
 
-    selectedCrew,
-    setSelectedCrew,
+    selectedChannel,
+    setSelectedChannel,
 
     selectedFriend,
     setSelectedFriend,
 
-    handleSelectCrew,
+    handleSelectChannel,
     handleSelectFriend,
   };
 }

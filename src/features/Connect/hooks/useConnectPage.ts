@@ -14,7 +14,7 @@ from "@/src/features/Chat/hooks/useChatQuries";
 
 import { useChatSelection }
 from "@/src/features/Chat/hooks/useChatSelection";
-import { Crew } from "@/src/types/crew";
+import { Channel } from "@/src/types/channel";
 
 export function useConnectPage() {
 
@@ -28,33 +28,33 @@ export function useConnectPage() {
 
     const selection =
         useChatSelection({
-            crews: [],
+            channels: [],
             friendsToShow: [],
-            joinCrew:
-                realtime.joinCrew,
+            joinChannel:
+                realtime.joinChannel,
 
-            leaveCrew:
-                realtime.leaveCrew,
+            leaveChannel:
+                realtime.leaveChannel,
         });
 
     const queries =
         useChatQueries(
             user,
-            selection.selectedCrew
+            selection.selectedChannel
         );
 
     useEffect(() => {
 
         if (
-            selection.selectedCrew ||
+            selection.selectedChannel ||
             selection.selectedFriend
         ) {
             return;
         }
 
-        const savedCrewId =
+        const savedChannelId =
             localStorage.getItem(
-                "selectedCrewId"
+                "selectedChannelId"
             );
 
         const savedView =
@@ -62,7 +62,7 @@ export function useConnectPage() {
                 "activeView"
             ) as
             | "dm"
-            | "crew"
+            | "channel"
             | null;
 
         if (savedView) {
@@ -72,20 +72,20 @@ export function useConnectPage() {
         }
 
         if (
-            savedCrewId &&
-            queries.crews.length > 0
+            savedChannelId &&
+            queries.channels.length > 0
         ) {
 
             const found =
-                queries.crews.find(
-                    (crew: Crew) =>
-                        crew.id ===
-                        savedCrewId
+                queries.channels.find(
+                    (channel: Channel) =>
+                        channel.id ===
+                        savedChannelId
                 );
 
             if (found) {
 
-                selection.setSelectedCrew(
+                selection.setSelectedChannel(
                     found
                 );
 
@@ -94,11 +94,11 @@ export function useConnectPage() {
         }
 
         if (
-            queries.crews.length > 0
+            queries.channels.length > 0
         ) {
 
-            selection.setSelectedCrew(
-                queries.crews[0]
+            selection.setSelectedChannel(
+                queries.channels[0]
             );
 
         } else if (
@@ -116,7 +116,7 @@ export function useConnectPage() {
         }
 
     }, [
-        queries.crews,
+        queries.channels,
         queries.friendsToShow,
         selection,
     ]);
@@ -124,21 +124,21 @@ export function useConnectPage() {
     useEffect(() => {
 
         if (
-            selection.selectedCrew
+            selection.selectedChannel
         ) {
 
             localStorage.setItem(
-                "selectedCrewId",
-                selection.selectedCrew.id
+                "selectedChannelId",
+                selection.selectedChannel.id
             );
 
             localStorage.setItem(
                 "activeView",
-                "crew"
+                "channel"
             );
         }
 
-    }, [selection.selectedCrew]);
+    }, [selection.selectedChannel]);
 
     useEffect(() => {
 
@@ -156,9 +156,9 @@ export function useConnectPage() {
 
     const isEmptyState =
 
-        !queries.crewsLoading &&
+        !queries.channelsLoading &&
 
-        queries.crews.length === 0 &&
+        queries.channels.length === 0 &&
 
         queries.friendsToShow
             .length === 0;

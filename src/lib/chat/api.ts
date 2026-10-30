@@ -2,12 +2,12 @@ import { apiFetch } from "../api/apiClient";
 import { PaginatedMessages } from "@/src/features/Chat/types/messages";
 
 
-export const getCrewHistory = async (
-    crewId: string,
+export const getChannelHistory = async (
+    channelId: string,
     limit = 50,
     cursor?: string
 ) => {
-    let url = `/api/chats/crew/${crewId}?limit=${limit}`;
+    let url = `/api/chats/channel/${channelId}?limit=${limit}`;
 
     if (cursor) {
         url += `&cursor=${encodeURIComponent(cursor)}`;

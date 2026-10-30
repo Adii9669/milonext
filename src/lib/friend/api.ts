@@ -15,6 +15,9 @@ export const getFriends = async () => {
 
 }
 
+export const removeFriend = async (friendId: string) =>
+    apiFetch(`/api/friends/${friendId}`, { method: "DELETE" });
+
 /**
  * Send Friend Request
  */
@@ -70,21 +73,3 @@ export const rejectFriendRequest = async (friendID: string) => {
     });
 
 }
-
-
-
-
-/**
- * Remove Friend
- */
-export const removeFriend = async (friendId: string) => {
-    return apiFetch(`/api/friends/${friendId}`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        method: "DELETE",
-        body: JSON.stringify({ friendId }),
-    });
-
-}
-

@@ -1,3 +1,3 @@
 export * from "./friends";
-export * from "./crew";
+export * from "./channel";
 export * from "./user";

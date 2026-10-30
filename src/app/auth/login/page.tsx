@@ -1,10 +1,9 @@
-import { Suspense } from "react";
-import { CleanLoginForm } from "@/src/features/auth/components/CleanLoginForm";
+import OnechatAuthExperience from "@/src/features/auth/components/OnechatAuthExperience";
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
-      <CleanLoginForm />
-    </Suspense>
-  );
+export const metadata = {
+  title: "Log in — Onechat",
+};
+
+export default function AuthLoginPage() {
+  return <OnechatAuthExperience initialMode="login" />;
 }

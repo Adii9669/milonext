@@ -17,11 +17,10 @@ export const getMe = async () => {
 
 
 
-/**
- * Get all registered users
- */
-export const getUsers = async () => {
-    return apiFetch(`/api/users`, {
+/** Search registered accounts by username. */
+export const searchUsers = async (username: string) => {
+    const query = new URLSearchParams({ username });
+    return apiFetch(`/api/users?${query.toString()}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

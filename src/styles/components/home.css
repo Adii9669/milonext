@@ -325,18 +325,18 @@ html[data-theme="light"]:not([data-custom-theme="true"]) .home-page {
   color: var(--accent-brand);
 }
 
-.home-crew-card {
+.home-channel-card {
   border-color: var(--warning) !important;
   background: var(--warning) !important;
   color: #252016;
 }
 
-.home-crew-card .text-text-secondary,
-.home-crew-card .text-text-muted {
+.home-channel-card .text-text-secondary,
+.home-channel-card .text-text-muted {
   color: #514a37;
 }
 
-.home-crew-card .bg-primary {
+.home-channel-card .bg-primary {
   color: #101522;
 }
 
@@ -402,18 +402,18 @@ html[data-theme="light"]:not([data-custom-theme="true"]) .home-page {
   box-shadow: 0 4px 0 #26365c;
 }
 
-[data-theme="dark"] .home-crew-card {
+[data-theme="dark"] .home-channel-card {
   border-color: var(--warning);
   background: var(--warning);
   color: #20151b;
 }
 
-[data-theme="dark"] .home-crew-card .text-text-secondary,
-[data-theme="dark"] .home-crew-card .text-text-muted {
+[data-theme="dark"] .home-channel-card .text-text-secondary,
+[data-theme="dark"] .home-channel-card .text-text-muted {
   color: #51402a;
 }
 
-[data-theme="dark"] .home-crew-card .bg-primary {
+[data-theme="dark"] .home-channel-card .bg-primary {
   color: #170b12;
 }
 

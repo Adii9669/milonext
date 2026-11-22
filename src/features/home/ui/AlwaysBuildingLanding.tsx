@@ -346,7 +346,7 @@ export default function AlwaysBuildingLanding() {
 
       {/* Navigation */}
       <nav className={`ab-nav ${navCream ? "ab-nav--cream" : ""}`} aria-label="Main Navigation">
-        <Link href="/" className="ab-nav-brand">
+        <Link href="/home" className="ab-nav-brand">
           <span className="ab-nav-logo">Onechat</span>
           <span className="ab-nav-badge">Always Building</span>
         </Link>

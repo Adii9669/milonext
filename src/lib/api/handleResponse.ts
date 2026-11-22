@@ -3,7 +3,8 @@ import { refreshToken }
 
 export async function handleResponse(
     response: Response,
-    retry: () => Promise<Response>
+    retry: () => Promise<Response>,
+    retried = false
 ) {
 
     const contentType =
@@ -30,6 +31,17 @@ export async function handleResponse(
 
         if (tokenExpired) {
 
+            // Never loop forever if the retried request is still rejected.
+            if (retried) {
+
+                window.location.href =
+                    "/auth/login";
+
+                throw new Error(
+                    "Session expired"
+                );
+            }
+
             try {
 
                 await refreshToken();
@@ -39,7 +51,8 @@ export async function handleResponse(
 
                 return handleResponse(
                     retryResponse,
-                    retry
+                    retry,
+                    true
                 );
 
             } catch {

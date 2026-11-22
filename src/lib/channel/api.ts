@@ -4,13 +4,14 @@ import { apiFetch } from "../api/apiClient";
 /**
  * Create Channel
  */
-export const createChannel = async (name: string) => {
+export const createChannel = async (name: string | { name: string }) => {
+    const channelName = typeof name === "string" ? name : name?.name;
     return apiFetch("/api/channels/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: channelName }),
     });
 }
 

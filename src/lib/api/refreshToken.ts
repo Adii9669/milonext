@@ -2,27 +2,29 @@ import { env } from "../env";
 
 const API_BASE_URL =
     env.NEXT_PUBLIC_API_URL;
-    
-let isRefreshing = false;
+
+// Share one in-flight refresh between concurrent 401 responses so they all
+// retry with the same new access-token cookie instead of racing each other.
+let refreshPromise: Promise<void> | null = null;
 
 export async function refreshToken() {
-    if (isRefreshing) return;
+    if (!refreshPromise) {
+        refreshPromise = (async () => {
+            const response = await fetch(
+                `${API_BASE_URL}/auth/refresh`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                }
+            );
 
-    isRefreshing = true;
-
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/auth/refresh`,
-            {
-                method: "POST",
-                credentials: "include",
+            if (!response.ok) {
+                throw new Error("Refresh failed");
             }
-        );
-
-        if (!response.ok) {
-            throw new Error("Refresh failed");
-        }
-    } finally {
-        isRefreshing = false;
+        })().finally(() => {
+            refreshPromise = null;
+        });
     }
+
+    return refreshPromise;
 }

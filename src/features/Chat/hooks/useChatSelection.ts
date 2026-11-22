@@ -62,22 +62,13 @@ export function useChatSelection({
 
   const handleSelectChannel = (channel: Channel) => {
     if (selectedChannel?.id === channel.id) return;
-
-    if (selectedChannel) {
-      leaveChannel(selectedChannel.id);
-    }
-
     setActiveView("channel");
     setSelectedChannel(channel);
     setSelectedFriend(null);
-    joinChannel(channel.id);
   };
 
   const handleSelectFriend = (friend: Friends) => {
-    if (selectedChannel) {
-      leaveChannel(selectedChannel.id);
-    }
-
+    if (selectedFriend?.id === friend.id) return;
     setActiveView("dm");
     setSelectedFriend(friend);
     setSelectedChannel(null);

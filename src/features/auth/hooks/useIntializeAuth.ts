@@ -17,9 +17,9 @@ export function useInitializeAuth() {
 
             try {
 
-                const user = await getMe();
+                const response = await getMe();
 
-                setUser(user);
+                setUser("user" in response ? response.user : response);
 
             } catch {
 

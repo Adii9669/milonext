@@ -50,7 +50,8 @@ export type PlanRealtimeEventName =
   | "plan.confirmed"
   | "plan.cancelled"
   | "plan.status_changed"
-  | "plan.poll_changed";
+  | "plan.poll_changed"
+  | "plan.deleted";
 
 export type PlanRealtimeEvent = {
   event: PlanRealtimeEventName;

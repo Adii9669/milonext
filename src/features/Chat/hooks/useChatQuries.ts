@@ -61,7 +61,13 @@ export function useChatQueries(user: any, selectedChannel: Channel | null) {
     queryKey: ["channels"],
     queryFn: async () => {
       const res = await channelApi.getChannels();
-      return res.channels ?? []; // 🔥 normalize here
+      const rawChannels: Channel[] = res.channels ?? [];
+      // Newly created groups / channels come on top
+      return rawChannels.slice().sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      });
     },
   });
 
@@ -84,15 +90,29 @@ export function useChatQueries(user: any, selectedChannel: Channel | null) {
 
   const createChannelMutation = useMutation({
     mutationFn: channelApi.createChannel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["channels", user?.id] });
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["channels"] });
+      const rawChannel = data?.channel || (data?.id ? data : null);
+      if (rawChannel) {
+        const newChannel: Channel = {
+          ...rawChannel,
+          createdAt: rawChannel.createdAt || new Date().toISOString(),
+        };
+        queryClient.setQueryData(["channels"], (old: Channel[] = []) => {
+          // Prepend newly created channel to the very top
+          return [newChannel, ...old.filter((c) => c.id !== newChannel.id)];
+        });
+      }
     },
   });
 
   const deleteChannelMutation = useMutation({
     mutationFn: channelApi.deleteChannel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["channels", user?.id] });
+    onSuccess: (_data, channelId) => {
+      queryClient.invalidateQueries({ queryKey: ["channels"] });
+      queryClient.setQueryData(["channels"], (old: Channel[] = []) =>
+        old.filter((c) => c.id !== channelId)
+      );
     },
   });
 
@@ -163,8 +183,8 @@ export function useChatQueries(user: any, selectedChannel: Channel | null) {
     channelMembers,
     channelMembersLoading,
 
-    createChannel: createChannelMutation.mutate,
-    deleteChannel: deleteChannelMutation.mutate,
+    createChannel: createChannelMutation.mutateAsync,
+    deleteChannel: deleteChannelMutation.mutateAsync,
     addChannelMember: addChannelMemberMutation.mutate,
     removeChannelMember: removeChannelMemberMutation.mutate,
     updateChannelRole: updateChannelRoleMutation.mutate,

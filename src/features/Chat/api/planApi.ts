@@ -14,6 +14,9 @@ export const createChannelPlan = (channelId: string, input: CreatePlanInput): Pr
 export const getDMPlans = (userId: string): Promise<Plan[]> =>
   apiFetch(`/api/chats/dm/${userId}/plans`);
 
+export const getMyPlans = (): Promise<Plan[]> =>
+  apiFetch("/api/plans/mine");
+
 export const createDMPlan = (userId: string, input: CreatePlanInput): Promise<Plan> =>
   apiFetch(`/api/chats/dm/${userId}/plans`, {
     method: "POST",
@@ -41,6 +44,9 @@ export const updatePlan = (planId: string, input: UpdatePlanInput): Promise<Plan
     body: JSON.stringify(input),
   });
 
+export const deletePlan = (planId: string): Promise<void> =>
+  apiFetch(`/api/plans/${planId}`, { method: "DELETE" });
+
 export const updatePlanStatus = (planId: string, status: PlanStatus, expectedUpdatedAt: string): Promise<Plan> =>
   apiFetch(`/api/plans/${planId}/status`, {
     method: "PUT",
@@ -64,4 +70,3 @@ export const setPlanPollVotes = (planId: string, optionIds: string[]): Promise<P
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ optionIds }),
   });
-

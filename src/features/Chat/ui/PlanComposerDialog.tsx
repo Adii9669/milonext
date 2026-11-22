@@ -11,6 +11,7 @@ import {
 } from "@/src/shared/components/ui/dialog";
 import { CreatePlanInput } from "@/src/features/Chat/types/plans";
 import { PlaceInput } from "@/src/features/Chat/ui/PlaceInput";
+import { PlanTimePicker } from "@/src/features/Chat/ui/PlanTimePicker";
 
 interface Props {
   open: boolean;
@@ -102,17 +103,13 @@ export function PlanComposerDialog({ open, onOpenChange, onSubmit }: Props) {
           <label className="grid gap-1.5 text-sm font-medium">Description <span className="font-normal text-muted-foreground">Optional</span>
             <textarea className="min-h-20 rounded-md border border-input bg-background px-3 py-2 text-sm" value={description} onChange={(event) => setDescription(event.target.value)} />
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="grid gap-1.5 text-sm font-medium">Date
               <input type="date" min={todayLocalDate()} className="h-10 min-w-0 rounded-md border border-input bg-background px-3 text-sm" value={date} onChange={(event) => setDate(event.target.value)} required />
             </label>
-            <label className="grid gap-1.5 text-sm font-medium">Start time
-              <input type="time" className="h-10 min-w-0 rounded-md border border-input bg-background px-3 text-sm" value={startTime} onChange={(event) => setStartTime(event.target.value)} required />
-            </label>
+            <PlanTimePicker id="composer-start-time" label="Start time" value={startTime} onChange={setStartTime} required />
           </div>
-          <label className="grid gap-1.5 text-sm font-medium">End time <span className="font-normal text-muted-foreground">Optional, same date</span>
-            <input type="time" className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={endTime} onChange={(event) => setEndTime(event.target.value)} />
-          </label>
+          <PlanTimePicker id="composer-end-time" label="End time" value={endTime} onChange={setEndTime} optional />
           <PlaceInput value={location} onChange={setLocation} label="Location" placeholder="Place name or address" />
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter>

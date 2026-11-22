@@ -4,6 +4,8 @@ import "../styles/globals.css";
 import Providers from "./provider";
 import ConditionalNavbar from "@/src/shared/components/Navbar/ConditionalNavbar";
 import ThemeInitializer from "@/src/shared/components/ThemeInitiator";
+import { MiniPlayer } from "@/src/features/Jam/ui/MiniPlayer";
+import { JamPanel } from "@/src/features/Jam/ui/JamPanel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +49,8 @@ export default function RootLayout({
         <Providers>
           <ConditionalNavbar />
           {children}
+          <MiniPlayer />
+          <JamPanel />
         </Providers>
       </body>
     </html>

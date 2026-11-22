@@ -1,21 +1,24 @@
-/* ── Onechat Near-Black & Blue Dark Theme ──────────────────────────── */
+/* ── Onechat Natural Dark & Iris Theme (Ergonomic Reading Palette) ─── */
 
 :root {
   /* Main Surfaces */
-  --oc-bg-app: #09090B;
-  --oc-bg-sidebar: #101012;
-  --oc-bg-chat: #09090B;
-  --oc-bg-surface: #17171B;
-  --oc-bg-elevated: #17171B;
-  --oc-bg-input: #18181C;
-  --oc-bg-hover: #202026;
-  --oc-bg-subtle-accent: #14243A;
-  --oc-border: #25252B;
-  --oc-border-subtle: #1C1C22;
+  --oc-bg-app: #0A0A0D;
+  --oc-bg-sidebar-rail: #0E0E12;
+  --oc-bg-sidebar: #141418;
+  --oc-bg-chat: #292929; /* Soft neutral charcoal from Teams reference, calming and comfortable */
+  --oc-bg-chat-header: #202022;
+  --oc-bg-surface: #202024;
+  --oc-bg-elevated: #323238;
+  --oc-bg-input: #1C1C20;
+  --oc-bg-hover: #1E1E24;
+  --oc-bg-subtle-accent: rgba(110, 83, 204, 0.16);
+  --oc-border: #2C2C33;
+  --oc-border-subtle: #222228;
 
-  /* Message Bubbles */
-  --oc-bubble-incoming: #1B1B20;
-  --oc-bubble-outgoing: #1557A6;
+  /* Message Bubbles (Ergonomic Chat Reading — Teams Iris Purple & Charcoal) */
+  --oc-bubble-incoming: #1F1F1F;
+  --oc-bubble-outgoing: #6E53CC; /* Teams Iris Purple #6E53CC */
+  --oc-bubble-outgoing-border: rgba(255, 255, 255, 0.12);
 
   /* Typography */
   --oc-text-primary: #F4F4F5;
@@ -23,14 +26,28 @@
   --oc-text-muted: #71717A;
   --oc-text-disabled: #52525B;
 
-  /* Accent Colors */
-  --oc-accent: #3B82F6;
-  --oc-accent-hover: #60A5FA;
-  --oc-accent-deep: #1557A6;
-  --oc-accent-subtle: #14243A;
-  --oc-accent-glow: rgba(59, 130, 246, 0.25);
+  /* Accent Colors (Iris Purple) */
+  --oc-accent: #6E53CC;
+  --oc-accent-hover: #7E64E0;
+  --oc-accent-deep: #5D44BA;
+  --oc-accent-subtle: rgba(110, 83, 204, 0.16);
+  --oc-accent-glow: rgba(110, 83, 204, 0.35);
   --oc-online: #22C55E;
   --oc-destructive: #EF4444;
+}
+
+/* Mobile Safe Area Insets for iOS & Android Capacitor / Mobile Webviews */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mt-safe {
+  margin-top: env(safe-area-inset-top, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Base App Shell */
@@ -44,6 +61,11 @@
   position: relative;
   font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #3E3E4C;
+  color: #FFFFFF;
 }
 
 /* Custom Clean Scrollbars */
@@ -63,6 +85,17 @@
 
 .oc-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--oc-text-muted);
+}
+
+/* Hide scrollbar completely while maintaining scrollability */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* ── Left Sidebar (280px–320px) ──────────────────────────────────── */
@@ -95,6 +128,8 @@
   align-items: center;
   gap: 6px;
   text-decoration: none;
+  user-select: none;
+  cursor: default;
 }
 
 .oc-sidebar-brand-dot {
@@ -158,7 +193,7 @@
   font-weight: 500;
   color: var(--oc-text-secondary);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
@@ -170,20 +205,10 @@
 }
 
 .oc-nav-item.active {
-  color: var(--oc-text-primary);
+  color: var(--oc-accent);
   background: var(--oc-bg-subtle-accent);
+  border-color: rgba(59, 130, 246, 0.25);
   font-weight: 600;
-}
-
-.oc-nav-item.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--oc-accent);
 }
 
 .oc-nav-badge {
@@ -227,29 +252,51 @@
   color: var(--oc-text-primary);
 }
 
-/* Conversation / DM / Channel Rows */
+/* Conversation / DM / Channel Rows (WhatsApp + Discord Hybrid) */
 .oc-conv-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
-  margin: 1px 6px;
-  border-radius: 6px;
+  gap: 12px;
+  padding: 8px 10px;
+  margin: 1px 0;
+  border-radius: 12px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   text-align: left;
-  width: calc(100% - 12px);
-  transition: background-color 0.15s ease;
+  width: 100%;
+  transition: all 0.15s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .oc-conv-row:hover {
-  background: var(--oc-bg-hover);
+  background: var(--oc-bg-hover, #1E1E24);
 }
 
 .oc-conv-row.active {
-  background: var(--oc-bg-elevated);
+  background: var(--oc-bg-subtle-accent, rgba(110, 83, 204, 0.14));
+  border-color: rgba(110, 83, 204, 0.35);
+}
+
+.oc-conv-row.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: var(--oc-accent, #6E53CC);
+}
+
+.oc-conv-row.unread {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.oc-conv-row.unread .oc-conv-name {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .oc-avatar-wrap {
@@ -258,25 +305,41 @@
 }
 
 .oc-avatar {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: var(--oc-bg-surface);
+  background: var(--oc-bg-surface, #141417);
   color: var(--oc-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 13px;
-  overflow: hidden;
-  border: 1px solid var(--oc-border);
+  font-weight: 700;
+  font-size: 15px;
+  border: 1px solid var(--oc-border, #222228);
+  flex-shrink: 0;
+  transition: border-radius 0.15s ease;
+}
+
+.oc-conv-row:hover .oc-avatar {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .oc-avatar-channel {
-  border-radius: 8px;
-  background: var(--oc-bg-input);
-  color: var(--oc-accent);
-  border: 1px solid var(--oc-border);
+  border-radius: 14px;
+  background: var(--oc-bg-elevated, #18181C);
+  color: #F4F4F5;
+  border-color: var(--oc-border, #222228);
+}
+
+.oc-unread-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid var(--oc-bg-sidebar);
 }
 
 .oc-online-badge {
@@ -338,10 +401,14 @@
 }
 
 .oc-unread-dot {
-  width: 7px;
-  height: 7px;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background-color: var(--oc-accent);
+  border: 2px solid var(--oc-bg-sidebar);
   flex-shrink: 0;
 }
 
@@ -400,7 +467,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--oc-bg-chat);
+  background: var(--oc-bg-chat-header, #232327);
   border-bottom: 1px solid var(--oc-border);
   z-index: 20;
 }
@@ -500,19 +567,22 @@
   right: 0;
   top: 50%;
   height: 1px;
-  background: var(--oc-border);
+  background: #22242a;
   z-index: 1;
 }
 
 .oc-date-badge {
   font-size: 11px;
   font-weight: 500;
-  color: var(--oc-text-muted);
-  background: var(--oc-bg-chat);
-  padding: 2px 10px;
+  color: #9ba1a6;
+  background: #181a1f;
+  border: 1px solid #22242a;
+  padding: 4px 14px;
+  border-radius: 9999px;
   position: relative;
   z-index: 2;
-  border-radius: 9999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.01em;
 }
 
 /* Message Rows */
@@ -534,26 +604,29 @@
   min-width: 68px;
   width: fit-content;
   max-width: 100%;
-  border-radius: 13px;
-  padding: 6px 10px 7px 11px;
+  padding: 8px 12px;
   font-size: 14px;
   line-height: 1.45;
   position: relative;
   overflow-wrap: break-word;
   word-break: break-word;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
 
 .oc-msg-row.incoming .oc-msg-bubble {
-  background: var(--oc-bubble-incoming);
-  color: var(--oc-text-primary);
-  border-top-left-radius: 3px;
-  border: 1px solid var(--oc-border);
+  background: var(--oc-bubble-incoming, #1F1F1F);
+  color: var(--oc-text-primary, #f0f2f5);
+  border-radius: 8px 8px 8px 2px;
+  border: 1px solid #333338;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .oc-msg-row.outgoing .oc-msg-bubble {
-  background: var(--oc-bubble-outgoing);
+  background: var(--oc-bubble-outgoing, #6E53CC);
   color: #ffffff;
-  border-top-right-radius: 3px;
+  border-radius: 8px 8px 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 6px rgba(110, 83, 204, 0.28);
 }
 
 /* Container creating a Block Formatting Context so floats are fully encapsulated */
@@ -604,18 +677,19 @@
 }
 
 .oc-msg-row.outgoing .oc-msg-meta {
-  color: rgba(244, 244, 245, 0.72);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* ── Rich Plan Card in Timeline ───────────────────────────────────── */
 .oc-plan-timeline-card {
   width: 100%;
   max-width: 520px;
-  background: var(--oc-bg-surface);
-  border: 1px solid var(--oc-border);
-  border-radius: 12px;
+  background: var(--oc-bg-surface, #141A23);
+  border: 1px solid var(--oc-border, #1C2533);
+  border-radius: 14px;
   padding: 16px;
   margin: 4px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 .oc-plan-top-row {
@@ -652,10 +726,10 @@
 }
 
 .oc-plan-title-text {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--oc-text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .oc-plan-desc-text {
@@ -729,7 +803,7 @@
 /* ── Fixed Message Composer ──────────────────────────────────────── */
 .oc-composer-container {
   padding: 12px 20px 14px;
-  background: var(--oc-bg-chat);
+  background: var(--oc-bg-chat-header, #232327);
   border-top: 1px solid var(--oc-border);
 }
 
@@ -737,8 +811,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--oc-bg-input);
-  border: 1px solid var(--oc-border);
+  background: var(--oc-bg-input, #1C1C20);
+  border: 1px solid #383842;
   border-radius: 12px;
   padding: 6px 12px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -746,7 +820,7 @@
 
 .oc-composer-box:focus-within {
   border-color: var(--oc-accent);
-  box-shadow: 0 0 0 1px var(--oc-accent);
+  box-shadow: 0 0 0 1.5px var(--oc-accent-glow);
 }
 
 .oc-composer-input {
@@ -768,10 +842,10 @@
 }
 
 .oc-composer-btn-send {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--oc-accent);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--oc-accent, #6E53CC);
   color: #ffffff;
   border: none;
   display: flex;
@@ -779,16 +853,465 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 2px 8px rgba(110, 83, 204, 0.35);
 }
 
 .oc-composer-btn-send:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .oc-composer-btn-send:not(:disabled):hover {
-  background: var(--oc-accent-hover);
+  background: var(--oc-accent-hover, #7E64E0);
+  transform: scale(1.04);
+}
+
+/* ── Two-level sidebar shell (icon rail + conversation list) ─────── */
+.oc-sidebars {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 0;
+}
+
+/* ── Left Icon Rail (Discord-style, always visible on desktop) ───── */
+.oc-sidebar-rail {
+  background-color: var(--oc-bg-sidebar-rail, #070A0F);
+  border-right: 1px solid var(--oc-border-subtle);
+  width: 68px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 35;
+  flex-shrink: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.oc-rail-header {
+  height: 56px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.oc-rail-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #5D44BA, #7E64E0);
+  box-shadow: 0 4px 14px rgba(110, 83, 204, 0.35);
+  transition: border-radius 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.oc-rail-logo:hover {
+  border-radius: 14px;
+  transform: scale(1.04);
+}
+
+.oc-rail-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+/* Discord-style Rail Item with Left Indicator Pill */
+.oc-rail-item-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.oc-rail-indicator {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background: #ffffff;
+  border-radius: 0 4px 4px 0;
+  transition: height 0.18s cubic-bezier(0.2, 0, 0, 1), background-color 0.18s ease;
+  pointer-events: none;
+}
+
+.oc-rail-item-wrap:hover .oc-rail-indicator {
+  height: 18px;
+}
+
+.oc-rail-item-wrap.active .oc-rail-indicator {
+  height: 34px;
+  background: var(--oc-accent, #6E53CC);
+}
+
+.oc-rail-nav-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--oc-text-secondary);
+  background: var(--oc-bg-input, #1C1C20);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+}
+
+.oc-rail-nav-btn:hover {
+  border-radius: 16px;
+  color: #ffffff;
+  background: var(--oc-bg-hover, #1E1E24);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.oc-rail-nav-btn.active {
+  border-radius: 16px;
+  color: #ffffff;
+  background: rgba(110, 83, 204, 0.22);
+  border-color: rgba(110, 83, 204, 0.45);
+  box-shadow: 0 4px 14px rgba(110, 83, 204, 0.25);
+}
+
+.oc-rail-unread-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: #22c55e;
+  border: 2px solid #0b0b0e;
+}
+
+.oc-rail-divider {
+  width: 34px;
+  height: 2px;
+  background: #202026;
+  border-radius: 9999px;
+  margin: 6px auto;
+  flex-shrink: 0;
+}
+
+/* Selected / recent chats as Discord-style avatars */
+.oc-rail-selected-wrap {
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-rail-selected-label {
+  padding: 4px 0 2px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--oc-text-disabled);
+  flex-shrink: 0;
+}
+
+.oc-rail-selected-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 0%;
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.oc-rail-selected-list::-webkit-scrollbar {
+  display: none;
+}
+
+.oc-rail-selected-badge {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--oc-text-secondary);
+  background: #17171c;
+  border: 1px solid var(--oc-border-subtle, #1c1c22);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+}
+
+.oc-rail-selected-badge:hover {
+  border-radius: 16px;
+  color: #ffffff;
+  background: #23232b;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.oc-rail-selected-badge.active {
+  border-radius: 16px;
+  color: #ffffff;
+  background: rgba(110, 83, 204, 0.22);
+  border-color: rgba(110, 83, 204, 0.6);
+  box-shadow: 0 0 12px rgba(110, 83, 204, 0.25);
+}
+
+.oc-rail-selected-badge .oc-rail-unread-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0b0b0e;
+}
+
+/* Discord floating tooltip on rail item hover - disabled to prevent overlaying */
+.oc-rail-tooltip {
+  display: none !important;
+}
+
+.oc-rail-user {
+  flex-shrink: 0;
+  padding: 8px 0 12px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--oc-border-subtle);
+  background: var(--oc-bg-sidebar-rail, #070A0F);
+}
+
+.oc-rail-user-button {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--oc-bg-surface, #141A23);
+  border: 1px solid var(--oc-border);
+  color: var(--oc-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.oc-rail-user-button:hover {
+  border-radius: 14px;
+  border-color: var(--oc-accent);
+  background: var(--oc-bg-hover, #182232);
+}
+
+.oc-rail-online-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--oc-online, #22c55e);
+  border: 2px solid var(--oc-bg-sidebar-rail, #070A0F);
+}
+
+/* ── Conversation Sidebar (WhatsApp-style list panel) ────────────── */
+.oc-conversation-sidebar {
+  background-color: var(--oc-bg-sidebar);
+  border-right: 1px solid var(--oc-border);
+  width: 330px;
+  min-width: 330px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.22s cubic-bezier(0.2, 0, 0, 1), min-width 0.22s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
+}
+
+.oc-conversation-sidebar.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  border-right: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.oc-sidebar-header {
+  padding: 0 14px;
+  min-height: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+/* WhatsApp Filter Pills Bar */
+.oc-filter-pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.oc-filter-pills-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.oc-filter-pill {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--oc-text-secondary);
+  background: var(--oc-bg-input, #1C1C20);
+  border: 1px solid var(--oc-border, #2C2C33);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.oc-filter-pill:hover {
+  background: var(--oc-bg-hover, #1E1E24);
+  color: var(--oc-text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.oc-filter-pill.active {
+  background: var(--oc-accent, #6E53CC);
+  color: #FFFFFF;
+  border-color: var(--oc-accent, #6E53CC);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(110, 83, 204, 0.28);
+}
+
+.oc-filter-pill-badge {
+  padding: 0.5px 6px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #383842;
+  color: #ffffff;
+}
+
+.oc-filter-pill.active .oc-filter-pill-badge {
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+}
+
+/* Scrollable conversation list — rock-solid scrolling for large lists */
+.oc-conv-list {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  padding: 2px 8px 16px;
+}
+
+.oc-conv-list::-webkit-scrollbar {
+  width: 5px;
+}
+.oc-conv-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.oc-conv-list::-webkit-scrollbar-thumb {
+  background: #25252b;
+  border-radius: 9999px;
+}
+.oc-conv-list::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Sections inside list */
+.oc-conv-section {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.oc-conv-row {
+  flex-shrink: 0;
+}
+
+/* Fixed-height chrome around the list must never shrink */
+.oc-search-wrap,
+.oc-nav-menu,
+.oc-sidebar-user {
+  flex-shrink: 0;
+}
+
+/* Compact nav inside the list — mobile only, the rail covers desktop */
+.oc-conv-nav {
+  display: none;
+}
+
+/* ── Mobile: list-first, chat opens full width ──────────────────── */
+@media (max-width: 767px) {
+  .oc-sidebars {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .oc-sidebars--chat-open {
+    display: none;
+  }
+
+  .oc-sidebar-rail {
+    display: none;
+  }
+
+  .oc-conversation-sidebar {
+    width: 100%;
+    border-right: none;
+  }
+
+  .oc-conv-nav {
+    display: flex;
+  }
 }
 
 /* ── Right Details Sidebar (300px–340px) ─────────────────────────── */
@@ -804,13 +1327,33 @@
   overflow: hidden;
 }
 
+/* Mobile: Details panel covers the full screen with no sidebar leaking through */
+@media (max-width: 767px) {
+  .oc-right-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    z-index: 100 !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    background-color: var(--oc-bg-sidebar, #141418);
+  }
+}
+
 .oc-right-topbar {
-  padding: 12px 16px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
   border-bottom: 1px solid var(--oc-border-subtle);
+  background-color: var(--oc-bg-chat-header, #202022);
 }
 
 /* Profile Cover and Avatar Area */

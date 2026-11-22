@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  ChevronLeft,
   Video,
   Phone,
   MoreVertical,
@@ -17,7 +18,11 @@ import {
   Trash2,
   Eye,
   X,
+  Radio,
+  Play,
+  Pause,
 } from "lucide-react";
+import { isJamEnabled } from "@/src/features/Jam/utils/featureFlag";
 import { Channel } from "@/src/types/channel";
 import { Friends } from "@/src/types/friends";
 import { Plan } from "@/src/features/Chat/types/plans";
@@ -25,6 +30,9 @@ import { Message } from "@/src/features/Chat/types/messages";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { channelApi, friendApi, userApi } from "@/src/lib/api";
 import { PlanDetailsDialog } from "./PlanDetailsDialog";
+import { PlanDeleteDialog } from "./PlanDeleteDialog";
+import { useJamStore } from "@/src/features/Jam/store/useJamStore";
+import { EqualizerBars } from "@/src/features/Jam/ui/EqualizerBars";
 
 export type RightPanelTab = "about" | "plans" | "files" | "links" | "media";
 
@@ -49,6 +57,7 @@ interface OnechatDetailsPanelProps {
   onClose: () => void;
   onFriendRemoved?: () => void;
   onPlanChanged?: (plan: Plan) => void;
+  onPlanDeleted?: (planId: string) => void;
   refreshToken?: number;
 }
 
@@ -63,11 +72,27 @@ export function OnechatDetailsPanel({
   onClose,
   onFriendRemoved,
   onPlanChanged,
+  onPlanDeleted,
   refreshToken = 0,
 }: OnechatDetailsPanelProps) {
   const [activeTab, setActiveTab] = useState<RightPanelTab>("about");
   const [usernameSearch, setUsernameSearch] = useState("");
   const [selectedPlanForModal, setSelectedPlanForModal] = useState<Plan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<Plan | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateSize = () => setIsMobile(window.innerWidth < 768);
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  const isJamFeatureEnabled = isJamEnabled();
+  const currentJamStation = useJamStore((s) => s.currentStation);
+  const jamPlaybackState = useJamStore((s) => s.playbackState);
+  const toggleJamPlayPause = useJamStore((s) => s.togglePlayPause);
+  const openJamPanel = useJamStore((s) => s.openPanel);
 
   const queryClient = useQueryClient();
   const canManageMembers = channel?.role === "owner" || channel?.role === "admin";
@@ -167,50 +192,63 @@ export function OnechatDetailsPanel({
     <AnimatePresence>
       {isOpen && (
         <motion.aside
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 320, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          initial={isMobile ? { opacity: 0, x: "100%" } : { width: 0, opacity: 0 }}
+          animate={isMobile ? { opacity: 1, x: 0 } : { width: 320, opacity: 1 }}
+          exit={isMobile ? { opacity: 0, x: "100%" } : { width: 0, opacity: 0 }}
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="oc-right-sidebar"
           aria-label="Contact or channel context"
         >
-          {/* ── Topbar Actions (Video, Phone, Options, Close) ───────── */}
-          <div className="oc-right-topbar">
-            <button
-              type="button"
-              className="oc-btn-icon"
-              title="Video call"
-              aria-label="Video call"
-              onClick={() => alert("Video calls are scheduled for the next release.")}
-            >
-              <Video size={16} />
-            </button>
-            <button
-              type="button"
-              className="oc-btn-icon"
-              title="Voice call"
-              aria-label="Voice call"
-              onClick={() => alert("Voice calls are scheduled for the next release.")}
-            >
-              <Phone size={16} />
-            </button>
-            <button
-              type="button"
-              className="oc-btn-icon"
-              title="More options"
-              aria-label="More options"
-            >
-              <MoreVertical size={16} />
-            </button>
+          {/* ── Topbar: Back button on top left, Call/More/Close actions on right ───────── */}
+          <div className="oc-right-topbar pt-safe">
             <button
               type="button"
               onClick={onClose}
-              className="oc-btn-icon"
-              title="Close panel"
-              aria-label="Close"
+              className="flex items-center gap-1.5 px-2 py-1.5 -ml-1 rounded-lg text-[#F4F4F5] hover:text-white hover:bg-[#2A2A32] active:scale-95 transition-all cursor-pointer font-medium text-sm"
+              title="Back"
+              aria-label="Back to conversation"
             >
-              <X size={16} />
+              <ChevronLeft size={22} className="text-[#A78BFA] shrink-0" />
+              <span>Back</span>
             </button>
+
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                className="oc-btn-icon"
+                title="Video call"
+                aria-label="Video call"
+                onClick={() => alert("Video calls are scheduled for the next release.")}
+              >
+                <Video size={16} />
+              </button>
+              <button
+                type="button"
+                className="oc-btn-icon"
+                title="Voice call"
+                aria-label="Voice call"
+                onClick={() => alert("Voice calls are scheduled for the next release.")}
+              >
+                <Phone size={16} />
+              </button>
+              <button
+                type="button"
+                className="oc-btn-icon"
+                title="More options"
+                aria-label="More options"
+              >
+                <MoreVertical size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="oc-btn-icon hidden md:flex"
+                title="Close panel"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* ── Profile Cover Area & Overlapping Avatar ─────────────── */}
@@ -301,6 +339,86 @@ export function OnechatDetailsPanel({
                   </div>
                 </div>
 
+                {/* Now Playing Jam Section */}
+                {isJamFeatureEnabled && (
+                  <div className="oc-card-section">
+                    <div className="oc-card-section-title">
+                      <div className="flex items-center gap-1.5">
+                        <Radio size={13} className="text-[#A78BFA]" />
+                        <span>Background Jam</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openJamPanel}
+                        className="oc-card-section-link"
+                      >
+                        {currentJamStation ? "Change" : "Browse"}
+                      </button>
+                    </div>
+
+                    {currentJamStation ? (
+                      <div className="p-2.5 rounded-xl bg-[#17171b] border border-[#25252b] flex items-center justify-between">
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <div className="relative w-9 h-9 rounded-lg overflow-hidden bg-[#18181c] border border-[#25252b] flex-shrink-0 flex items-center justify-center">
+                            {currentJamStation.favicon ? (
+                              <img
+                                src={currentJamStation.favicon}
+                                alt={currentJamStation.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-[#242036] text-[#A78BFA] font-bold text-xs">
+                                {currentJamStation.name.slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            {jamPlaybackState === "playing" && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <EqualizerBars isPlaying={true} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-[#f4f4f5] truncate">
+                              {currentJamStation.name}
+                            </p>
+                            <p className="text-[11px] text-[#71717a] truncate mt-0.5">
+                              {(currentJamStation.tags || []).slice(0, 2).join(" • ") || "Live Radio"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={toggleJamPlayPause}
+                          className="p-2 rounded-lg bg-[#242036] hover:bg-[#2d2845] text-[#A78BFA] border border-[#6E53CC]/40 transition-colors shrink-0"
+                          title={jamPlaybackState === "playing" ? "Pause" : "Play"}
+                        >
+                          {jamPlaybackState === "playing" ? (
+                            <Pause size={14} />
+                          ) : (
+                            <Play size={14} className="ml-0.5" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-[#17171b] border border-[#25252b] text-center">
+                        <p className="text-xs text-[#a1a1aa] mb-2">No music playing</p>
+                        <button
+                          type="button"
+                          onClick={openJamPanel}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#242036] text-[#A78BFA] border border-[#6E53CC]/40 hover:bg-[#2d2845] transition-colors inline-flex items-center gap-1.5"
+                        >
+                          <Radio size={13} />
+                          <span>Tune into Radio</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Upcoming Plans Section */}
                 <div className="oc-card-section">
                   <div className="oc-card-section-title">
@@ -346,19 +464,33 @@ export function OnechatDetailsPanel({
                               </p>
                               {p.location && (
                                 <p className="text-[11px] text-[#a1a1aa] flex items-center gap-1 mt-1 truncate">
-                                  <MapPin size={11} className="text-[#3b82f6]" />
+                                  <MapPin size={11} className="text-[#A78BFA]" />
                                   <span>{p.location}</span>
                                 </p>
                               )}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedPlanForModal(p)}
-                              className="text-[#71717a] hover:text-[#f4f4f5]"
-                              title="Plan actions"
-                            >
-                              <MoreVertical size={14} />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              {currentUserID === p.creatorId && (
+                                <button
+                                  type="button"
+                                  onClick={() => setPlanToDelete(p)}
+                                  className="rounded-md p-1.5 text-[#a1a1aa] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                                  aria-label={`Delete plan: ${p.title}`}
+                                  title="Delete plan"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedPlanForModal(p)}
+                                className="rounded-md p-1.5 text-[#71717a] hover:bg-[#25252b] hover:text-[#f4f4f5]"
+                                aria-label={`View plan: ${p.title}`}
+                                title="View plan"
+                              >
+                                <MoreVertical size={14} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
@@ -389,7 +521,7 @@ export function OnechatDetailsPanel({
                         key={f.id}
                         className="flex items-center gap-2.5 p-2 rounded-lg bg-[#17171b] border border-[#25252b] mb-2"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-[#14243a] text-[#3b82f6] flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#6E53CC]/20 text-[#A78BFA] flex items-center justify-center shrink-0">
                           <FileText size={16} />
                         </div>
                         <div className="min-w-0 flex-1 text-xs">
@@ -403,7 +535,7 @@ export function OnechatDetailsPanel({
                         <a
                           href={`${process.env.NEXT_PUBLIC_API_URL}${f.fileUrl}`}
                           download
-                          className="p-1 text-[#3b82f6] hover:opacity-80"
+                          className="p-1 text-[#A78BFA] hover:opacity-80"
                         >
                           <Download size={14} />
                         </a>
@@ -443,27 +575,37 @@ export function OnechatDetailsPanel({
                           <h4 className="text-xs font-semibold text-[#f4f4f5] truncate">
                             {p.title}
                           </h4>
-                          <span className="text-[9px] font-bold uppercase text-[#3b82f6]">
+                          <span className="text-[9px] font-bold uppercase text-[#A78BFA]">
                             {p.status}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-[#a1a1aa] mt-1">
-                          <Clock size={12} className="text-[#3b82f6]" />
+                          <Clock size={12} className="text-[#A78BFA]" />
                           <span>
                             {dateStr} • {timeStr}
                           </span>
                         </div>
                         {p.location && (
                           <div className="flex items-center gap-1.5 text-xs text-[#a1a1aa] mt-1">
-                            <MapPin size={12} className="text-[#3b82f6]" />
+                            <MapPin size={12} className="text-[#A78BFA]" />
                             <span className="truncate">{p.location}</span>
                           </div>
                         )}
-                        <div className="mt-3 flex justify-end">
+                        <div className="mt-3 flex items-center justify-between">
+                          {currentUserID === p.creatorId ? (
+                            <button
+                              type="button"
+                              onClick={() => setPlanToDelete(p)}
+                              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/10"
+                            >
+                              <Trash2 size={13} />
+                              Delete plan
+                            </button>
+                          ) : <span />}
                           <button
                             type="button"
                             onClick={() => setSelectedPlanForModal(p)}
-                            className="text-xs font-semibold text-[#3b82f6] hover:underline inline-flex items-center gap-1"
+                            className="text-xs font-semibold text-[#A78BFA] hover:underline inline-flex items-center gap-1"
                           >
                             <Eye size={12} />
                             <span>View Plan Details</span>
@@ -494,7 +636,7 @@ export function OnechatDetailsPanel({
                       className="flex items-center justify-between p-2.5 rounded-lg bg-[#17171b] border border-[#25252b] mb-2"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <FileText size={18} className="text-[#3b82f6] shrink-0" />
+                        <FileText size={18} className="text-[#A78BFA] shrink-0" />
                         <div className="min-w-0">
                           <span className="block truncate text-xs font-medium text-[#f4f4f5]">
                             {m.fileName || "File"}
@@ -507,7 +649,7 @@ export function OnechatDetailsPanel({
                       <a
                         href={`${process.env.NEXT_PUBLIC_API_URL}${m.fileUrl}`}
                         download
-                        className="p-1.5 text-[#3b82f6] hover:opacity-80 shrink-0"
+                        className="p-1.5 text-[#A78BFA] hover:opacity-80 shrink-0"
                       >
                         <Download size={14} />
                       </a>
@@ -535,11 +677,11 @@ export function OnechatDetailsPanel({
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-2.5 rounded-lg bg-[#17171b] border border-[#25252b] hover:border-[#3b82f6] transition-colors mb-2 group"
+                      className="flex items-center justify-between p-2.5 rounded-lg bg-[#17171b] border border-[#25252b] hover:border-[#6E53CC] transition-colors mb-2 group"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Link2 size={16} className="text-[#3b82f6] shrink-0" />
-                        <span className="truncate text-xs text-[#f4f4f5] group-hover:text-[#3b82f6]">
+                        <Link2 size={16} className="text-[#A78BFA] shrink-0" />
+                        <span className="truncate text-xs text-[#f4f4f5] group-hover:text-[#A78BFA]">
                           {link.url}
                         </span>
                       </div>
@@ -569,7 +711,7 @@ export function OnechatDetailsPanel({
                         href={`${process.env.NEXT_PUBLIC_API_URL}${m.fileUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="aspect-square rounded-lg overflow-hidden border border-[#25252b] hover:border-[#3b82f6] transition-colors bg-[#17171b]"
+                        className="aspect-square rounded-lg overflow-hidden border border-[#25252b] hover:border-[#6E53CC] transition-colors bg-[#17171b]"
                       >
                         <img
                           src={`${process.env.NEXT_PUBLIC_API_URL}${m.filePreviewUrl || m.fileUrl}`}
@@ -592,9 +734,26 @@ export function OnechatDetailsPanel({
               currentUserId={currentUserID}
               onPlanChanged={(updated) => {
                 onPlanChanged?.(updated);
+              }}
+              onClose={() => setSelectedPlanForModal(null)}
+              onPlanDeleted={(planId) => {
+                onPlanDeleted?.(planId);
                 setSelectedPlanForModal(null);
               }}
               refreshToken={refreshToken}
+            />
+          )}
+          {planToDelete && (
+            <PlanDeleteDialog
+              plan={planToDelete}
+              open
+              onOpenChange={(open) => {
+                if (!open) setPlanToDelete(null);
+              }}
+              onDeleted={(planId) => {
+                onPlanDeleted?.(planId);
+                setPlanToDelete(null);
+              }}
             />
           )}
         </motion.aside>

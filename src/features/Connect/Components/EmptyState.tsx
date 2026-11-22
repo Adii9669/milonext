@@ -3,23 +3,42 @@
 import React from "react";
 import { Plus, UserPlus, Hash } from "lucide-react";
 import CreateModal from "@/src/shared/components/Modals/CreateModal";
+import { SidebarToggleIcon } from "@/src/shared/components/icons/SidebarIcons";
 import { useChannelStore } from "@/src/app/stores/channelStores";
 import Link from "next/link";
 
-export default function EmptyState() {
-  const { createChannel } = useChannelStore();
+interface EmptyStateProps {
+  onCreateChannel?: (name: string) => Promise<void> | void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
+}
+
+export default function EmptyState({
+  onCreateChannel,
+  sidebarCollapsed,
+  onToggleSidebar,
+}: EmptyStateProps) {
+  const { createChannel: storeCreateChannel } = useChannelStore();
+
+  const handleCreate = async (name: string) => {
+    if (onCreateChannel) {
+      await onCreateChannel(name);
+    } else {
+      await storeCreateChannel(name);
+    }
+  };
 
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#09090b] text-[#f4f4f5] px-6">
+    <div className="flex h-full w-full items-center justify-center bg-[var(--oc-bg-chat)] text-[var(--oc-text-primary)] px-6">
       <div className="flex flex-col items-center space-y-6 text-center max-w-md">
-        <div className="w-16 h-16 rounded-2xl bg-[#14243a] text-[#3b82f6] border border-[#25252b] flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 rounded-2xl bg-[var(--oc-bg-subtle-accent)] text-[var(--oc-accent)] border border-[var(--oc-border)] flex items-center justify-center shadow-lg">
           <Hash size={32} />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--oc-text-primary)]">
             Welcome to Onechat
           </h1>
-          <p className="text-sm text-[#a1a1aa] leading-relaxed">
+          <p className="text-sm text-[var(--oc-text-secondary)] leading-relaxed">
             You don’t have any active channels or conversations yet. Start by creating
             a channel or connecting with friends.
           </p>
@@ -30,13 +49,11 @@ export default function EmptyState() {
             description="Enter a name for your new channel to start messaging."
             placeholder="Channel name"
             confirmText="Create Channel"
-            onConfirm={async (name: string) => {
-              await createChannel(name);
-            }}
+            onConfirm={handleCreate}
           >
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#3b82f6] hover:bg-[#60a5fa] text-white text-xs font-semibold transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--oc-accent)] hover:bg-[var(--oc-accent-hover)] text-white text-xs font-semibold transition-colors shadow-sm cursor-pointer"
             >
               <Plus size={16} />
               <span>Create Channel</span>
@@ -44,11 +61,23 @@ export default function EmptyState() {
           </CreateModal>
           <Link
             href="/friend-requests"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#17171b] hover:bg-[#202026] text-[#f4f4f5] border border-[#25252b] text-xs font-semibold transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--oc-bg-surface)] hover:bg-[var(--oc-bg-hover)] text-[#f4f4f5] border border-[var(--oc-border)] text-xs font-semibold transition-colors"
           >
-            <UserPlus size={16} className="text-[#3b82f6]" />
+            <UserPlus size={16} className="text-[var(--oc-accent)]" />
             <span>Add Friends</span>
           </Link>
+
+          {sidebarCollapsed && onToggleSidebar && (
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--oc-bg-subtle-accent)] hover:opacity-90 text-[var(--oc-accent)] border border-[var(--oc-accent)]/30 text-xs font-semibold transition-colors cursor-pointer"
+              title="Open Conversations Sidebar"
+            >
+              <SidebarToggleIcon className="w-4 h-4" />
+              <span>Open Sidebar</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

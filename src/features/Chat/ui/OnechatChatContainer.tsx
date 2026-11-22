@@ -19,17 +19,25 @@ import {
   MapPin,
   File as FileIcon,
   X,
+  Radio,
+  Mic,
 } from "lucide-react";
+import { isJamEnabled } from "@/src/features/Jam/utils/featureFlag";
 import { Channel } from "@/src/types/channel";
 import { Friends } from "@/src/types/friends";
 import { Message } from "@/src/features/Chat/types/messages";
 import { Plan, CreatePlanInput } from "@/src/features/Chat/types/plans";
 import { useChatLogic } from "@/src/hooks/useChatLogic";
 import { createChannelPlan, createDMPlan, getChannelPlans, getDMPlans } from "@/src/features/Chat/api/planApi";
-import { PlanComposerDialog } from "@/src/features/Chat/ui/PlanComposerDialog";
+import { CreatePlanModal } from "@/src/features/Chat/ui/CreatePlanModal";
+import { SidebarToggleIcon } from "@/src/shared/components/icons/SidebarIcons";
 import { PlaceMessageDialog } from "@/src/features/Chat/ui/PlaceMessageDialog";
 import { PlanRealtimeEvent } from "@/src/features/Chat/hooks/useWebsocket";
 import { OnechatMessageList } from "./OnechatMessageList";
+import { useAudioRecorder } from "@/src/features/Chat/hooks/useAudioRecorder";
+import { VoiceRecorderBar } from "@/src/features/Chat/ui/VoiceRecorderBar";
+import { useJamStore } from "@/src/features/Jam/store/useJamStore";
+import { createJamMessageContent } from "@/src/features/Jam/utils/jamMessage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,6 +112,7 @@ export function OnechatChatContainer({
   } = useChatLogic({
     channel,
     friend,
+    currentUser,
     messages,
     deletedMessageIds,
     sendMessage,
@@ -122,9 +131,65 @@ export function OnechatChatContainer({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const planRequestID = useRef(0);
   const processedPlanEventIDs = useRef(new Set<string>());
+  const onPlansUpdatedRef = useRef(onPlansUpdated);
 
   const channelId = channel?.id;
   const friendId = friend?.id;
+
+  const {
+    isRecording,
+    isPaused,
+    recordingDuration,
+    audioBlob,
+    audioUrl,
+    audioLevels,
+    error: recorderError,
+    startRecording,
+    pauseRecording,
+    resumeRecording,
+    stopRecording,
+    cancelRecording,
+    createAudioFile,
+  } = useAudioRecorder();
+
+  useEffect(() => {
+    cancelRecording();
+  }, [channelId, friendId, cancelRecording]);
+
+  const handleStartVoiceRecording = async () => {
+    try {
+      await startRecording();
+    } catch (err) {
+      console.error("Failed to start voice recording:", err);
+    }
+  };
+
+  const handleSendVoiceNote = async () => {
+    try {
+      let blob = audioBlob;
+      if (isRecording) {
+        blob = await stopRecording();
+      }
+      const file = createAudioFile(blob);
+      if (!file) {
+        console.warn("No audio recording found to send");
+        return;
+      }
+
+      await handleUpload(file, "Voice message");
+      cancelRecording();
+    } catch (err: unknown) {
+      console.error("Failed to upload voice message:", err);
+      const errMsg = err instanceof Error ? err.message : "Failed to send voice message";
+      alert(errMsg);
+    }
+  };
+
+  // Keep the callback in a ref so an inline parent callback cannot make
+  // reloadPlans change identity and retrigger its own fetch effect.
+  useEffect(() => {
+    onPlansUpdatedRef.current = onPlansUpdated;
+  }, [onPlansUpdated]);
 
   // Auto-resize composer textarea
   useEffect(() => {
@@ -139,7 +204,7 @@ export function OnechatChatContainer({
     const reqID = ++planRequestID.current;
     if (!channelId && !friendId) {
       setPlans([]);
-      onPlansUpdated?.([]);
+      onPlansUpdatedRef.current?.([]);
       setPlansLoading(false);
       return;
     }
@@ -149,22 +214,21 @@ export function OnechatChatContainer({
       const res = await req;
       if (reqID === planRequestID.current) {
         setPlans(res);
-        onPlansUpdated?.(res);
+        onPlansUpdatedRef.current?.(res);
       }
     } catch (e) {
       // Error handled gracefully
     } finally {
       if (reqID === planRequestID.current) setPlansLoading(false);
     }
-  }, [channelId, friendId, onPlansUpdated]);
+  }, [channelId, friendId]);
 
+  // Fetch plans when conversation changes (and immediately clear old plans)
   useEffect(() => {
+    setPlans([]);
+    onPlansUpdatedRef.current?.([]);
     void reloadPlans();
-  }, [reloadPlans, connected]);
-
-  useEffect(() => {
-    if (connected) setPlanRefreshToken((v) => v + 1);
-  }, [connected]);
+  }, [channelId, friendId, reloadPlans]);
 
   // Real-time plan sync
   useEffect(() => {
@@ -202,24 +266,54 @@ export function OnechatChatContainer({
       (a, b) => Date.parse(a.startAt) - Date.parse(b.startAt)
     );
     setPlans(updatedPlans);
-    onPlansUpdated?.(updatedPlans);
+    onPlansUpdatedRef.current?.(updatedPlans);
   };
 
   const handlePlanChanged = useCallback(
     (updated: Plan) => {
       setPlans((prev) => {
         const next = prev.map((p) => (p.id === updated.id ? updated : p));
-        onPlansUpdated?.(next);
+        queueMicrotask(() => {
+          onPlansUpdatedRef.current?.(next);
+        });
         return next;
       });
     },
-    [onPlansUpdated]
+    []
   );
+
+  const handlePlanDeleted = useCallback((planId: string) => {
+    setPlans((prev) => {
+      const next = prev.filter((plan) => plan.id !== planId);
+      queueMicrotask(() => {
+        onPlansUpdatedRef.current?.(next);
+      });
+      return next;
+    });
+  }, []);
 
   const handleSharePlace = (place: string) => {
     const content = `Place: ${place}`;
     if (channel) sendMessage({ type: "channel", channelId: channel.id, content });
     else if (friend) sendMessage({ type: "dm", receiverId: friend.id, content });
+  };
+
+  const isJamFeatureEnabled = isJamEnabled();
+  const currentJamStation = useJamStore((s) => s.currentStation);
+  const openJamPanel = useJamStore((s) => s.openPanel);
+
+  const handleOpenJam = () => {
+    openJamPanel();
+  };
+
+  const handleShareJam = () => {
+    if (currentJamStation) {
+      const content = createJamMessageContent(currentJamStation);
+      if (channel) sendMessage({ type: "channel", channelId: channel.id, content });
+      else if (friend) sendMessage({ type: "dm", receiverId: friend.id, content });
+    } else {
+      openJamPanel();
+    }
   };
 
   const displayName = channel ? `# ${channel.name}` : friend ? friend.name : "Select a conversation";
@@ -234,15 +328,45 @@ export function OnechatChatContainer({
 
   if (!channel && !friend) {
     return (
-      <div className="oc-chat-center flex items-center justify-center text-center p-8">
-        <div className="max-w-md">
-          <div className="w-14 h-14 rounded-2xl bg-[#17171b] border border-[#25252b] text-[#3b82f6] flex items-center justify-center text-xl font-bold mx-auto mb-3">
-            #
+      <div className="oc-chat-center flex flex-col h-full">
+        {/* Topbar with sidebar toggle */}
+        <header className="oc-chat-topbar">
+          <div className="oc-chat-topbar-left">
+            {onToggleSidebar && (
+              <button
+                type="button"
+                onClick={onToggleSidebar}
+                className="hidden md:flex oc-btn-icon"
+                title={sidebarCollapsed ? "Open sidebar (Ctrl+\\)" : "Close sidebar (Ctrl+\\)"}
+                aria-label="Toggle sidebar"
+              >
+                <SidebarToggleIcon className="w-4 h-4" />
+              </button>
+            )}
+            <span className="text-xs text-[#71717a] font-medium ml-1">No conversation selected</span>
           </div>
-          <h2 className="text-lg font-bold text-[#f4f4f5]">Select a conversation</h2>
-          <p className="text-sm text-[#71717a] mt-1.5 leading-relaxed">
-            Choose a direct message or channel from the left sidebar to start messaging.
-          </p>
+        </header>
+
+        <div className="flex-1 flex items-center justify-center text-center p-8">
+          <div className="max-w-md">
+            <div className="w-14 h-14 rounded-2xl bg-[var(--oc-bg-surface)] border border-[var(--oc-border)] text-[var(--oc-accent)] flex items-center justify-center text-xl font-bold mx-auto mb-3">
+              #
+            </div>
+            <h2 className="text-lg font-bold text-[var(--oc-text-primary)]">Select a conversation</h2>
+            <p className="text-sm text-[var(--oc-text-secondary)] mt-1.5 leading-relaxed">
+              Choose a direct message or channel from the left sidebar to start messaging.
+            </p>
+            {sidebarCollapsed && onToggleSidebar && (
+              <button
+                type="button"
+                onClick={onToggleSidebar}
+                className="mt-4 px-4 py-2 rounded-lg bg-[var(--oc-bg-subtle-accent)] text-[var(--oc-accent)] hover:bg-[var(--oc-bg-hover)] text-xs font-semibold border border-[var(--oc-accent)]/40 inline-flex items-center gap-2 cursor-pointer transition-colors"
+              >
+                <SidebarToggleIcon className="w-4 h-4" />
+                <span>Open Conversations</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -250,31 +374,120 @@ export function OnechatChatContainer({
 
   return (
     <div className="oc-chat-center">
-      {/* ── Topbar / Chat Header ─────────────────────────────────── */}
-      <header className="oc-chat-topbar">
-        <div className="oc-chat-topbar-left">
-          {/* Mobile Back Button */}
-          {onBack && (
+      {/* ── Mobile Topbar / Chat Header (Divriots Mobile Stack Style) ─ */}
+      <header className="md:hidden fixed top-0 inset-x-0 z-50 bg-[#121316]/95 backdrop-blur-xl border-b border-[#22242a] pt-safe shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+        <div className="h-16 px-2 flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                aria-label="Go back"
+                className="w-10 h-10 flex items-center justify-center rounded-full text-[#A78BFA] hover:bg-[#1e2025] transition-colors flex-shrink-0 active:scale-95"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={onBack}
-              className="md:hidden oc-btn-icon"
-              aria-label="Back to conversations"
+              onClick={onToggleRightPanel}
+              className="flex items-center gap-2.5 min-w-0 flex-1 text-left"
             >
-              <ChevronLeft size={20} />
-            </button>
-          )}
+              <div className="relative flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#1e2025] border border-[#22242a] flex items-center justify-center overflow-hidden text-[#A78BFA] font-semibold text-sm">
+                  {displayInitials}
+                </div>
+                {!channel && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#41e575] rounded-full ring-2 ring-[#121316]" />
+                )}
+              </div>
 
-          {/* Toggle Sidebar Collapse - shown ONLY when collapsed to expand */}
-          {sidebarCollapsed && (
+              <div className="flex flex-col min-w-0 flex-1 justify-center">
+                <h1 className="text-[17px] font-semibold text-[#f0f2f5] truncate leading-tight">
+                  {displayName}
+                </h1>
+                <p className="text-[11px] text-[#41e575] flex items-center gap-1 leading-none mt-0.5 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#41e575] inline-block animate-pulse" />
+                  {channel ? `${channelMembers.length || 1} members` : "Online"}
+                </p>
+              </div>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              type="button"
+              aria-label="Start video call"
+              onClick={() => alert("Video calls are scheduled to roll out in the upcoming update.")}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-[#A78BFA] hover:bg-[#1e2025] transition-colors active:scale-95"
+            >
+              <Video size={20} />
+            </button>
+
+            <button
+              type="button"
+              aria-label="Start audio call"
+              onClick={() => alert("Voice calls are scheduled to roll out in the upcoming update.")}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-[#A78BFA] hover:bg-[#1e2025] transition-colors active:scale-95"
+            >
+              <Phone size={19} />
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="More options"
+                  className="w-10 h-10 flex items-center justify-center rounded-full text-[#9ba1a6] hover:bg-[#1e2025] transition-colors active:scale-95"
+                >
+                  <MoreVertical size={20} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-52 bg-[#17171b] text-[#f0f2f5] border-[#25252b] shadow-2xl rounded-xl p-1.5 z-50"
+              >
+                <DropdownMenuItem
+                  className="text-xs focus:bg-[#202026] cursor-pointer rounded-lg px-2.5 py-1.5"
+                  onClick={onToggleRightPanel}
+                >
+                  {rightPanelOpen ? "Hide Details" : "View Details"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs focus:bg-[#202026] cursor-pointer rounded-lg px-2.5 py-1.5"
+                  onClick={() => setPlanDialogOpen(true)}
+                >
+                  Create a Plan
+                </DropdownMenuItem>
+                {isJamFeatureEnabled && (
+                  <DropdownMenuItem
+                    className="text-xs focus:bg-[#202026] cursor-pointer rounded-lg px-2.5 py-1.5 flex items-center gap-2"
+                    onClick={handleOpenJam}
+                  >
+                    <Radio size={14} className="text-[#A78BFA]" />
+                    <span>Open Onechat Jam</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Desktop Topbar / Chat Header ─────────────────────────── */}
+      <header className="hidden md:flex oc-chat-topbar">
+        <div className="oc-chat-topbar-left">
+          {/* Desktop Toggle Conversation Sidebar */}
+          {onToggleSidebar && (
             <button
               type="button"
               onClick={onToggleSidebar}
-              className="oc-btn-icon hidden md:inline-flex active"
-              title="Expand sidebar"
-              aria-label="Expand sidebar"
+              className="hidden md:flex oc-btn-icon"
+              title={sidebarCollapsed ? "Expand sidebar (Ctrl+\\)" : "Collapse sidebar (Ctrl+\\)"}
+              aria-label="Toggle sidebar"
             >
-              <ChevronRight size={18} />
+              <SidebarToggleIcon className="w-4 h-4" />
             </button>
           )}
 
@@ -341,6 +554,18 @@ export function OnechatChatContainer({
             <Video size={18} />
           </button>
 
+          {isJamFeatureEnabled && (
+            <button
+              type="button"
+              onClick={handleOpenJam}
+              className="oc-btn-icon"
+              title="Onechat Jam (Background Radio & Music)"
+              aria-label="Onechat Jam"
+            >
+              <Radio size={18} />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onToggleRightPanel}
@@ -378,9 +603,29 @@ export function OnechatChatContainer({
               >
                 Create a Plan
               </DropdownMenuItem>
+              {isJamFeatureEnabled && (
+                <>
+                  <DropdownMenuItem
+                    className="text-xs focus:bg-[#202026] cursor-pointer flex items-center gap-2"
+                    onClick={handleOpenJam}
+                  >
+                    <Radio size={13} className="text-[#A78BFA]" />
+                    <span>Browse Jam Stations</span>
+                  </DropdownMenuItem>
+                  {currentJamStation && (
+                    <DropdownMenuItem
+                      className="text-xs focus:bg-[#202026] cursor-pointer flex items-center gap-2"
+                      onClick={handleShareJam}
+                    >
+                      <Radio size={13} className="text-[#A78BFA]" />
+                      <span>Share Jam in Chat</span>
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )}
               <DropdownMenuSeparator className="bg-[#25252b]" />
               <DropdownMenuItem
-                className="text-xs text-[#3b82f6] focus:bg-[#202026] cursor-pointer"
+                className="text-xs text-[#f4f4f5] focus:bg-[#202026] cursor-pointer"
                 onClick={() => setPlaceDialogOpen(true)}
               >
                 Share Place Coordinates
@@ -397,7 +642,7 @@ export function OnechatChatContainer({
           initial={{ opacity: 0.94 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="flex-1 flex flex-col min-h-0 relative"
+          className="flex-1 flex flex-col min-h-0 relative pt-16 md:pt-0 pb-20 md:pb-0"
         >
           {deleteError && (
             <div className="px-6 py-2 bg-red-500/10 border-b border-red-500/20 text-xs text-red-400">
@@ -428,13 +673,14 @@ export function OnechatChatContainer({
               }
             }}
             onPlanChanged={handlePlanChanged}
+            onPlanDeleted={handlePlanDeleted}
             refreshToken={planRefreshToken}
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Fixed Message Composer (Inspired by Reference) ───────── */}
-      <div className="oc-composer-container">
+      {/* ── Fixed Message Composer (Divriots Mobile Stack Style) ──── */}
+      <div className="oc-composer-container fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#121316]/95 backdrop-blur-xl border-t border-[#22242a] shadow-[0_-2px_16px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-0 md:shadow-none md:pb-0 px-2 py-2 md:p-3">
         {/* Quick Tools Popover */}
         <AnimatePresence>
           {toolsOpen && (
@@ -453,7 +699,7 @@ export function OnechatChatContainer({
                 }}
                 className="px-2.5 py-1.5 text-xs text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#202026] rounded-md flex items-center gap-1.5 font-medium transition-colors"
               >
-                <FileIcon size={14} className="text-[#3b82f6]" />
+                <FileIcon size={14} className="text-[#A78BFA]" />
                 <span>Upload file</span>
               </button>
 
@@ -465,7 +711,7 @@ export function OnechatChatContainer({
                 }}
                 className="px-2.5 py-1.5 text-xs text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#202026] rounded-md flex items-center gap-1.5 font-medium transition-colors"
               >
-                <Calendar size={14} className="text-[#3b82f6]" />
+                <Calendar size={14} className="text-[#A78BFA]" />
                 <span>Create plan</span>
               </button>
 
@@ -477,7 +723,7 @@ export function OnechatChatContainer({
                 }}
                 className="px-2.5 py-1.5 text-xs text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#202026] rounded-md flex items-center gap-1.5 font-medium transition-colors"
               >
-                <MapPin size={14} className="text-[#3b82f6]" />
+                <MapPin size={14} className="text-[#A78BFA]" />
                 <span>Share place</span>
               </button>
 
@@ -489,9 +735,23 @@ export function OnechatChatContainer({
                 }}
                 className="px-2.5 py-1.5 text-xs text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#202026] rounded-md flex items-center gap-1.5 font-medium transition-colors"
               >
-                <Vote size={14} className="text-[#3b82f6]" />
+                <Vote size={14} className="text-[#A78BFA]" />
                 <span>Create poll</span>
               </button>
+
+              {isJamFeatureEnabled && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleOpenJam();
+                    setToolsOpen(false);
+                  }}
+                  className="px-2.5 py-1.5 text-xs text-[#a1a1aa] hover:text-[#f4f4f5] hover:bg-[#202026] rounded-md flex items-center gap-1.5 font-medium transition-colors"
+                >
+                  <Radio size={14} className="text-[#A78BFA]" />
+                  <span>Start a Jam</span>
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -517,9 +777,16 @@ export function OnechatChatContainer({
           }}
         />
 
-        {/* Composer Rounded Bar */}
+        {/* Recorder Error Banner */}
+        {recorderError && (
+          <div className="mb-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between">
+            <span>{recorderError}</span>
+          </div>
+        )}
+
+        {/* Composer Form / Row */}
         <form
-          className="oc-composer-box"
+          className="flex items-center gap-2 w-full"
           onSubmit={(e) => {
             e.preventDefault();
             if (canSend) handleSend();
@@ -529,70 +796,90 @@ export function OnechatChatContainer({
           <button
             type="button"
             onClick={() => setToolsOpen(!toolsOpen)}
-            className="w-8 h-8 rounded-full bg-[#17171b] text-[#a1a1aa] hover:text-[#f4f4f5] flex items-center justify-center shrink-0 transition-colors"
-            title="Add tools"
-            aria-label="Add tools"
+            className="w-10 h-10 rounded-full text-[#A78BFA] hover:bg-[#1e2025] flex items-center justify-center shrink-0 transition-colors active:scale-95 cursor-pointer"
+            title="Add tools / attachment"
+            aria-label="Attach media"
           >
-            {toolsOpen ? <X size={15} /> : <Plus size={15} />}
+            {toolsOpen ? <X size={20} /> : <Plus size={22} />}
           </button>
 
-          {/* Multiline textarea input */}
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (canSend) handleSend();
-              }
-            }}
-            placeholder="Type a message..."
-            disabled={!connected || uploading}
-            className="oc-composer-input"
-          />
-
-          {/* Emoji button */}
-          <button
-            type="button"
-            onClick={() => setInput((prev) => prev + " 😊")}
-            className="p-1.5 text-[#71717a] hover:text-[#f4f4f5] shrink-0 transition-colors"
-            title="Emoji"
-            aria-label="Emoji"
+          {/* Teams-style input container (Kept visible on large screens when recording) */}
+          <div
+            className={`flex-1 items-center bg-[#1F1F1F] border border-[#333338] rounded-lg px-3.5 py-1.5 min-h-[40px] focus-within:ring-1 focus-within:ring-[#6E53CC] focus-within:border-[#6E53CC] transition-all ${
+              isRecording || !!audioUrl
+                ? "hidden sm:flex opacity-60 pointer-events-none"
+                : "flex"
+            }`}
           >
-            <Smile size={18} />
-          </button>
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (canSend) handleSend();
+                }
+              }}
+              placeholder={isRecording || !!audioUrl ? "Recording audio message..." : "Type a message..."}
+              disabled={!connected || uploading || isRecording || !!audioUrl}
+              className="w-full bg-transparent border-0 outline-none text-[#f0f2f5] placeholder:text-[#8A8A8A] text-sm focus:ring-0 p-0 resize-none max-h-24 leading-snug"
+            />
 
-          {/* Attachment paperclip button */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="p-1.5 text-[#71717a] hover:text-[#f4f4f5] shrink-0 transition-colors"
-            title="Attach file"
-            aria-label="Attach file"
-          >
-            <Paperclip size={18} />
-          </button>
+            {/* Emoji button */}
+            <button
+              type="button"
+              onClick={() => setInput((prev) => prev + " 😊")}
+              className="w-8 h-8 flex items-center justify-center rounded-md text-[#9ba1a6] hover:text-[#f0f2f5] transition-colors shrink-0 cursor-pointer"
+              title="Insert stickers or emoji"
+              aria-label="Insert stickers or emoji"
+            >
+              <Smile size={19} />
+            </button>
+          </div>
 
-          {/* Circular Blue Send Button */}
-          <button
-            type="submit"
-            disabled={!canSend}
-            className="oc-composer-btn-send"
-            title="Send (Enter)"
-            aria-label="Send"
-          >
-            <Send size={15} />
-          </button>
+          {/* Right Action: Voice Recorder Pill if recording/reviewing, otherwise Mic or Send button */}
+          {isRecording || !!audioUrl ? (
+            <VoiceRecorderBar
+              isRecording={isRecording}
+              isPaused={isPaused}
+              recordingDuration={recordingDuration}
+              audioLevels={audioLevels}
+              audioUrl={audioUrl}
+              onPause={pauseRecording}
+              onResume={resumeRecording}
+              onCancel={cancelRecording}
+              onSend={handleSendVoiceNote}
+              onStopToPreview={stopRecording}
+              isUploading={uploading}
+            />
+          ) : (
+            <button
+              type={canSend ? "submit" : "button"}
+              disabled={!connected || uploading}
+              onClick={(e) => {
+                if (!canSend) {
+                  e.preventDefault();
+                  handleStartVoiceRecording();
+                }
+              }}
+              className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#6E53CC] text-white hover:bg-[#7E64E0] active:scale-95 transition-all shadow-[0_2px_12px_rgba(110,83,204,0.35)] shrink-0 cursor-pointer"
+              title={canSend ? "Send message (Enter)" : "Record voice message"}
+              aria-label={canSend ? "Send message" : "Record voice message"}
+            >
+              {canSend ? <Send size={18} /> : <Mic size={20} />}
+            </button>
+          )}
         </form>
       </div>
 
-      {/* Plan Composer Modal */}
-      <PlanComposerDialog
-        open={planDialogOpen}
-        onOpenChange={setPlanDialogOpen}
-        onSubmit={handleCreatePlan}
+      {/* Create Plan Modal */}
+      <CreatePlanModal
+        isOpen={planDialogOpen}
+        onClose={() => setPlanDialogOpen(false)}
+        onCreatePlan={handleCreatePlan}
+        conversationName={displayName}
       />
 
       {/* Place Message Modal */}

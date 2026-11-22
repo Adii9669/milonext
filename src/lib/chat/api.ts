@@ -6,7 +6,7 @@ export const getChannelHistory = async (
     channelId: string,
     limit = 50,
     cursor?: string
-) => {
+): Promise<PaginatedMessages> => {
     let url = `/api/chats/channel/${channelId}?limit=${limit}`;
 
     if (cursor) {
@@ -27,13 +27,8 @@ export const getDmHistory = async (
     url += `&cursor=${encodeURIComponent(cursor)}`;
   }
 
-  const res = await fetch(url, {
-    method: "GET",
-    credentials: "include",
-  });
-
   return apiFetch(url);
-}
+};
 
 
 

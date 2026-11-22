@@ -17,6 +17,8 @@ const responseOptions: Array<{ value: PlanResponseStatus; label: string }> = [
   { value: "cant_make_it", label: "Can't make it" },
 ];
 
+const participantsCache = new Map<string, { data: PlanParticipationSummary; timestamp: number }>();
+
 function responseLabel(response: PlanResponseStatus | null): string {
   switch (response) {
     case "in": return "In";
@@ -27,21 +29,40 @@ function responseLabel(response: PlanResponseStatus | null): string {
 }
 
 export function PlanParticipationPanel({ planId, currentUserId, responseAllowed, refreshToken }: PlanParticipationPanelProps) {
-  const [summary, setSummary] = useState<PlanParticipationSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<PlanParticipationSummary | null>(() => {
+    return participantsCache.get(planId)?.data ?? null;
+  });
+  const [loading, setLoading] = useState(() => !participantsCache.has(planId));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
+    const cached = participantsCache.get(planId);
+
+    // If we have cached participants within the last 60 seconds and no manual refresh was requested, use cache
+    if (cached && Date.now() - cached.timestamp < 60_000 && refreshToken === 0) {
+      setSummary(cached.data);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    setSummary(null);
     setError("");
     getPlanParticipants(planId)
-      .then((result) => { if (active) setSummary(result); })
-      .catch((reason: unknown) => { if (active) setError(reason instanceof Error ? reason.message : "Could not load participants."); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .then((result) => {
+        participantsCache.set(planId, { data: result, timestamp: Date.now() });
+        if (active) setSummary(result);
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : "Could not load participants.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [planId, refreshToken]);
 
   const ownResponse = summary?.participants.find((participant) => participant.userId === currentUserId)?.response ?? null;
@@ -51,7 +72,9 @@ export function PlanParticipationPanel({ planId, currentUserId, responseAllowed,
     setSaving(true);
     setError("");
     try {
-      setSummary(await setPlanResponse(planId, response));
+      const updated = await setPlanResponse(planId, response);
+      participantsCache.set(planId, { data: updated, timestamp: Date.now() });
+      setSummary(updated);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not update your response.");
     } finally {
@@ -67,7 +90,7 @@ export function PlanParticipationPanel({ planId, currentUserId, responseAllowed,
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/70" aria-live="polite">
           <span>In: {summary.inCount}</span>
           <span>Maybe: {summary.maybeCount}</span>
-          <span>Can't make it: {summary.cantMakeItCount}</span>
+          <span>Can&apos;t make it: {summary.cantMakeItCount}</span>
           <span>Pending: {summary.pendingResponseCount}</span>
         </div>
         {responseAllowed && currentUserId && summary.participants.some((participant) => participant.userId === currentUserId) && <div className="mt-2 flex flex-wrap gap-2" aria-label="Your response">

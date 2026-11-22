@@ -76,18 +76,19 @@
 .chat-bubble-sent {
   background: var(--message-sent);
   color: #fff;
-  border-radius: 20px 20px 5px 20px;
-  padding: 11px 15px;
-  box-shadow: 0 2px 5px rgba(31, 116, 183, 0.12);
+  border-radius: 8px 8px 2px 8px;
+  border: 1px solid #383844;
+  padding: 8px 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 
 .chat-bubble-received {
   background: var(--message-received);
   color: var(--text-primary);
-  border: 1px solid color-mix(in srgb, var(--foreground) 6%, transparent);
-  border-radius: 20px 20px 20px 5px;
-  padding: 11px 15px;
-  box-shadow: 0 2px 5px rgba(28, 22, 35, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px 8px 8px 2px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .chat-composer-send { background: var(--message-sent); color: #fff; }
@@ -149,7 +150,7 @@
 [data-theme="dark"] .chat-bubble-sent {
   background: var(--message-sent);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(31, 86, 174, 0.2);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 
 [data-theme="dark"] .chat-bubble-received {

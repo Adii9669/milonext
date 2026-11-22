@@ -12,16 +12,6 @@ export function VerifyOTPForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
 
-  if (!email) {
-    return (
-      <AuthPageLayout>
-        <div className="rounded-[2rem] border border-border bg-surface p-8 text-center shadow-[var(--shadow-soft)]">
-          <p className="text-sm font-semibold text-error">Invalid or missing email address.</p>
-        </div>
-      </AuthPageLayout>
-    );
-  }
-
   const {
     otp,
     setOtp,
@@ -31,7 +21,17 @@ export function VerifyOTPForm() {
     inputRefs,
     handleResend,
     handleSubmit,
-  } = useVerifyOTP(email);
+  } = useVerifyOTP(email || "");
+
+  if (!email) {
+    return (
+      <AuthPageLayout>
+        <div className="rounded-[2rem] border border-border bg-surface p-8 text-center shadow-[var(--shadow-soft)]">
+          <p className="text-sm font-semibold text-error">Invalid or missing email address.</p>
+        </div>
+      </AuthPageLayout>
+    );
+  }
 
   const isFilled = otp.every((d) => d !== "");
 

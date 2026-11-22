@@ -30,12 +30,19 @@ export async function handleResponse(
             ) === "true";
 
         if (tokenExpired) {
+            const isAuthOrPublicPage =
+                typeof window !== "undefined" &&
+                (window.location.pathname.startsWith("/auth") ||
+                 window.location.pathname.startsWith("/login") ||
+                 window.location.pathname.startsWith("/signup") ||
+                 window.location.pathname.startsWith("/home") ||
+                 window.location.pathname === "/");
 
             // Never loop forever if the retried request is still rejected.
             if (retried) {
-
-                window.location.href =
-                    "/auth/login";
+                if (!isAuthOrPublicPage && typeof window !== "undefined") {
+                    window.location.href = "/login";
+                }
 
                 throw new Error(
                     "Session expired"
@@ -43,7 +50,6 @@ export async function handleResponse(
             }
 
             try {
-
                 await refreshToken();
 
                 const retryResponse =
@@ -56,9 +62,9 @@ export async function handleResponse(
                 );
 
             } catch {
-
-                window.location.href =
-                    "/auth/login";
+                if (!isAuthOrPublicPage && typeof window !== "undefined") {
+                    window.location.href = "/login";
+                }
 
                 throw new Error(
                     "Session expired"

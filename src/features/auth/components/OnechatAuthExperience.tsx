@@ -121,6 +121,7 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
 
   // Real auth engines
   const login = useLogin();
+  const { setValue: setLoginValue } = login;
   const registerAuth = useRegister((registeredEmail: string) => {
     setVerifyEmail(registeredEmail);
     setOtpError(null);
@@ -133,6 +134,16 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
     name: "password",
     defaultValue: "",
   });
+
+  // Auto-fill demo credentials if ?demo=... query param is present
+  useEffect(() => {
+    const demoParam = searchParams.get("demo");
+    if (demoParam) {
+      const demoUser = demoParam === "true" ? "adii" : demoParam;
+      setLoginValue("username", demoUser);
+      setLoginValue("password", "password123");
+    }
+  }, [searchParams, setLoginValue]);
 
   // Calculate live password strength
   const strength = useMemo(() => {
@@ -335,14 +346,14 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
 
       {/* Minimal Top Header */}
       <header className="oa-topbar">
-        <Link href="/" className="oa-topbar-brand">
+        <Link href="/home" className="oa-topbar-brand">
           <span className="oa-topbar-logo">Onechat</span>
           <span className="oa-topbar-badge">Always Building</span>
         </Link>
 
         <nav className="oa-topbar-nav" aria-label="Quick Navigation">
-          <Link href="/" className="oa-topbar-link">
-            ← Back to Home
+          <Link href="/home" className="oa-topbar-link">
+            ← Explore Portfolio (/home)
           </Link>
         </nav>
       </header>
@@ -563,6 +574,26 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
                     <label htmlFor={`${uid}-remember`} className="oa-checkbox-label">
                       Keep me signed in on this device
                     </label>
+                  </div>
+
+                  {/* Quick Test Credentials Box */}
+                  <div className="my-3 p-2.5 rounded-xl bg-[#1C1C24] border border-[#2C2C36] flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
+                      <span className="text-[#A1A1AA]">
+                        Demo: <strong className="text-white font-mono">adii</strong> / <span className="font-mono text-[#A1A1AA]">password123</span>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        login.setValue("username", "adii");
+                        login.setValue("password", "password123");
+                      }}
+                      className="text-[11px] font-semibold text-[#A78BFA] hover:text-white px-2 py-1 rounded-md bg-[#6E53CC]/15 hover:bg-[#6E53CC]/30 transition-all active:scale-95 cursor-pointer"
+                    >
+                      Fill Demo
+                    </button>
                   </div>
 
                   {/* Submit Button */}

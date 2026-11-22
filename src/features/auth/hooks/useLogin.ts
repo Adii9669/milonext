@@ -35,6 +35,7 @@ export function useLogin() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: {
       errors,
       isSubmitting,
@@ -79,6 +80,7 @@ export function useLogin() {
   return {
     register,
     handleSubmit,
+    setValue,
     errors,
     isSubmitting,
     onSubmit,

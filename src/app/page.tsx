@@ -1,11 +1,11 @@
 "use client";
 
-import HOME from "./home/page";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../features/auth/hooks/useAuth";
+import OnechatAuthExperience from "../features/auth/components/OnechatAuthExperience";
 
-export default function Home() {
+export default function RootLandingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -18,5 +18,5 @@ export default function Home() {
 
   if (loading) return null;
 
-  return <HOME />;
+  return <OnechatAuthExperience initialMode="login" />;
 }

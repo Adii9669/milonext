@@ -64,7 +64,10 @@ jobs:
 
       - name: Configure Server URL (if provided)
         run: |
-          SERVER_URL="${{ github.event.inputs.server_url || 'http://192.168.29.254:3000' }}"
+          SERVER_URL="${{ github.event.inputs.server_url }}"
+          if [ -z "$SERVER_URL" ]; then
+            SERVER_URL="http://192.168.29.254:3000"
+          fi
           echo "Building APK pointing to: $SERVER_URL"
           export CAPACITOR_SERVER_URL="$SERVER_URL"
           pnpm exec cap sync android

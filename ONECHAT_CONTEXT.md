@@ -408,6 +408,37 @@ Finite provider tracks (Audius/Jamendo) play as a queue; live radio remains a si
 
 > **Maintenance rule:** every agent must append a dated entry here after finishing work — what changed, what was verified, and the next step. Keep the newest entry at the top. This is how the next agent picks up without re-discovery.
 
+### 2026-11-24 — Loading screen until the app page is ready
+
+**Cause of the white screen**
+- The shipped `splash.png` is solid white and `launchAutoHide` hid it after only 1500 ms, while the WebView still had to fetch the remote Vercel page and resolve auth. `AppTheme.NoActionBar` also had a null/white background.
+- Root `/` renders `null` while `useAuthStore.isLoading` is true, so there was nothing else to paint in that gap.
+
+**Changes**
+- Native (`capacitor.config.ts`, `res/values/colors.xml`, `res/values/styles.xml`, new `res/layout/oc_splash_layout.xml`): dark `#09090B` splash theme with launcher icon, dark WebView background, branded progress layout for pre-Android-12, `launchShowDuration` 10000 ms as a failsafe, 250 ms fade-out.
+- Web (`src/shared/components/BootSplash.tsx`, `src/styles/components/boot-splash.css`, `src/app/layout.tsx`, `src/styles/globals.css`): server-rendered full-screen brand loader with logo + spinner. It stays until `window.load` has fired **and** auth initialization has finished (min 600 ms, 10 s hard failsafe), then calls `SplashScreen.hide()` on native and unmounts.
+
+**Verified**
+- `pnpm exec tsc --noEmit` exit 0; `pnpm lint` exit 0 (81 warnings, unchanged); `pnpm build` compiled and generated 11/11 pages.
+- Production SSR HTML contains `oc-boot-splash`, logo, wordmark and spinner markup.
+- `pnpm exec cap sync android` + `./gradlew clean assembleDebug` → BUILD SUCCESSFUL; APK contains `color/oc_splash_background`, `layout/oc_splash_layout` and the dark `windowSplashScreenBackground`.
+
+**Next steps**
+1. Deploy the frontend to Vercel — the web loader is only effective once the remote page is updated.
+2. Push/tag a new release so CI rebuilds the APK with the native splash changes. Note the GitHub `v1.0.8` certificate differs from earlier releases, so existing installs must be uninstalled first.
+3. `public/onechat.apk` was intentionally not refreshed (large binary); the release workflow builds a fresh APK from source.
+
+### 2026-11-24 — "App not installed" from GitHub release APK — root cause
+
+**Investigated**
+- User downloaded the APK from a GitHub release tag and got "App not installed".
+- Verified both release APKs are structurally valid and correctly signed (v2): `v1.0.3` cert SHA-256 `0040e769…` (matches the local/debug keystore), `v1.0.8` cert SHA-256 `20dcde32…` (different, CI-generated key).
+- Both declare `com.onechat.app`, versionCode 1 / versionName 1.0, minSdk 24 / targetSdk 35.
+- Root cause: installing `v1.0.8` over an existing Onechat install signed with the other key → Android rejects it as a signature mismatch.
+
+**Immediate workaround:** uninstall the existing Onechat app, then install `v1.0.8`.
+**Durable fix (not applied):** check in a stable signing keystore and reference it from `app/build.gradle` for debug/release; bump `versionCode` for every release tag.
+
 ### 2026-11-24 — Android CI duplicate-class root cause + dependency audit
 
 **Investigated**

@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -84,6 +85,16 @@ public class MediaPlaybackService extends Service implements
         return START_NOT_STICKY;
     }
 
+    private void startMediaForeground(Notification notification) {
+        // Typed foreground services start at API 29; minSdk is 24.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
+    }
+
     private void playStream(String url) {
         stopMediaPlayer();
 
@@ -93,7 +104,7 @@ public class MediaPlaybackService extends Service implements
         }
 
         notifyState("loading");
-        startForeground(NOTIFICATION_ID, buildNotification(false, "Connecting..."));
+        startMediaForeground(buildNotification(false, "Connecting..."));
 
         try {
             mediaPlayer = new MediaPlayer();
@@ -120,7 +131,7 @@ public class MediaPlaybackService extends Service implements
         mp.start();
         isPlaying = true;
         notifyState("playing");
-        startForeground(NOTIFICATION_ID, buildNotification(true, currentArtist));
+        startMediaForeground(buildNotification(true, currentArtist));
     }
 
     private void pauseStream() {
@@ -128,7 +139,7 @@ public class MediaPlaybackService extends Service implements
             mediaPlayer.pause();
             isPlaying = false;
             notifyState("paused");
-            startForeground(NOTIFICATION_ID, buildNotification(false, currentArtist));
+            startMediaForeground(buildNotification(false, currentArtist));
         }
     }
 
@@ -138,7 +149,7 @@ public class MediaPlaybackService extends Service implements
                 mediaPlayer.start();
                 isPlaying = true;
                 notifyState("playing");
-                startForeground(NOTIFICATION_ID, buildNotification(true, currentArtist));
+                startMediaForeground(buildNotification(true, currentArtist));
             }
         }
     }
@@ -148,7 +159,7 @@ public class MediaPlaybackService extends Service implements
         notifyState("idle");
         stopMediaPlayer();
         abandonAudioFocus();
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
     }
 
     private void stopMediaPlayer() {
@@ -162,6 +173,8 @@ public class MediaPlaybackService extends Service implements
         }
     }
 
+    // The listener-based overloads are the only option on API 24/25 (minSdk).
+    @SuppressWarnings("deprecation")
     private boolean requestAudioFocus() {
         if (audioManager == null) return false;
 
@@ -181,6 +194,8 @@ public class MediaPlaybackService extends Service implements
         }
     }
 
+    // The listener-based overloads are the only option on API 24/25 (minSdk).
+    @SuppressWarnings("deprecation")
     private void abandonAudioFocus() {
         if (audioManager == null) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && focusRequest != null) {
@@ -213,7 +228,7 @@ public class MediaPlaybackService extends Service implements
         isPlaying = false;
         stopMediaPlayer();
         abandonAudioFocus();
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
         notifyState("error");
         return true;
     }
@@ -225,7 +240,7 @@ public class MediaPlaybackService extends Service implements
         isPlaying = false;
         stopMediaPlayer();
         abandonAudioFocus();
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
         notifyState("ended");
     }
 

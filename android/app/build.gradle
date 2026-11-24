@@ -24,9 +24,17 @@ android {
     }
 }
 
-repositories {
-    flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+configurations.all {
+    // Kotlin 1.8+ merged these into kotlin-stdlib; keeping the legacy
+    // artifacts on the classpath duplicates their JDK extension classes.
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+
+    // lifecycle-common 2.6.2 requests coroutines 1.6.4, which still pulls
+    // stdlib-jdk7/jdk8. 1.8.x depends on kotlin-stdlib only.
+    resolutionStrategy {
+        force 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+        force 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1'
     }
 }
 

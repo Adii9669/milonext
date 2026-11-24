@@ -408,6 +408,37 @@ Finite provider tracks (Audius/Jamendo) play as a queue; live radio remains a si
 
 > **Maintenance rule:** every agent must append a dated entry here after finishing work — what changed, what was verified, and the next step. Keep the newest entry at the top. This is how the next agent picks up without re-discovery.
 
+### 2026-11-24 — Android CI duplicate-class root cause + dependency audit
+
+**Investigated**
+- Fresh CI `./gradlew assembleDebug` failed at `:app:checkDebugDuplicateClasses`: `kotlin-stdlib:1.8.22` vs `kotlin-stdlib-jdk7/jdk8:1.6.21` duplicate classes.
+- Root cause chain (from committed HEAD): `appcompat:1.7.0` → `lifecycle-common:2.6.2` → `kotlinx-coroutines-android:1.6.4` → `kotlin-stdlib-jdk7/jdk8:1.6.21`. Kotlin 1.8+ merged these artifacts into `kotlin-stdlib`, so both on the classpath collide.
+- **Local green / CI red explained:** `android/app/build.gradle` contains the exclude fix only in the working tree (` M android/app/build.gradle`); CI builds committed code without it.
+- Full report written to [ANDROID_DEPENDENCY_AUDIT.md](file:///home/adii/Projects/miloverse/frontend/ANDROID_DEPENDENCY_AUDIT.md): version table, deprecated items, exact fixes, verification.
+
+**Verified**
+- `dependencyInsight` on HEAD confirms the chain; with the working-tree fix it reports no matching dependency.
+- `./gradlew clean assembleDebug --rerun-tasks` with the fix: **BUILD SUCCESSFUL**, 190 tasks executed (matches fresh CI).
+- Coroutines POMs checked: 1.6.4 → `stdlib-jdk8:1.6.21`; 1.8.0+ → `kotlin-stdlib` only (clean root-cause fix).
+- `pnpm lint` actually exits 0 (81 warnings, 0 errors) — earlier note about ESLint/plugin incompatibility was stale and is corrected.
+
+**Fixes applied (all uncommitted)**
+- `android/app/build.gradle`: removed unused `flatDir` + redundant constraints; force `kotlinx-coroutines-android/core-jvm:1.8.1`; keep excludes as a safety net. Resolved `kotlin-stdlib` now uniformly 1.9.21.
+- `MediaPlaybackService.java`: typed `startMediaForeground()` helper (API 29+ with 24–28 fallback), `stopForeground(STOP_FOREGROUND_REMOVE)` at all 3 sites, `@SuppressWarnings("deprecation")` on the legacy audio-focus methods needed for API 24/25.
+- `AndroidManifest.xml`: **registered `.MediaPlaybackService`** — it was missing entirely, so native playback could not have worked. Permission was already present.
+- `package.json` / `pnpm-lock.yaml`: removed deprecated `@studio-freight/lenis` (code already imports `lenis`).
+- `public/onechat.apk`: refreshed from the clean debug build so the downloadable binary matches the fixed source.
+
+**Verified after fixes**
+- `./gradlew clean assembleDebug --rerun-tasks` with `-Xlint:deprecation` — BUILD SUCCESSFUL, 0 deprecation warnings from app sources.
+- `dependencyInsight` — no `kotlin-stdlib-jdk8`; coroutines `1.6.4 -> 1.8.1`; all stdlib requests → 1.9.21.
+- `pnpm exec tsc --noEmit`, `pnpm lint` (81 warnings, 0 errors), `pnpm build` — all pass.
+
+**Next steps**
+1. **Commit the changes** so CI picks them up (only remaining build blocker).
+2. Separate task: AGP 8.13 → 9.x / Gradle 9.x / compileSdk 36-37 migration (do not bundle with the CI fix).
+3. Logged-in browser playback smoke test for Jam (still outstanding from web phase).
+
 ### 2026-11-22 — Fixed Jam Visibility & Navigation Across Sidebar & Chat
 
 **Fixed & Polished**

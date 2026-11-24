@@ -25,7 +25,7 @@ import {
     useCheckUsername,
 } from "./useCheckUsername";
 
-export function useRegister(onSuccess?: (email: string) => void) {
+export function useRegister() {
 
     const router = useRouter();
 
@@ -77,11 +77,9 @@ export function useRegister(onSuccess?: (email: string) => void) {
                     data.password,
             });
 
-            if (onSuccess) {
-                onSuccess(data.email);
-            } else {
-                router.push(`/auth/verifyEmail?email=${encodeURIComponent(data.email)}`);
-            }
+            // Verification is temporarily disabled. Send the user to login so
+            // they can sign in immediately; re-enable OTP verification later.
+            router.push("/login?registered=true");
 
         } catch (error) {
 

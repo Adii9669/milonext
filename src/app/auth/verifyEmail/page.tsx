@@ -1,10 +1,7 @@
-import { Suspense } from "react";
-import OnechatAuthExperience from "@/src/features/auth/components/OnechatAuthExperience";
+import { redirect } from "next/navigation";
 
+// OTP verification is temporarily disabled. The old verification route now
+// sends users to login; restore this page when verification is re-enabled.
 export default function VerifyEmailPage() {
-  return (
-    <Suspense fallback={null}>
-      <OnechatAuthExperience initialMode="signup" initialVerify={true} />
-    </Suspense>
-  );
+  redirect("/login");
 }

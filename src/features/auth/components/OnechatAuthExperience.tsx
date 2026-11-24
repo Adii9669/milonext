@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useId, useMemo, useEffect, useRef, Suspense } from "react";
+import React, { useState, useId, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -8,13 +8,10 @@ import { useWatch } from "react-hook-form";
 import { GuestGuard } from "../gaurds/GeustGaurd";
 import { useLogin } from "../hooks/useLogin";
 import { useRegister } from "../hooks/useRegister";
-import { verifyOTP, resendOTP } from "../api/otpApi";
-import { useAuthStore } from "../stores/authStores";
 import { UsernameStatus } from "./UsernameStatus";
 
 interface Props {
   initialMode?: "login" | "signup";
-  initialVerify?: boolean;
 }
 
 // Directional Motion Variants for Flawless Forward & Reverse Transitions
@@ -57,7 +54,7 @@ const formCardVariants: Variants = {
   }),
 };
 
-function AuthExperienceInner({ initialMode = "login", initialVerify = false }: Props) {
+function AuthExperienceInner({ initialMode = "login" }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -69,22 +66,6 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
 
   // Direction: 1 = forward (login -> signup), -1 = reverse (signup -> login)
   const [direction, setDirection] = useState<1 | -1>(initialMode === "signup" ? 1 : -1);
-
-  // Email verification state
-  const emailParam = searchParams.get("email") || "";
-  const shouldVerifyInitial =
-    initialVerify || searchParams.get("verify") === "true" || (initialMode === "signup" && !!emailParam);
-
-  const [verifyEmail, setVerifyEmail] = useState<string | null>(
-    shouldVerifyInitial && emailParam ? emailParam : null
-  );
-  const [otpDigits, setOtpDigits] = useState<string[]>(new Array(6).fill(""));
-  const [otpError, setOtpError] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [resendSuccess, setResendSuccess] = useState(false);
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const setUser = useAuthStore((state) => state.setUser);
 
   // Check if user was redirected immediately after registering
   const isRegisteredSuccess = searchParams.get("registered") === "true";
@@ -98,15 +79,6 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
       setMode(targetMode);
     }
   }, [pathname, mode]);
-
-  // Resend cooldown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const interval = setInterval(() => {
-      setResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [resendCooldown]);
 
   // Password visibility states
   const [showLoginPw, setShowLoginPw] = useState(false);
@@ -122,11 +94,7 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
   // Real auth engines
   const login = useLogin();
   const { setValue: setLoginValue } = login;
-  const registerAuth = useRegister((registeredEmail: string) => {
-    setVerifyEmail(registeredEmail);
-    setOtpError(null);
-    setOtpDigits(new Array(6).fill(""));
-  });
+  const registerAuth = useRegister();
 
   // Watch register password for live strength calculation
   const regPassword = useWatch({
@@ -171,90 +139,8 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
     const newDir = target === "signup" ? 1 : -1;
     setDirection(newDir);
     setMode(target);
-    if (target === "login") {
-      setVerifyEmail(null);
-    }
     const targetUrl = target === "signup" ? "/signup" : "/login";
     router.push(targetUrl, { scroll: false });
-  };
-
-  // OTP handlers
-  const handleOtpChange = (index: number, val: string) => {
-    const char = val.replace(/\D/g, "").slice(-1);
-    const updated = [...otpDigits];
-    updated[index] = char;
-    setOtpDigits(updated);
-    if (char && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (!otpDigits[index] && index > 0) {
-        const updated = [...otpDigits];
-        updated[index - 1] = "";
-        setOtpDigits(updated);
-        otpInputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pasted) return;
-    const updated = [...otpDigits];
-    for (let i = 0; i < 6; i++) {
-      updated[i] = pasted[i] || "";
-    }
-    setOtpDigits(updated);
-    const nextIndex = Math.min(pasted.length, 5);
-    otpInputRefs.current[nextIndex]?.focus();
-  };
-
-  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = otpDigits.join("");
-    if (code.length !== 6) {
-      setOtpError("Please enter all 6 digits of your verification code.");
-      return;
-    }
-    if (!verifyEmail) return;
-
-    setIsVerifying(true);
-    setOtpError(null);
-    try {
-      const res: any = await verifyOTP(verifyEmail, code);
-      if (res?.user) {
-        setUser(res.user);
-      }
-      router.push("/connect");
-    } catch (err: any) {
-      setOtpError(
-        err instanceof Error ? err.message : "Verification code is incorrect or expired."
-      );
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    if (resendCooldown > 0 || !verifyEmail) return;
-    try {
-      await resendOTP(verifyEmail);
-      setResendSuccess(true);
-      setOtpError(null);
-      setResendCooldown(30);
-      otpInputRefs.current[0]?.focus();
-      setTimeout(() => setResendSuccess(false), 4000);
-    } catch (err: any) {
-      setOtpError(err instanceof Error ? err.message : "Failed to resend verification code.");
-    }
   };
 
   return (
@@ -365,40 +251,23 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
           <AnimatePresence mode="wait" custom={direction}>
             {isSignup ? (
               <motion.div
-                key={verifyEmail ? "verify-editorial" : "signup-editorial"}
+                key="signup-editorial"
                 custom={direction}
                 variants={editorialVariants}
                 initial="initial"
                 animate="animate"
                 exit="exit"
               >
-                {verifyEmail ? (
-                  <>
-                    <div className="oa-editorial-tag">02 / Frequency Verification</div>
-                    <h1 className="oa-editorial-h1">
-                      Verify your
-                      <br />
-                      <span className="oa-amber-highlight">email.</span>
-                    </h1>
-                    <p className="oa-editorial-sub">
-                      We&apos;ve dispatched a 6-digit confirmation code to activate your account.
-                      Enter the sequence to unlock your Onechat frequency.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="oa-editorial-tag">01 / The Next Chapter</div>
-                    <h1 className="oa-editorial-h1">
-                      Your next chapter
-                      <br />
-                      <span className="oa-amber-highlight">starts here.</span>
-                    </h1>
-                    <p className="oa-editorial-sub">
-                      Create your account and be part of what&apos;s next. Direct, real-time
-                      conversational intimacy built with intent.
-                    </p>
-                  </>
-                )}
+                <div className="oa-editorial-tag">01 / The Next Chapter</div>
+                <h1 className="oa-editorial-h1">
+                  Your next chapter
+                  <br />
+                  <span className="oa-amber-highlight">starts here.</span>
+                </h1>
+                <p className="oa-editorial-sub">
+                  Create your account and be part of what&apos;s next. Direct, real-time
+                  conversational intimacy built with intent.
+                </p>
               </motion.div>
             ) : (
               <motion.div
@@ -627,136 +496,17 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
               </motion.div>
             )}
 
-            {/* SIGN UP FORM VIEW / VERIFICATION VIEW */}
+            {/* SIGN UP FORM VIEW */}
             {isSignup && (
               <motion.div
-                key={verifyEmail ? "form-verify" : "form-signup"}
+                key="form-signup"
                 custom={direction}
                 variants={formCardVariants}
                 initial="initial"
                 animate="animate"
                 exit="exit"
               >
-                {verifyEmail ? (
-                  <div className="oa-verify-container">
-                    {/* Badge showing email and change button */}
-                    <div className="oa-verify-badge">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
-                      <span className="oa-verify-badge-email">{verifyEmail}</span>
-                      <button
-                        type="button"
-                        className="oa-verify-edit-btn"
-                        onClick={() => {
-                          setVerifyEmail(null);
-                          setOtpError(null);
-                        }}
-                      >
-                        Change
-                      </button>
-                    </div>
-
-                    {/* Resend success notice */}
-                    {resendSuccess && (
-                      <div className="oa-alert-success" role="status" style={{ marginBottom: "16px" }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                          <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                        <span>A fresh 6-digit code has been dispatched to your email.</span>
-                      </div>
-                    )}
-
-                    {/* OTP Server Error Alert */}
-                    {otpError && (
-                      <div className="oa-alert-error" role="alert" style={{ marginBottom: "16px" }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="8" x2="12" y2="12" />
-                          <line x1="12" y1="16" x2="12.01" y2="16" />
-                        </svg>
-                        <span>{otpError}</span>
-                      </div>
-                    )}
-
-                    <form className="oa-form" onSubmit={handleVerifyOtpSubmit}>
-                      <div className="oa-field-wrap">
-                        <label className="oa-field-label" style={{ textAlign: "center", display: "block" }}>
-                          Enter 6-Digit Verification Code
-                        </label>
-                        <div className="oa-otp-grid">
-                          {otpDigits.map((digit, index) => (
-                            <input
-                              key={index}
-                              ref={(el) => {
-                                otpInputRefs.current[index] = el;
-                              }}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={1}
-                              value={digit}
-                              autoFocus={index === 0}
-                              className={`oa-otp-box ${digit ? "filled" : ""}`}
-                              onChange={(e) => handleOtpChange(index, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                              onPaste={handleOtpPaste}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Verify Submit Button */}
-                      <button
-                        type="submit"
-                        className="oa-submit-btn"
-                        disabled={isVerifying || otpDigits.join("").length !== 6}
-                      >
-                        {isVerifying ? (
-                          <>
-                            <span className="oa-spinner" />
-                            <span>Verifying Frequency…</span>
-                          </>
-                        ) : (
-                          "Verify Account →"
-                        )}
-                      </button>
-
-                      {/* Resend Cooldown Row */}
-                      <div className="oa-resend-row">
-                        <span style={{ color: "var(--oa-gray)", fontSize: "13px" }}>
-                          Didn&apos;t receive the code?
-                        </span>
-                        <button
-                          type="button"
-                          className="oa-resend-btn"
-                          disabled={resendCooldown > 0 || isVerifying}
-                          onClick={handleResendCode}
-                        >
-                          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                        </button>
-                      </div>
-                    </form>
-
-                    {/* Edit sign up details */}
-                    <p className="oa-switch-footer" style={{ marginTop: "24px" }}>
-                      Wrong email or details?{" "}
-                      <button
-                        type="button"
-                        className="oa-switch-link-btn"
-                        onClick={() => {
-                          setVerifyEmail(null);
-                          setOtpError(null);
-                        }}
-                      >
-                        Edit sign up information
-                      </button>
-                    </p>
-                  </div>
-                ) : (
-                  <>
+                <>
                     {/* Root server error alert */}
                     {registerAuth.errors.root && (
                       <div className="oa-alert-error" role="alert">
@@ -992,8 +742,7 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
                         Log in
                       </button>
                     </p>
-                  </>
-                )}
+                </>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1009,10 +758,7 @@ function AuthExperienceInner({ initialMode = "login", initialVerify = false }: P
   );
 }
 
-export default function OnechatAuthExperience({
-  initialMode = "login",
-  initialVerify = false,
-}: Props) {
+export default function OnechatAuthExperience({ initialMode = "login" }: Props) {
   return (
     <GuestGuard>
       <Suspense
@@ -1022,7 +768,7 @@ export default function OnechatAuthExperience({
           </div>
         }
       >
-        <AuthExperienceInner initialMode={initialMode} initialVerify={initialVerify} />
+        <AuthExperienceInner initialMode={initialMode} />
       </Suspense>
     </GuestGuard>
   );

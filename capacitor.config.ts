@@ -11,11 +11,15 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1500,
+      // Kept as a failsafe: the web app calls SplashScreen.hide() as soon as
+      // it is ready, this timeout only covers a hung/failed page load.
+      launchShowDuration: 10000,
       launchAutoHide: true,
+      launchFadeOutDuration: 250,
       backgroundColor: '#09090B',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
+      layoutName: 'oc_splash_layout',
       showSpinner: false,
     },
     StatusBar: {

@@ -81,6 +81,7 @@
 ========================= */
 
 @import "./components/sidebar.css";
+@import "./components/boot-splash.css";
 @import "./components/chat.css";
 @import "./components/auth.css";
 @import "./components/buttons.css";

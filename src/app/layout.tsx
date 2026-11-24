@@ -6,6 +6,7 @@ import ConditionalNavbar from "@/src/shared/components/Navbar/ConditionalNavbar"
 import ThemeInitializer from "@/src/shared/components/ThemeInitiator";
 import { MiniPlayer } from "@/src/features/Jam/ui/MiniPlayer";
 import { JamPanel } from "@/src/features/Jam/ui/JamPanel";
+import BootSplash from "@/src/shared/components/BootSplash";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
+        <BootSplash />
         <ThemeInitializer />
         <Providers>
           <ConditionalNavbar />

@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     cleartext: true,
-    url: process.env.CAPACITOR_SERVER_URL || 'http://192.168.29.254:3000',
+    url: process.env.CAPACITOR_SERVER_URL || 'https://milonext.vercel.app',
   },
   plugins: {
     SplashScreen: {

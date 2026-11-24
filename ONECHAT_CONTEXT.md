@@ -408,6 +408,46 @@ Finite provider tracks (Audius/Jamendo) play as a queue; live radio remains a si
 
 > **Maintenance rule:** every agent must append a dated entry here after finishing work — what changed, what was verified, and the next step. Keep the newest entry at the top. This is how the next agent picks up without re-discovery.
 
+### 2026-11-24 — Email verification temporarily disabled in the frontend
+
+**Changed (uncommitted)**
+- Successful registration now redirects to `/login?registered=true`; the existing "Account created successfully! Please sign in below." banner is shown on the login form.
+- Removed the OTP state, handlers, resend timer, and verification UI from `OnechatAuthExperience`. It no longer imports or calls `verifyOTP`/`resendOTP` or `useAuthStore`.
+- `useRegister()` no longer takes an `onSuccess` callback; its only caller was updated.
+- `/auth/verifyEmail` now redirects (`307`) to `/login`, so stale links no longer open a dead verification screen.
+- Backend untouched. Login already permits unverified accounts (the `ErrNotVerified` check in `authService.go` is commented out), so signups can sign in immediately.
+
+**Verified**
+- `pnpm exec tsc --noEmit` — clean.
+- `pnpm lint` — 0 errors, 81 pre-existing warnings.
+- `pnpm build` — production build succeeds.
+- `curl` smoke test: `GET /auth/verifyEmail` returns `307` to `/login`.
+
+**Next step**
+- When OTP delivery is restored (Resend + verified domain, backend changes from the report above), reintroduce the verification screen/hook and point `useRegister()` back to `/auth/verifyEmail?email=...`.
+
+### 2026-11-24 — OTP delivery research + production DB repair report (no code changed)
+
+**Investigated**
+- Confirmed the authoritative backend checkout is `/home/adii/Projects/miloverse/backend` (branch `dev`, commit `d01b2e2`); the `/tmp/opencode/milocore` clone was only used for git-history research.
+- Registration returns `201` but `AuthService.Register()` has OTP generation/hashing/storage/send commented out; `EmailService` has a nil client and empty credentials; `AppConfig.Email` is commented out. This exactly explains “registration succeeds, no OTP email”.
+- Confirmed Resend’s `onboarding@resend.dev` restriction: it can only send to the account owner’s address until a custom domain is verified. This is a setup issue, not a provider limitation.
+- Confirmed Render free web services block outbound SMTP ports `25`/`465`/`587`; HTTPS email APIs are unaffected.
+- Confirmed SMS OTP is not free in production: Firebase Phone Auth is Blaze/billed per SMS after a small daily allowance (India `$0.07`/SMS currently), Twilio Verify charges `$0.05` per successful verification plus channel fees and restricts trial sends to verified numbers. Indian OTP SMS also requires TRAI/DLT entity, header, and template registration.
+- Production DB errors traced to: migrations never being run by the normal Render start command (`migrate` CLI arg required; Dockerfile runs `air`), and GORM/pgx prepared-statement caching (`PreferSimpleProtocol: true` is present but commented out in `internals/db/database.go`).
+- Telegram follow-up: Telegram owns its delivery network, so its own login codes can arrive inside the Telegram app (no SMS cost), by SMS, or by call. It also offers Telegram Gateway to third-party apps at `$0.01` per delivered code, but that requires users to have Telegram, share a phone number, and opt in — suitable as a later secondary channel, not as the default Onechat signup flow.
+
+**Recommendation**
+- Use **Resend with a verified custom domain** (`EMAIL_FROM=Onechat <auth@yourdomain.com>`, `RESEND_API=...`) and restore the already-present Resend code path. It is HTTPS, free for 100/day and 3,000/month, and already has a Go SDK dependency.
+- Do not return to SMTP on Render free. Do not switch to SMS for cost reasons. TOTP authenticator apps are genuinely free but change the signup UX.
+- Repair prod by running `go run . migrate` once via Render Shell/one-off job, then enabling `PreferSimpleProtocol: true` for the prepared-statement error.
+
+**Deliverable**
+- Full report: [OTP_DELIVERY_AND_DB_REPAIR_REPORT.md](file:///home/adii/Projects/miloverse/backend/docs/OTP_DELIVERY_AND_DB_REPAIR_REPORT.md).
+
+**Next step**
+- Wait for confirmation that a custom domain is available (or choose a temporary Brevo/SendGrid single-sender path), then implement OTP restoration + both DB fixes together and verify with `go test ./...` plus a local register/verify/resend smoke test.
+
 ### 2026-11-24 — Loading screen until the app page is ready
 
 **Cause of the white screen**
